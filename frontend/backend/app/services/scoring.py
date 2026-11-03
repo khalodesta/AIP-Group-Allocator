@@ -9,6 +9,7 @@ from app.services.normalization import normalize_gender, normalize_university
 def pair_sets(allocation: AllocationSnapshot) -> Dict[str, Set[Tuple[str, str]]]:
     result = {}
     for activity in allocation.activities:
+        if activity.activity_id not in {"main", "quiz", "team", "sports"}: continue
         pairs = set()
         for group in activity.groups:
             pairs.update(tuple(sorted(pair)) for pair in combinations(group.participant_ids, 2))
@@ -23,7 +24,9 @@ def validate_allocation(participants: List[Participant], configuration: Configur
     activity_map = {a.id: a for a in configuration.activities}
     for alloc in allocation.activities:
         ids = [pid for g in alloc.groups for pid in g.participant_ids]
-        if set(ids) != expected:
+        if alloc.activity_id == "bus":
+            if not expected.issubset(set(ids)): errors.append("BUS Teams: one or more new hires are missing")
+        elif set(ids) != expected:
             missing, extra = expected - set(ids), set(ids) - expected
             if missing: errors.append(f"{alloc.activity_name}: missing {sorted(missing)}")
             if extra: errors.append(f"{alloc.activity_name}: unknown {sorted(extra)}")
@@ -31,7 +34,7 @@ def validate_allocation(participants: List[Participant], configuration: Configur
         if duplicates: errors.append(f"{alloc.activity_name}: duplicate assignments {duplicates}")
         cfg = activity_map.get(alloc.activity_id)
         sizes = [len(g.participant_ids) for g in alloc.groups]
-        if sizes and max(sizes) - min(sizes) > 1:
+        if alloc.activity_id != "bus" and sizes and max(sizes) - min(sizes) > 1:
             errors.append(f"{alloc.activity_name}: group sizes are not balanced")
         if cfg and cfg.mode == "max_size" and sizes and max(sizes) > cfg.value:
             errors.append(f"{alloc.activity_name}: maximum group size {cfg.value} exceeded")
@@ -62,6 +65,7 @@ def score_allocation(participants: List[Participant], configuration: Configurati
                           if p.attributes.get(factor.source_column) not in (None, ""))
         total = sum(overall.values()) or 1
         for activity in allocation.activities:
+            if activity.activity_id not in sets: continue
             for group in activity.groups:
                 known = [pmap[x].attributes.get(factor.source_column) for x in group.participant_ids]
                 known = [str(x) for x in known if x not in (None, "")]
@@ -76,6 +80,7 @@ def score_allocation(participants: List[Participant], configuration: Configurati
     known_gender_total = sum(known_genders.values()) or 1
     activity_details = {}
     for activity in allocation.activities:
+        if activity.activity_id not in sets: continue
         details = []
         for group in activity.groups:
             universities = [pmap[pid].attributes.get("UniversityId") or normalize_university(pmap[pid].attributes.get("University")) for pid in group.participant_ids]

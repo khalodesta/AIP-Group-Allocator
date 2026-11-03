@@ -8,7 +8,7 @@ from app.models import *
 from app.services.optimizer import group_sizes, optimize
 from app.services.scoring import score_allocation, validate_allocation
 from app.services.normalization import display_gender, normalize_university, resolve_university, university_directory
-from app.services.excel import blank_template
+from app.services.excel import blank_template, match_chemistry, parse_chemistry
 
 def people(n=30):
     return [Participant(id=f"P{i}", name=f"Person {i}", attributes={"Gender":"Female" if i%2 else "Male", "University":f"University {i%8}"}) for i in range(n)]
@@ -158,3 +158,32 @@ def test_pdf_has_all_activities_all_names_and_no_private_attributes():
     assert all(text.count(person.name)==3 for person in p)
     assert "University 0" not in text and "Female" not in text and "same-university" not in text.lower()
     assert len(reader.pages)==3
+
+def test_business_chemistry_parsing_and_safe_matching():
+    data=workbook([{"Name":"  PERSON-0 ","Primary":"Pioneer","Secondary":"Driver"},
+                   {"Name":"Unknown Person","Primary":"Guardian","Secondary":"Integrator"}])
+    records=parse_chemistry(data); result=match_chemistry(people(3),records)
+    assert result["matched"][0]["participant_id"]=="P0"
+    assert len(result["requires_review"])==1
+
+def test_week2_six_allocations_and_hotel_hard_constraints():
+    cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male" if i<14 else "Female",
+        "University":f"University {i%8}","UniversityId":f"u{i%8}","L3 Offering":["Cyber","Consulting","Audit"][i%3],
+        "Primary Chemistry":["Pioneer","Driver","Guardian","Integrator"][i%4],
+        "Secondary Chemistry":["Driver","Guardian","Integrator","Pioneer"][i%4]}) for i in range(27)]
+    config=Configuration(activities=[Activity(id=x,name=x,mode="max_size",value=6) for x in ("main","quiz","team")],time_limit_seconds=3)
+    request=OptimizeRequest(participants=cohort,configuration=config,
+        faculty_members=[FacultyMember(id=f"f{i}",name=f"Faculty {i}",offering=o) for i,o in enumerate(("Cyber","Consulting","Audit"))],
+        support_members=[SupportMember(id=f"s{i}",name=f"Support {i}") for i in range(5)])
+    allocation=optimize(request); activities={a.activity_id:a for a in allocation.activities}
+    assert set(activities)=={"main","quiz","team","bus","reflection","hotel"}
+    main={pid:g.id for g in activities["main"].groups for pid in g.participant_ids}; pmap={p.id:p for p in cohort}
+    assigned=[pid for room in activities["hotel"].groups for pid in room.participant_ids]
+    assert len(assigned)==len(set(assigned))==27
+    for room in activities["hotel"].groups:
+        assert len(room.participant_ids)<=2
+        if len(room.participant_ids)==2:
+            left,right=room.participant_ids
+            assert pmap[left].attributes["Gender"]==pmap[right].attributes["Gender"]
+            assert main[left]!=main[right]
+    assert sorted(len(g.participant_ids) for g in activities["reflection"].groups)==[9,9,9]

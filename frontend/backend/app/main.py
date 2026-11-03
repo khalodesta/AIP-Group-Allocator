@@ -3,8 +3,8 @@ from collections import Counter
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from app.models import AllocationRequest, OptimizeRequest, ScenarioCompareRequest, SwapRequest
-from app.services.excel import blank_template, export_workbook, parse_excel
+from app.models import AllocationRequest, OptimizeRequest, Participant, ScenarioCompareRequest, SwapRequest
+from app.services.excel import blank_template, export_week2_workbook, export_workbook, match_chemistry, parse_chemistry, parse_excel
 from app.services.pdf_export import export_pdf
 from app.services.optimizer import optimize
 from app.services.scoring import score_allocation, validate_allocation
@@ -24,11 +24,25 @@ async def upload(file: UploadFile = File(...)):
     try:
         participants, columns = parse_excel(data)
     except Exception as exc: raise HTTPException(422, str(exc))
-    missing = [name for name in ("Name", "Gender", "University")
+    missing = [name for name in ("Gender", "University")
                if not any(column.casefold() == name.casefold() for column in columns)]
+    if not any(column.casefold() in {"name", "candidate name"} for column in columns): missing.insert(0, "Candidate Name")
     if missing: raise HTTPException(422, f"Missing required columns: {', '.join(missing)}")
     duplicates = [name for name, count in Counter(p.name.casefold() for p in participants).items() if count > 1]
     return {"participants": [p.model_dump() for p in participants], "columns": columns, "duplicate_names": duplicates}
+
+@app.post("/api/upload/chemistry")
+async def upload_chemistry(file: UploadFile = File(...)):
+    if not file.filename or not file.filename.lower().endswith(".xlsx"): raise HTTPException(400, "Only .xlsx files are accepted")
+    try: return {"records": parse_chemistry(await file.read())}
+    except Exception as exc: raise HTTPException(422, str(exc))
+
+@app.post("/api/chemistry/match")
+def chemistry_match(payload: dict):
+    try:
+        participants = [Participant.model_validate(x) for x in payload.get("participants", [])]
+        return match_chemistry(participants, payload.get("records", []))
+    except Exception as exc: raise HTTPException(422, str(exc))
 
 @app.post("/api/participants/validate")
 def validate_participants(items: list[dict]):
@@ -70,11 +84,27 @@ def swap(request: SwapRequest):
     target = next((a for a in allocation.activities if a.activity_id == request.activity_id), None)
     if not target: raise HTTPException(404, "Activity not found")
     if target.locked: raise HTTPException(409, "This activity is locked")
+    if request.activity_id == "bus":
+        support_ids={member.id for member in request.support_members}
+        if (request.participant_a in support_ids)!=(request.participant_b in support_ids):
+            raise HTTPException(422,"Swap support members with support members, or new hires with new hires, so both BUS Teams remain balanced")
     ga = next((g for g in target.groups if request.participant_a in g.participant_ids), None)
     gb = next((g for g in target.groups if request.participant_b in g.participant_ids), None)
     if not ga or not gb: raise HTTPException(422, "Both participants must be assigned")
     ia, ib = ga.participant_ids.index(request.participant_a), gb.participant_ids.index(request.participant_b)
     ga.participant_ids[ia], gb.participant_ids[ib] = request.participant_b, request.participant_a
+    main = next((a for a in allocation.activities if a.activity_id == "main"), None)
+    hotel = next((a for a in allocation.activities if a.activity_id == "hotel"), None)
+    if main and hotel:
+        main_group={pid:g.id for g in main.groups for pid in g.participant_ids}
+        pmap={p.id:p for p in request.participants}
+        for room in hotel.groups:
+            if len(room.participant_ids)==2:
+                left,right=room.participant_ids
+                if pmap[left].attributes.get("Gender")!=pmap[right].attributes.get("Gender"):
+                    raise HTTPException(422,"Hotel roommates must have the same gender")
+                if main_group[left]==main_group[right]:
+                    raise HTTPException(422,"This change would place two hotel roommates in the same Main Group. Change the hotel pairing first or choose another swap.")
     errors = validate_allocation(request.participants, request.configuration, allocation)
     if errors: raise HTTPException(422, errors)
     return {"allocation": allocation, "metrics": score_allocation(request.participants, request.configuration, allocation)}
@@ -97,8 +127,18 @@ def export(request: AllocationRequest):
 def export_results_pdf(request: AllocationRequest):
     errors=validate_allocation(request.participants,request.configuration,request.allocation)
     if errors: raise HTTPException(422,errors)
-    data=export_pdf(request.participants,request.allocation)
+    data=export_pdf(request.participants,request.allocation,request.support_members,{"main","quiz","team","sports","bus","reflection"})
     return StreamingResponse(io.BytesIO(data),media_type="application/pdf",headers={"Content-Disposition":"attachment; filename=AIP_Group_Allocations.pdf"})
+
+@app.post("/api/export/hotel-pdf")
+def export_hotel_pdf(request: AllocationRequest):
+    data=export_pdf(request.participants,request.allocation,request.support_members,{"hotel"})
+    return StreamingResponse(io.BytesIO(data),media_type="application/pdf",headers={"Content-Disposition":"attachment; filename=AIP_Hotel_Rooms_Private.pdf"})
+
+@app.post("/api/export/editable")
+def export_editable(request: AllocationRequest):
+    data=export_week2_workbook(request.participants,request.allocation,request.faculty_members,request.support_members)
+    return StreamingResponse(io.BytesIO(data),media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",headers={"Content-Disposition":"attachment; filename=AIP_Week2_Allocations.xlsx"})
 
 def sample_frame(blank=False):
     import pandas as pd

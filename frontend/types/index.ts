@@ -1,4 +1,7 @@
 export type Participant={id:string;name:string;attributes:Record<string,string|number|null>};
+export type FacultyMember={id:string;name:string;offering:string};
+export type SupportMember={id:string;name:string};
+export type ChemistryRecord={source_name:string;primary:string;secondary:string;normalized_name:string;participant_id?:string;candidate_ids?:string[]};
 export type Factor={id:string;name:string;source_column:string;data_type:string;strategy:string;weight:number;enabled:boolean;missing_handling:string};
 export type Activity={id:string;name:string;mode:string;value:number;locked:boolean};
 export type Configuration={schema_version:number;activities:Activity[];factors:Factor[];seed:number;time_limit_seconds:number;repeat_weight:number};

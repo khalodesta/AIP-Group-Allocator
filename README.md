@@ -42,7 +42,7 @@ There is no database. Participant and allocation state remains in the browser, w
 
 Create one Vercel project from this repository and set its **Root Directory** to `frontend`. Vercel builds the Next.js interface and the FastAPI entry point in `api/index.py` from that same folder. Production browser requests use same-origin `/api` routes, so `NEXT_PUBLIC_API_URL` is not required on Vercel.
 
-The included `vercel.json` allows the optimizer function up to 60 seconds, and `.python-version` selects Python 3.12. For local development, run the Next.js and FastAPI development servers separately as described below; the frontend automatically uses `http://localhost:8000` in development unless `NEXT_PUBLIC_API_URL` overrides it.
+Vercel automatically detects the FastAPI `app` exported by `api/index.py`, while `.python-version` selects Python 3.12. For local development, run the Next.js and FastAPI development servers separately as described below; the frontend automatically uses `http://localhost:8000` in development unless `NEXT_PUBLIC_API_URL` overrides it.
 
 Participant data is sent explicitly with each operation and is not stored by the server. Configuration presets contain no participant records.
 

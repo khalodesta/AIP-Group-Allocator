@@ -24,6 +24,24 @@ class Participant(BaseModel):
         return value.strip()
 
 
+class FacultyMember(BaseModel):
+    id: str
+    name: str
+    offering: str
+
+
+class SupportMember(BaseModel):
+    id: str
+    name: str
+
+
+class ChemistryRecord(BaseModel):
+    source_name: str
+    primary: str
+    secondary: str
+    participant_id: Optional[str] = None
+
+
 class Factor(BaseModel):
     id: str
     name: str
@@ -75,6 +93,8 @@ class AllocationSnapshot(BaseModel):
 class OptimizeRequest(BaseModel):
     participants: List[Participant]
     configuration: Configuration
+    faculty_members: List[FacultyMember] = Field(default_factory=list)
+    support_members: List[SupportMember] = Field(default_factory=list)
     existing_allocation: Optional[AllocationSnapshot] = None
     regenerate_activity_ids: Optional[List[str]] = None
     locked_assignments: Dict[str, Dict[str, str]] = Field(default_factory=dict)
@@ -84,6 +104,8 @@ class AllocationRequest(BaseModel):
     participants: List[Participant]
     configuration: Configuration
     allocation: AllocationSnapshot
+    faculty_members: List[FacultyMember] = Field(default_factory=list)
+    support_members: List[SupportMember] = Field(default_factory=list)
 
 
 class SwapRequest(AllocationRequest):
@@ -100,4 +122,3 @@ class Scenario(BaseModel):
 class ScenarioCompareRequest(BaseModel):
     participants: List[Participant]
     scenarios: List[Scenario]
-

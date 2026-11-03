@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import io
 import math
 from xml.sax.saxutils import escape
@@ -9,7 +11,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import KeepTogether, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from app.models import AllocationSnapshot, Participant
+from app.models import AllocationSnapshot, Participant, SupportMember
 
 
 ACTIVITY_TITLES = {"main": "MAIN TEAMS", "sports": "SPORTS DAY GROUPS", "quiz": "QUIZ NIGHT GROUPS"}
@@ -31,7 +33,7 @@ def _team_card(group, group_index: int, people: dict[str, str], width: float, co
                                 leading=leading, textColor=colors.HexColor("#17233C"))
     title_style = ParagraphStyle(f"Team-{group_index}", fontName="Helvetica-Bold", fontSize=font_size + 1,
                                  leading=leading + 1, textColor=colors.white)
-    rows = [[Paragraph(_team_label(group_index), title_style), ""]]
+    rows = [[Paragraph(escape(group.name or _team_label(group_index)), title_style), ""]]
     rows.extend([str(i), Paragraph(escape(people.get(pid, pid)), name_style)]
                 for i, pid in enumerate(group.participant_ids, 1))
     number_width = 7 * mm
@@ -53,9 +55,12 @@ def _team_card(group, group_index: int, people: dict[str, str], width: float, co
     return card
 
 
-def export_pdf(participants: list[Participant], allocation: AllocationSnapshot) -> bytes:
+def export_pdf(participants: list[Participant], allocation: AllocationSnapshot,
+               support_members: list[SupportMember] | None = None,
+               activity_ids: set[str] | None = None) -> bytes:
     output = io.BytesIO()
     people = {person.id: person.name for person in participants}
+    people.update({person.id: person.name for person in (support_members or [])})
     document = SimpleDocTemplate(output, pagesize=A4, rightMargin=14 * mm, leftMargin=14 * mm,
                                  topMargin=12 * mm, bottomMargin=12 * mm,
                                  title="AIP Group Allocations", author="AIP Onboarding Program")
@@ -69,7 +74,8 @@ def export_pdf(participants: list[Participant], allocation: AllocationSnapshot) 
                               textColor=colors.HexColor("#64748B"), alignment=TA_CENTER, spaceAfter=8)
     usable_width = A4[0] - 28 * mm
 
-    for activity_index, activity in enumerate(allocation.activities):
+    selected = [a for a in allocation.activities if activity_ids is None or a.activity_id in activity_ids]
+    for activity_index, activity in enumerate(selected):
         if activity_index:
             story.append(PageBreak())
         story.extend([Paragraph("AIP ONBOARDING PROGRAM", program),
