@@ -1,0 +1,1569 @@
+{
+  "schema_version": 1,
+  "description": "Universities and university branches verified from official Egyptian higher-education listings; higher institutes are excluded.",
+  "sources": [
+    "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+    "https://scu.eg/en/universities-and-institutions/"
+  ],
+  "universities": [
+    {
+      "id": "eg-cairo-university",
+      "official_english_name": "Cairo University",
+      "official_arabic_name": "جامعة القاهرة",
+      "abbreviations": [
+        "CU"
+      ],
+      "english_variations": [],
+      "arabic_variations": [
+        "جامعه القاهره"
+      ],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-alexandria-university",
+      "official_english_name": "Alexandria University",
+      "official_arabic_name": "جامعة الإسكندرية",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [
+        "جامعه الاسكندريه"
+      ],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-ain-shams-university",
+      "official_english_name": "Ain Shams University",
+      "official_arabic_name": "جامعة عين شمس",
+      "abbreviations": [
+        "ASU"
+      ],
+      "english_variations": [],
+      "arabic_variations": [
+        "جامعه عين شمس"
+      ],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-assiut-university",
+      "official_english_name": "Assiut University",
+      "official_arabic_name": "جامعة أسيوط",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [
+        "جامعه اسيوط"
+      ],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-tanta-university",
+      "official_english_name": "Tanta University",
+      "official_arabic_name": "جامعة طنطا",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-mansoura-university",
+      "official_english_name": "Mansoura University",
+      "official_arabic_name": "جامعة المنصورة",
+      "abbreviations": [
+        "MU"
+      ],
+      "english_variations": [],
+      "arabic_variations": [
+        "جامعه المنصوره"
+      ],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-zagazig-university",
+      "official_english_name": "Zagazig University",
+      "official_arabic_name": "جامعة الزقازيق",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-capital-university",
+      "official_english_name": "Capital University",
+      "official_arabic_name": "جامعة العاصمة",
+      "abbreviations": [],
+      "english_variations": [
+        "Helwan University"
+      ],
+      "arabic_variations": [
+        "جامعه العاصمه",
+        "جامعه حلوان"
+      ],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-minia-university",
+      "official_english_name": "Minia University",
+      "official_arabic_name": "جامعة المنيا",
+      "abbreviations": [],
+      "english_variations": [
+        "Menia University"
+      ],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-menoufia-university",
+      "official_english_name": "Menoufia University",
+      "official_arabic_name": "جامعة المنوفية",
+      "abbreviations": [],
+      "english_variations": [
+        "Minufiya University"
+      ],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-suez-canal-university",
+      "official_english_name": "Suez Canal University",
+      "official_arabic_name": "جامعة قناة السويس",
+      "abbreviations": [
+        "SCU"
+      ],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-south-valley-university",
+      "official_english_name": "South Valley University",
+      "official_arabic_name": "جامعة قنا",
+      "abbreviations": [
+        "SVU"
+      ],
+      "english_variations": [
+        "Qena University"
+      ],
+      "arabic_variations": [
+        "جامعه جنوب الوادي"
+      ],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-banha-university",
+      "official_english_name": "Banha University",
+      "official_arabic_name": "جامعة بنها",
+      "abbreviations": [],
+      "english_variations": [
+        "Benha University"
+      ],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-fayoum-university",
+      "official_english_name": "Fayoum University",
+      "official_arabic_name": "جامعة الفيوم",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-beni-suef-university",
+      "official_english_name": "Beni Suef University",
+      "official_arabic_name": "جامعة بني سويف",
+      "abbreviations": [],
+      "english_variations": [
+        "Bani Suef University"
+      ],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-kafrelsheikh-university",
+      "official_english_name": "Kafrelsheikh University",
+      "official_arabic_name": "جامعة كفر الشيخ",
+      "abbreviations": [],
+      "english_variations": [
+        "Kafr El Sheikh University"
+      ],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-sohag-university",
+      "official_english_name": "Sohag University",
+      "official_arabic_name": "جامعة سوهاج",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-port-said-university",
+      "official_english_name": "Port Said University",
+      "official_arabic_name": "جامعة بورسعيد",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-damanhour-university",
+      "official_english_name": "Damanhour University",
+      "official_arabic_name": "جامعة دمنهور",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-aswan-university",
+      "official_english_name": "Aswan University",
+      "official_arabic_name": "جامعة أسوان",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-damietta-university",
+      "official_english_name": "Damietta University",
+      "official_arabic_name": "جامعة دمياط",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-sadat-city-university",
+      "official_english_name": "Sadat City University",
+      "official_arabic_name": "جامعة مدينة السادات",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-suez-university",
+      "official_english_name": "Suez University",
+      "official_arabic_name": "جامعة السويس",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-arish-university",
+      "official_english_name": "Arish University",
+      "official_arabic_name": "جامعة العريش",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-valley-university",
+      "official_english_name": "New Valley University",
+      "official_arabic_name": "جامعة الوادي الجديد",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-matrouh-university",
+      "official_english_name": "Matrouh University",
+      "official_arabic_name": "جامعة مطروح",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-luxor-university",
+      "official_english_name": "Luxor University",
+      "official_arabic_name": "جامعة الأقصر",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-hurghada-university",
+      "official_english_name": "Hurghada University",
+      "official_arabic_name": "جامعة الغردقة",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-6th-october-university",
+      "official_english_name": "6th October University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-october-university-for-modern-sciences-and-arts",
+      "official_english_name": "October University for Modern Sciences and Arts",
+      "official_arabic_name": "جامعة أكتوبر للعلوم الحديثة والآداب",
+      "abbreviations": [
+        "MSA"
+      ],
+      "english_variations": [
+        "MSA University"
+      ],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-misr-university-for-science-and-technology",
+      "official_english_name": "Misr University for Science and Technology",
+      "official_arabic_name": "جامعة مصر للعلوم والتكنولوجيا",
+      "abbreviations": [
+        "MUST"
+      ],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-misr-international-university",
+      "official_english_name": "Misr International University",
+      "official_arabic_name": "جامعة مصر الدولية",
+      "abbreviations": [
+        "MIU"
+      ],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-german-university-in-cairo",
+      "official_english_name": "German University in Cairo",
+      "official_arabic_name": "الجامعة الألمانية بالقاهرة",
+      "abbreviations": [
+        "GUC"
+      ],
+      "english_variations": [
+        "German University Cairo"
+      ],
+      "arabic_variations": [
+        "الجامعه الالمانيه بالقاهره"
+      ],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-al-ahram-canadian-university",
+      "official_english_name": "Al-Ahram Canadian University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-the-british-university-in-egypt",
+      "official_english_name": "The British University in Egypt",
+      "official_arabic_name": "الجامعة البريطانية في مصر",
+      "abbreviations": [
+        "BUE"
+      ],
+      "english_variations": [
+        "British University in Egypt"
+      ],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-modern-university-for-technology-and-information",
+      "official_english_name": "Modern University for Technology and Information",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-sinai-university",
+      "official_english_name": "Sinai University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-pharos-university-in-alexandria",
+      "official_english_name": "Pharos University in Alexandria",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-al-nahda-university-in-beni-suef",
+      "official_english_name": "Al-Nahda University in Beni Suef",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-future-university",
+      "official_english_name": "Future University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-egyptian-russian-university",
+      "official_english_name": "Egyptian Russian University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-delta-university-for-science-and-technology-in-gamasa",
+      "official_english_name": "Delta University for Science and Technology in Gamasa",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-heliopolis-university",
+      "official_english_name": "Heliopolis University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-giza-university",
+      "official_english_name": "New Giza University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-deraya-university-in-minya",
+      "official_english_name": "Deraya University in Minya",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-badr-university",
+      "official_english_name": "Badr University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-horus-university",
+      "official_english_name": "Horus University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-egyptian-chinese-university",
+      "official_english_name": "Egyptian Chinese University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-merritt-university",
+      "official_english_name": "Merritt University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-sphinx-university",
+      "official_english_name": "Sphinx University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-peace-university-el-salam-university",
+      "official_english_name": "Peace University (El Salam University)",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-badr-university-in-assiut",
+      "official_english_name": "Badr University in Assiut",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-salhia-university",
+      "official_english_name": "New Salhia University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-el-haia-university",
+      "official_english_name": "El Haia University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-may-university",
+      "official_english_name": "May University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-el-riada-university-for-science-and-technology-sadat-city",
+      "official_english_name": "El Riada University for Science and Technology - Sadat City",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-innovation-university",
+      "official_english_name": "Innovation University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-city-university-of-cairo",
+      "official_english_name": "City University of Cairo",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-rasheed-university",
+      "official_english_name": "Rasheed University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-badya-university",
+      "official_english_name": "Badya University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-wady-el-nil-fayoum-university",
+      "official_english_name": "Wady El Nil Fayoum University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-lotus-university-in-minia",
+      "official_english_name": "Lotus University in Minia",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-obour-university-for-modern-sciences-and-technology",
+      "official_english_name": "Obour University for Modern Sciences and Technology",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-memphis-university",
+      "official_english_name": "Memphis University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-east-capital-university",
+      "official_english_name": "East Capital University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-egyptian-university-in-alamein",
+      "official_english_name": "Egyptian University in Alamein",
+      "official_arabic_name": "الجامعة المصرية بالعلمين",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://scu.eg/accredited-private-universities/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-heliopolis-university",
+      "official_english_name": "New Heliopolis University",
+      "official_arabic_name": "جامعة مصر الجديدة",
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private",
+      "source_url": "https://scu.eg/accredited-private-universities/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-king-salman-international-university",
+      "official_english_name": "King Salman International University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-el-alamein-international-university",
+      "official_english_name": "El Alamein International University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-galala-university",
+      "official_english_name": "Galala University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-mansoura-university",
+      "official_english_name": "New Mansoura University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-the-egyptian-e-learning-national-university",
+      "official_english_name": "The Egyptian E-learning National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-nile-national-university",
+      "official_english_name": "Nile National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-the-french-university-in-egypt",
+      "official_english_name": "The French University in Egypt",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-egypt-university-for-informatics",
+      "official_english_name": "Egypt University for Informatics",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-helwan-national-university",
+      "official_english_name": "Helwan National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-mansoura-national-university",
+      "official_english_name": "Mansoura National University",
+      "official_arabic_name": "جامعة المنصورة الأهلية",
+      "abbreviations": [
+        "MNU"
+      ],
+      "english_variations": [
+        "Mansoura Ahlia University"
+      ],
+      "arabic_variations": [
+        "جامعه المنصوره الاهليه"
+      ],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-banha-national-university",
+      "official_english_name": "Banha National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-menoufia-national-university",
+      "official_english_name": "Menoufia National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-beni-suef-national-university",
+      "official_english_name": "Beni Suef National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-assiut-national-university",
+      "official_english_name": "Assiut National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-south-valley-national-university",
+      "official_english_name": "South Valley National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-minia-national-university",
+      "official_english_name": "Minia National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-east-port-said-national-university",
+      "official_english_name": "East Port Said National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-alexandria-national-university",
+      "official_english_name": "Alexandria National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-zagazig-national-university",
+      "official_english_name": "Zagazig National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-ismailia-national-university",
+      "official_english_name": "New Ismailia National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-suez-national-university",
+      "official_english_name": "Suez National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-damanhour-national-university",
+      "official_english_name": "Damanhour National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-cairo-national-university",
+      "official_english_name": "Cairo National University",
+      "official_arabic_name": "جامعة القاهرة الأهلية",
+      "abbreviations": [
+        "CNU"
+      ],
+      "english_variations": [
+        "Cairo Ahlia University"
+      ],
+      "arabic_variations": [
+        "جامعه القاهره الاهليه"
+      ],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-ain-shams-national-university",
+      "official_english_name": "Ain Shams National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-sohag-national-university",
+      "official_english_name": "Sohag National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-kafrelsheikh-national-university",
+      "official_english_name": "Kafrelsheikh National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-valley-national-university",
+      "official_english_name": "New Valley National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-fayoum-national-university",
+      "official_english_name": "Fayoum National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-tanta-national-university",
+      "official_english_name": "Tanta National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-luxor-national-university",
+      "official_english_name": "Luxor National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-damietta-national-university",
+      "official_english_name": "Damietta National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-sadat-city-national-university",
+      "official_english_name": "Sadat City National University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "national_ahlia",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-zewail-city-of-science-and-technology",
+      "official_english_name": "Zewail City of Science and Technology",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "special_nature",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-the-american-university-in-cairo",
+      "official_english_name": "The American University in Cairo",
+      "official_arabic_name": "الجامعة الأمريكية بالقاهرة",
+      "abbreviations": [
+        "AUC"
+      ],
+      "english_variations": [
+        "American University in Cairo"
+      ],
+      "arabic_variations": [
+        "الجامعه الامريكيه بالقاهره"
+      ],
+      "category": "international_agreement",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-egypt-japan-university-of-science-and-technology",
+      "official_english_name": "Egypt-Japan University of Science and Technology",
+      "official_arabic_name": "الجامعة المصرية اليابانية للعلوم والتكنولوجيا",
+      "abbreviations": [
+        "E-JUST",
+        "EJUST"
+      ],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "international_agreement",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-german-international-university-in-the-administrative-capital",
+      "official_english_name": "German International University in the Administrative Capital",
+      "official_arabic_name": "الجامعة الألمانية الدولية",
+      "abbreviations": [
+        "GIU"
+      ],
+      "english_variations": [
+        "German International University"
+      ],
+      "arabic_variations": [],
+      "category": "international_agreement",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-university-of-eslsca",
+      "official_english_name": "University of ESLSCA",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "international_agreement",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-technische-universit-t-berlin-el-gouna-campus",
+      "official_english_name": "Technische Universität Berlin - El Gouna Campus",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "international_agreement",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-senghor-university",
+      "official_english_name": "Senghor University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "international_agreement",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-arab-academy-for-science-technology-and-maritime-transport",
+      "official_english_name": "Arab Academy for Science, Technology and Maritime Transport",
+      "official_arabic_name": "الأكاديمية العربية للعلوم والتكنولوجيا والنقل البحري",
+      "abbreviations": [
+        "AASTMT",
+        "AAST"
+      ],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "framework_agreement",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-arab-open-university",
+      "official_english_name": "Arab Open University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "framework_agreement",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-university-of-prince-edward-island-cairo-branch",
+      "official_english_name": "University of Prince Edward Island - Cairo Branch",
+      "official_arabic_name": null,
+      "abbreviations": [
+        "UPEI Cairo",
+        "UPEI Egypt"
+      ],
+      "english_variations": [
+        "University of Prince Edward Island Egypt Branch"
+      ],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-coventry-university-cairo-branch",
+      "official_english_name": "Coventry University - Cairo Branch",
+      "official_arabic_name": null,
+      "abbreviations": [
+        "COV",
+        "Coventry Egypt"
+      ],
+      "english_variations": [
+        "Coventry University Egypt",
+        "Coventry University Cairo Branch"
+      ],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-nova-university-lisbon-cairo-branch",
+      "official_english_name": "NOVA University Lisbon - Cairo Branch",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-university-of-hertfordshire-egypt-branch",
+      "official_english_name": "University of Hertfordshire - Egypt Branch",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-university-of-london-cairo-branch",
+      "official_english_name": "University of London - Cairo Branch",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-university-of-central-lancashire-cairo-branch",
+      "official_english_name": "University of Central Lancashire - Cairo Branch",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-university-of-east-london-cairo-branch",
+      "official_english_name": "University of East London - Cairo Branch",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-kazan-federal-university-cairo-branch",
+      "official_english_name": "Kazan Federal University - Cairo Branch",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-saint-petersburg-state-university-cairo-branch",
+      "official_english_name": "Saint Petersburg State University - Cairo Branch",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-anglia-ruskin-university-egypt-branch",
+      "official_english_name": "Anglia Ruskin University - Egypt Branch",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "foreign_branch",
+      "source_url": "https://scu.eg/branches-of-international-universities/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-cairo-technological-university",
+      "official_english_name": "New Cairo Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-delta-technological-university",
+      "official_english_name": "Delta Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-beni-suef-technological-university",
+      "official_english_name": "Beni Suef Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-new-assiut-technological-university",
+      "official_english_name": "New Assiut Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-borg-al-arab-technological-university",
+      "official_english_name": "Borg Al Arab Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-thebes-technological-university",
+      "official_english_name": "Thebes Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-6th-october-technological-university",
+      "official_english_name": "6th October Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-samanoud-technological-university",
+      "official_english_name": "Samanoud Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-east-port-said-technological-university",
+      "official_english_name": "East Port Said Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-helwan-technological-university",
+      "official_english_name": "Helwan Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-fayoum-technological-university",
+      "official_english_name": "Fayoum Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-assiut-technological-university",
+      "official_english_name": "Assiut Technological University",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "public_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-el-sewedy-university-of-technology",
+      "official_english_name": "El Sewedy University of Technology",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-saxony-egypt-university-for-applied-sciences-and-technology",
+      "official_english_name": "Saxony Egypt University for Applied Sciences and Technology",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "private_technological",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    },
+    {
+      "id": "eg-sadat-academy-for-administrative-sciences",
+      "official_english_name": "Sadat Academy for Administrative Sciences",
+      "official_arabic_name": null,
+      "abbreviations": [],
+      "english_variations": [],
+      "arabic_variations": [],
+      "category": "government_supervision",
+      "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
+      "last_verified_date": "2026-11-03"
+    }
+  ]
+}
