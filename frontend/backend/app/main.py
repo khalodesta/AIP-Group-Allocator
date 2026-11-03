@@ -11,7 +11,7 @@ from app.services.scoring import score_allocation, validate_allocation
 from app.services.normalization import display_gender, display_university, normalize_university, university_directory
 
 app = FastAPI(title="AIP Smart Group Allocator API", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 @app.get("/api/health")
 def health(): return {"status": "healthy", "service": "allocator-api"}

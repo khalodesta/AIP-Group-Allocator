@@ -29,6 +29,21 @@ flowchart LR
   C -->|in-memory xlsx| A
 ```
 
+The deployable application is contained in `frontend/`. Its MVC-style boundaries are:
+
+- **View:** `frontend/app` and `frontend/components` (Next.js and React).
+- **Controller:** `frontend/backend/app/main.py` (FastAPI HTTP routes).
+- **Model/services:** `frontend/backend/app/models.py`, `frontend/backend/app/services`, and `frontend/backend/data`.
+- **Vercel entry point:** `frontend/api/index.py`, which exposes the FastAPI application alongside Next.js in one Vercel project.
+
+There is no database. Participant and allocation state remains in the browser, while each API request carries the complete snapshot required by the stateless backend.
+
+## Deploy the complete app to Vercel
+
+Create one Vercel project from this repository and set its **Root Directory** to `frontend`. Vercel builds the Next.js interface and the FastAPI entry point in `api/index.py` from that same folder. Production browser requests use same-origin `/api` routes, so `NEXT_PUBLIC_API_URL` is not required on Vercel.
+
+The included `vercel.json` allows the optimizer function up to 60 seconds, and `.python-version` selects Python 3.12. For local development, run the Next.js and FastAPI development servers separately as described below; the frontend automatically uses `http://localhost:8000` in development unless `NEXT_PUBLIC_API_URL` overrides it.
+
 Participant data is sent explicitly with each operation and is not stored by the server. Configuration presets contain no participant records.
 
 ## Run on macOS
@@ -41,8 +56,8 @@ Terminal 1:
 cd /Users/desta/Deloitte_AIP_Project
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r backend/requirements.txt
-cd backend
+pip install -r frontend/requirements.txt
+cd frontend/backend
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -76,17 +91,17 @@ The balance score shown in analytics is `1 - mean absolute category-proportion d
 
 ## Egyptian university directory
 
-`backend/data/university_directory.json` is the shared, versioned source for manual autocomplete, Excel normalization, scoring, and optimization. It currently contains 133 university-level institutions and branches across 10 categories. Higher institutes and training centers are deliberately excluded. Each entry records a stable ID, English name, verified Arabic name where available, aliases, category, official source URL, and verification date.
+`frontend/backend/data/university_directory.json` is the shared, versioned source for manual autocomplete, Excel normalization, scoring, and optimization. It currently contains 133 university-level institutions and branches across 10 categories. Higher institutes and training centers are deliberately excluded. Each entry records a stable ID, English name, verified Arabic name where available, aliases, category, official source URL, and verification date.
 
-The directory was reconciled on 2026-11-03 against the State Information Service updated accredited-institutions list and the Supreme Council of Universities category/branch pages. Official lists can differ temporarily in counts and English naming; entries that appear only on an SCU category page retain that page as their source. Regenerate the JSON after reviewing updates by editing and running `backend/data/generate_universities.py`.
+The directory was reconciled on 2026-11-03 against the State Information Service updated accredited-institutions list and the Supreme Council of Universities category/branch pages. Official lists can differ temporarily in counts and English naming; entries that appear only on an SCU category page retain that page as their source. Regenerate the JSON after reviewing updates by editing and running `frontend/backend/data/generate_universities.py`.
 
 Recognized aliases resolve to a stable university ID. Unknown foreign or newly established universities remain distinct custom IDs and are never fuzzily merged. Arabic search normalizes letter variants only for matching; it does not change the displayed value of an unrecognized custom entry.
 
 ## Checks
 
 ```bash
-cd backend && ../.venv/bin/pytest -q
-cd ../frontend && npm run typecheck && npm run build
+cd frontend/backend && ../../.venv/bin/pytest -q
+cd .. && npm run typecheck && npm run build
 ```
 
 ## API highlights
