@@ -1,13 +1,15 @@
 import io
 import re
 import uuid
+from datetime import datetime
 from typing import List
 import pandas as pd
 from openpyxl.styles import Font, PatternFill
 from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 from app.models import AllocationSnapshot, FacultyMember, Participant, SupportMember
-from app.services.normalization import display_gender, display_university, normalize_university
+from app.services.normalization import display_gender, display_offering, display_university, normalize_university
 
 
 MASTER_COLUMNS = ["Adjective", "IT Name", "Deloitte Email", "Candidate Name", "Personal Email", "University",
@@ -50,7 +52,7 @@ def parse_excel(data: bytes) -> tuple[List[Participant], List[str]]:
         attrs = {str(column): _value(row.get(column)) for column in frame.columns if column not in {name_col, "Participant ID"}}
         attrs.update({"Gender": gender, "University": university, "UniversityId": normalize_university(university)})
         if "L3 Offering" in frame.columns:
-            attrs["L3 Offering"] = str(_value(row.get("L3 Offering")) or "").strip()
+            attrs["L3 Offering"] = display_offering(_value(row.get("L3 Offering"))) or ""
         participants.append(Participant(id=pid, name=str(name), attributes=attrs))
     return participants, list(frame.columns)
 
@@ -141,14 +143,29 @@ def export_week2_workbook(participants: list[Participant], allocation: Allocatio
     for activity in allocation.activities:
         if activity.activity_id not in titles: continue
         ws=wb.create_sheet(titles[activity.activity_id]); ws.sheet_view.showGridLines=False; ws.freeze_panes="A2"
+        section_title_rows=[];section_header_rows=[]
         if activity.activity_id=="hotel":
             ws.append(["Room","Occupant 1","Occupant 2"])
             for g in activity.groups: ws.append([g.name,names.get(g.participant_ids[0],g.participant_ids[0]),names.get(g.participant_ids[1],"Single Occupancy") if len(g.participant_ids)>1 else "Single Occupancy"])
         elif activity.activity_id=="reflection":
-            ws.append(["Faculty Member","Faculty Offering","Assigned New Hire"])
-            for g in activity.groups:
-                f=faculty.get(g.id)
-                for pid in g.participant_ids: ws.append([g.name,f.offering if f else "",names.get(pid,pid)])
+            scheduled={session.participant_id:session for session in activity.sessions}
+            people={p.id:p for p in participants}
+            if scheduled:
+                ws.freeze_panes="A3"
+                for group_index,g in enumerate(activity.groups):
+                    f=faculty.get(g.id);section_title_rows.append(ws.max_row+1)
+                    ws.append([f"{g.name} — {display_offering(f.offering) if f else 'Offering not provided'}"]);ws.merge_cells(start_row=ws.max_row,start_column=1,end_row=ws.max_row,end_column=7)
+                    section_header_rows.append(ws.max_row+1);ws.append(["#","Start Time","End Time","Assigned New Hire","Participant Offering","Offering Match","Prayer Status"])
+                    sessions=sorted((s for s in activity.sessions if s.faculty_id==g.id),key=lambda s:datetime.strptime(s.start_time,"%I:%M %p"))
+                    for index,session in enumerate(sessions,1):
+                        pid=session.participant_id
+                        ws.append([index,session.start_time,session.end_time,names.get(pid,pid),display_offering(people[pid].attributes.get("L3 Offering")) or "","Match" if session.offering_match else "Mismatch","Before Prayer" if session.before_prayer else "After Prayer"])
+                    if group_index<len(activity.groups)-1: ws.append([])
+            else:
+                ws.append(["Faculty Member","Faculty Offering","Assigned New Hire"])
+                for g in activity.groups:
+                    f=faculty.get(g.id)
+                    for pid in g.participant_ids: ws.append([g.name,display_offering(f.offering) if f else "",names.get(pid,pid)])
         elif activity.activity_id=="bus":
             ws.append(["BUS Team","Role","Name"])
             support_ids={x.id for x in support_members}
@@ -162,6 +179,10 @@ def export_week2_workbook(participants: list[Participant], allocation: Allocatio
         for row in range(2,ws.max_row+1):
             if row%2==0:
                 for cell in ws[row]: cell.fill=PatternFill("solid",fgColor="F3F7FA")
-        for col in ws.columns: ws.column_dimensions[col[0].column_letter].width=min(45,max(16,max(len(str(c.value or "")) for c in col)+2))
+        for row in section_title_rows:
+            for cell in ws[row]: cell.font=Font(bold=True,color="FFFFFF");cell.fill=PatternFill("solid",fgColor="163B64")
+        for row in section_header_rows:
+            for cell in ws[row]: cell.font=Font(bold=True,color="FFFFFF");cell.fill=PatternFill("solid",fgColor="2F80A8")
+        for column_index,col in enumerate(ws.columns,1): ws.column_dimensions[get_column_letter(column_index)].width=min(45,max(16,max(len(str(c.value or "")) for c in col)+2))
         ws.print_area=ws.dimensions;ws.sheet_properties.pageSetUpPr.fitToPage=True;ws.page_setup.fitToWidth=1;ws.page_setup.fitToHeight=0
     wb.save(output);return output.getvalue()

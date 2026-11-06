@@ -5,6 +5,10 @@ from pathlib import Path
 from typing import Optional
 
 GENDER_ALIASES={"m":"Male","man":"Male","male":"Male","f":"Female","woman":"Female","female":"Female"}
+OFFERING_ALIASES={
+    "ai data":"AI & Data","data ai":"AI & Data","ai and data":"AI & Data","data and ai":"AI & Data",
+    "customer":"Customer","et p":"ET&P","etp":"ET&P","engineering":"Engineering","cyber":"Cyber"
+}
 
 def normalize_text(value: object) -> Optional[str]:
     if value is None or not str(value).strip(): return None
@@ -50,3 +54,11 @@ def normalize_gender(value: object) -> Optional[str]:
 def display_gender(value: object) -> Optional[str]:
     normalized=normalize_text(value)
     return GENDER_ALIASES.get(normalized) if normalized else None
+
+def normalize_offering(value: object) -> Optional[str]:
+    normalized=normalize_text(value)
+    return OFFERING_ALIASES.get(normalized) if normalized else None
+
+def display_offering(value: object) -> Optional[str]:
+    if value is None or not str(value).strip(): return None
+    return normalize_offering(value) or str(value).strip()

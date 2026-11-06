@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, field_validator
+from app.services.normalization import normalize_offering
 
 
 class Strategy(str, Enum):
@@ -28,6 +29,14 @@ class FacultyMember(BaseModel):
     id: str
     name: str
     offering: str
+
+    @field_validator("offering")
+    @classmethod
+    def valid_offering(cls, value: str) -> str:
+        normalized = normalize_offering(value)
+        if not normalized:
+            raise ValueError("Faculty offering must be one of: AI & Data, Customer, ET&P, Engineering, Cyber")
+        return normalized
 
 
 class SupportMember(BaseModel):
@@ -61,6 +70,15 @@ class Activity(BaseModel):
     locked: bool = False
 
 
+class ReflectionSettings(BaseModel):
+    enabled: bool = False
+    selected_participant_ids: List[str] = Field(default_factory=list)
+    start_time: str = "11:00"
+    session_duration_minutes: int = Field(default=20, ge=1, le=240)
+    prayer_deadline: str = "12:00"
+    resume_time: str = "13:00"
+
+
 class Configuration(BaseModel):
     schema_version: int = 1
     activities: List[Activity]
@@ -68,6 +86,9 @@ class Configuration(BaseModel):
     seed: int = 42
     time_limit_seconds: float = Field(default=10, ge=.1, le=120)
     repeat_weight: int = Field(default=1000, ge=1)
+    include_business_chemistry: bool = False
+    allow_accommodation_policy_overrides: bool = False
+    reflection_settings: ReflectionSettings = Field(default_factory=ReflectionSettings)
 
 
 class Group(BaseModel):
@@ -76,11 +97,21 @@ class Group(BaseModel):
     participant_ids: List[str]
 
 
+class ReflectionSession(BaseModel):
+    participant_id: str
+    faculty_id: str
+    start_time: str
+    end_time: str
+    offering_match: bool
+    before_prayer: bool
+
+
 class ActivityAllocation(BaseModel):
     activity_id: str
     activity_name: str
     groups: List[Group]
     locked: bool = False
+    sessions: List[ReflectionSession] = Field(default_factory=list)
 
 
 class AllocationSnapshot(BaseModel):
@@ -112,6 +143,14 @@ class SwapRequest(AllocationRequest):
     activity_id: str
     participant_a: str
     participant_b: str
+
+
+class AllocationEditRequest(AllocationRequest):
+    activity_id: str
+    participant_id: str
+    target_group_id: str
+    swap_with_id: Optional[str] = None
+    allow_override: bool = False
 
 
 class Scenario(BaseModel):

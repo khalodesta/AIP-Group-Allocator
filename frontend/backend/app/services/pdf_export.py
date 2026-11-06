@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import math
+from datetime import datetime
 from xml.sax.saxutils import escape
 
 from reportlab.lib import colors
@@ -11,7 +12,8 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import KeepTogether, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from app.models import AllocationSnapshot, Participant, SupportMember
+from app.models import AllocationSnapshot, FacultyMember, Participant, SupportMember
+from app.services.normalization import display_offering
 
 
 ACTIVITY_TITLES = {"main": "MAIN TEAMS", "sports": "SPORTS DAY GROUPS", "quiz": "QUIZ NIGHT GROUPS"}
@@ -57,10 +59,13 @@ def _team_card(group, group_index: int, people: dict[str, str], width: float, co
 
 def export_pdf(participants: list[Participant], allocation: AllocationSnapshot,
                support_members: list[SupportMember] | None = None,
-               activity_ids: set[str] | None = None) -> bytes:
+               activity_ids: set[str] | None = None,
+               faculty_members: list[FacultyMember] | None = None) -> bytes:
     output = io.BytesIO()
     people = {person.id: person.name for person in participants}
     people.update({person.id: person.name for person in (support_members or [])})
+    participant_map = {person.id: person for person in participants}
+    faculty_map = {person.id: person for person in (faculty_members or [])}
     document = SimpleDocTemplate(output, pagesize=A4, rightMargin=14 * mm, leftMargin=14 * mm,
                                  topMargin=12 * mm, bottomMargin=12 * mm,
                                  title="AIP Group Allocations", author="AIP Onboarding Program")
@@ -81,6 +86,27 @@ def export_pdf(participants: list[Participant], allocation: AllocationSnapshot,
         story.extend([Paragraph("AIP ONBOARDING PROGRAM", program),
                       Paragraph(ACTIVITY_TITLES.get(activity.activity_id, escape(activity.activity_name.upper())), activity_style),
                       Paragraph("Group allocations", subtitle)])
+        if activity.activity_id == "reflection" and activity.sessions:
+            faculty_heading=ParagraphStyle("FacultyHeading",fontName="Helvetica-Bold",fontSize=11,leading=14,textColor=colors.HexColor("#163B64"),spaceBefore=5,spaceAfter=4)
+            for group in activity.groups:
+                faculty_member=faculty_map.get(group.id)
+                heading=f"{group.name} — {display_offering(faculty_member.offering) if faculty_member else 'Offering not provided'}"
+                rows=[["#","Time","Participant","Participant Offering","Match","Prayer Status"]]
+                sessions=sorted((s for s in activity.sessions if s.faculty_id==group.id),key=lambda session:datetime.strptime(session.start_time,"%I:%M %p"))
+                for index,session in enumerate(sessions,1):
+                    participant=participant_map[session.participant_id]
+                    rows.append([index,f"{session.start_time} - {session.end_time}",participant.name,
+                                 display_offering(participant.attributes.get("L3 Offering")) or "",
+                                 "Match" if session.offering_match else "Mismatch",
+                                 "Before Prayer" if session.before_prayer else "After Prayer"])
+                schedule=Table(rows,repeatRows=1,colWidths=[8*mm,32*mm,38*mm,38*mm,22*mm,30*mm])
+                schedule.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),colors.HexColor("#163B64")),
+                    ("TEXTCOLOR",(0,0),(-1,0),colors.white),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
+                    ("FONTSIZE",(0,0),(-1,-1),7),("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,colors.HexColor("#F5F8FB")]),
+                    ("GRID",(0,0),(-1,-1),.35,colors.HexColor("#CBD8E5")),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                    ("LEFTPADDING",(0,0),(-1,-1),3),("RIGHTPADDING",(0,0),(-1,-1),3)]))
+                story.extend([Paragraph(escape(heading),faculty_heading),schedule,Spacer(1,3*mm)])
+            continue
         group_count = len(activity.groups)
         columns = 2 if group_count <= 12 else (3 if group_count <= 18 else 4)
         dense = columns == 4

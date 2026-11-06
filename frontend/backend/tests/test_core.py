@@ -1,5 +1,6 @@
 import io
 import pandas as pd
+import pytest
 from openpyxl import load_workbook
 from pypdf import PdfReader
 from fastapi.testclient import TestClient
@@ -7,7 +8,7 @@ from app.main import app
 from app.models import *
 from app.services.optimizer import group_sizes, optimize
 from app.services.scoring import score_allocation, validate_allocation
-from app.services.normalization import display_gender, normalize_university, resolve_university, university_directory
+from app.services.normalization import display_gender, display_offering, normalize_university, resolve_university, university_directory
 from app.services.excel import blank_template, match_chemistry, parse_chemistry
 
 def people(n=30):
@@ -18,6 +19,14 @@ def config(n=30):
 
 def test_group_sizes():
     assert group_sizes(29,"max_size",6)==[6,6,6,6,5]
+
+def test_standardized_offerings_and_faculty_validation():
+    assert display_offering("Data & AI")=="AI & Data"
+    assert display_offering("ai and data")=="AI & Data"
+    assert display_offering("ETP")=="ET&P"
+    assert FacultyMember(id="f1",name="Faculty",offering="data & ai").offering=="AI & Data"
+    with pytest.raises(ValueError,match="Faculty offering must be one of"):
+        FacultyMember(id="f1",name="Faculty",offering="Consulting")
     assert group_sizes(29,"group_count",4)==[8,7,7,7]
 
 def test_cohorts_are_valid():
@@ -158,6 +167,11 @@ def test_pdf_has_all_activities_all_names_and_no_private_attributes():
     assert all(text.count(person.name)==3 for person in p)
     assert "University 0" not in text and "Female" not in text and "same-university" not in text.lower()
     assert len(reader.pages)==3
+    individual=TestClient(app).post("/api/export/pdf/quiz",json={"participants":[x.model_dump() for x in p],"configuration":c.model_dump(),"allocation":allocation.model_dump()})
+    assert individual.status_code==200
+    individual_text="\n".join(page.extract_text() for page in PdfReader(io.BytesIO(individual.content)).pages)
+    assert "QUIZ NIGHT GROUPS" in individual_text
+    assert "MAIN TEAMS" not in individual_text and "SPORTS DAY GROUPS" not in individual_text
 
 def test_business_chemistry_parsing_and_safe_matching():
     data=workbook([{"Name":"  PERSON-0 ","Primary":"Pioneer","Secondary":"Driver"},
@@ -168,12 +182,12 @@ def test_business_chemistry_parsing_and_safe_matching():
 
 def test_week2_six_allocations_and_hotel_hard_constraints():
     cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male" if i<14 else "Female",
-        "University":f"University {i%8}","UniversityId":f"u{i%8}","L3 Offering":["Cyber","Consulting","Audit"][i%3],
+        "University":f"University {i%8}","UniversityId":f"u{i%8}","L3 Offering":["Cyber","Customer","AI & Data"][i%3],
         "Primary Chemistry":["Pioneer","Driver","Guardian","Integrator"][i%4],
         "Secondary Chemistry":["Driver","Guardian","Integrator","Pioneer"][i%4]}) for i in range(27)]
-    config=Configuration(activities=[Activity(id=x,name=x,mode="max_size",value=6) for x in ("main","quiz","team")],time_limit_seconds=3)
+    config=Configuration(activities=[Activity(id=x,name=x,mode="max_size",value=6) for x in ("main","quiz","team")],time_limit_seconds=3,include_business_chemistry=True)
     request=OptimizeRequest(participants=cohort,configuration=config,
-        faculty_members=[FacultyMember(id=f"f{i}",name=f"Faculty {i}",offering=o) for i,o in enumerate(("Cyber","Consulting","Audit"))],
+        faculty_members=[FacultyMember(id=f"f{i}",name=f"Faculty {i}",offering=o) for i,o in enumerate(("Cyber","Customer","AI & Data"))],
         support_members=[SupportMember(id=f"s{i}",name=f"Support {i}") for i in range(5)])
     allocation=optimize(request); activities={a.activity_id:a for a in allocation.activities}
     assert set(activities)=={"main","quiz","team","bus","reflection","hotel"}
@@ -187,3 +201,167 @@ def test_week2_six_allocations_and_hotel_hard_constraints():
             assert pmap[left].attributes["Gender"]==pmap[right].attributes["Gender"]
             assert main[left]!=main[right]
     assert sorted(len(g.participant_ids) for g in activities["reflection"].groups)==[9,9,9]
+
+    # Chemistry-disabled mode must accept the same 27-person cohort without any
+    # Chemistry attributes and still produce a complete, valid six-allocation set.
+    without_chemistry=[p.model_copy(update={"attributes":{k:v for k,v in p.attributes.items() if "Chemistry" not in k}}) for p in cohort]
+    disabled_config=config.model_copy(update={"include_business_chemistry":False})
+    disabled=optimize(request.model_copy(update={"participants":without_chemistry,"configuration":disabled_config}))
+    disabled_activities={a.activity_id:a for a in disabled.activities}
+    assert set(disabled_activities)=={"main","quiz","team","bus","reflection","hotel"}
+    for activity_id,activity in disabled_activities.items():
+        assigned=[pid for group in activity.groups for pid in group.participant_ids if pid.startswith("P")]
+        assert sorted(assigned)==sorted(p.id for p in without_chemistry), activity_id
+
+    # Changing only gender must not alter MyReflection assignments. Gender still
+    # remains available to the core/BUS allocations and as the hotel hard rule.
+    alternate_gender=[p.model_copy(update={"attributes":{**p.attributes,"Gender":"Male" if i%2==0 else "Female"}}) for i,p in enumerate(without_chemistry)]
+    alternate_gender_result=optimize(request.model_copy(update={"participants":alternate_gender,"configuration":disabled_config}))
+    reflection_groups=lambda result: [group.participant_ids for group in next(a for a in result.activities if a.activity_id=="reflection").groups]
+    assert reflection_groups(disabled)==reflection_groups(alternate_gender_result)
+
+
+def test_enabled_business_chemistry_requires_complete_profiles():
+    cohort=people(6)
+    config=Configuration(activities=[Activity(id="main",name="Main",mode="max_size",value=3)],include_business_chemistry=True)
+    with pytest.raises(ValueError,match="Primary and Secondary Business Chemistry"):
+        optimize(OptimizeRequest(participants=cohort,configuration=config))
+
+
+def test_enhanced_reflection_schedules_selected_people_before_prayer_and_rejects_conflicts():
+    cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male" if i<12 else "Female",
+        "University":f"University {i%6}","UniversityId":f"u{i%6}","L3 Offering":["Cyber","Customer","AI & Data"][i%3]}) for i in range(27)]
+    selected=[f"P{i}" for i in range(9)]
+    settings=ReflectionSettings(enabled=True,selected_participant_ids=selected,start_time="11:00",
+        session_duration_minutes=20,prayer_deadline="12:00",resume_time="13:00")
+    config=Configuration(activities=[Activity(id=x,name=x,mode="max_size",value=6) for x in ("main","quiz","team")],
+        reflection_settings=settings,time_limit_seconds=3)
+    faculty=[FacultyMember(id=f"f{i}",name=f"Faculty {i}",offering=o) for i,o in enumerate(("Cyber","Customer","AI & Data"))]
+    request=OptimizeRequest(participants=cohort,configuration=config,faculty_members=faculty)
+    allocation=optimize(request); reflection=next(a for a in allocation.activities if a.activity_id=="reflection")
+    assert len(reflection.sessions)==27
+    session_map={s.participant_id:s for s in reflection.sessions}
+    assert all(session_map[pid].before_prayer for pid in selected)
+    for faculty_id in (f.id for f in faculty):
+        intervals=[(s.start_time,s.end_time) for s in reflection.sessions if s.faculty_id==faculty_id]
+        assert len(intervals)==len(set(intervals))
+
+    impossible=config.model_copy(update={"reflection_settings":settings.model_copy(update={"selected_participant_ids":[f"P{i}" for i in range(10)]})})
+    with pytest.raises(ValueError,match="10 participants selected, 9 slots available, shortfall 1"):
+        optimize(request.model_copy(update={"configuration":impossible}))
+
+    # With three selected people on each faculty, moving another selected person
+    # into that faculty would exceed its pre-prayer capacity and must be rejected.
+    selected_by_group={g.id:[pid for pid in g.participant_ids if pid in selected] for g in reflection.groups}
+    source=next(g for g in reflection.groups if selected_by_group[g.id])
+    target=next(g for g in reflection.groups if g.id!=source.id and len(selected_by_group[g.id])==3)
+    selected_pid=selected_by_group[source.id][0]
+    unselected_pid=next(pid for pid in target.participant_ids if pid not in selected)
+    response=TestClient(app).post("/api/allocations/swap",json={"participants":[p.model_dump() for p in cohort],
+        "faculty_members":[f.model_dump() for f in faculty],"configuration":config.model_dump(),
+        "allocation":allocation.model_dump(),"activity_id":"reflection","participant_a":selected_pid,"participant_b":unselected_pid})
+    assert response.status_code==422
+    assert "pre-prayer capacity conflict" in response.text
+
+
+def test_enhanced_reflection_exports_include_schedule_fields():
+    cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male","University":"Cairo University","L3 Offering":offering})
+            for i,offering in enumerate(("Cyber","Customer","AI & Data"))]
+    faculty=[FacultyMember(id=f"f{i}",name=f"Faculty {i}",offering=offering) for i,offering in enumerate(("Cyber","Customer","AI & Data"))]
+    reflection=ActivityAllocation(activity_id="reflection",activity_name="MyReflection",
+        groups=[Group(id="f0",name="Faculty 0",participant_ids=["P1"]),Group(id="f1",name="Faculty 1",participant_ids=["P0"]),Group(id="f2",name="Faculty 2",participant_ids=["P2"])],
+        sessions=[ReflectionSession(participant_id="P0",faculty_id="f1",start_time="11:00 AM",end_time="11:20 AM",offering_match=True,before_prayer=True),
+                  ReflectionSession(participant_id="P1",faculty_id="f0",start_time="11:00 AM",end_time="11:20 AM",offering_match=True,before_prayer=True),
+                  ReflectionSession(participant_id="P2",faculty_id="f2",start_time="11:20 AM",end_time="11:40 AM",offering_match=True,before_prayer=True)])
+    allocation=AllocationSnapshot(activities=[reflection])
+    config=Configuration(activities=[],reflection_settings=ReflectionSettings(enabled=True,selected_participant_ids=["P0"]))
+    payload={"participants":[p.model_dump() for p in cohort],"faculty_members":[f.model_dump() for f in faculty],
+        "configuration":config.model_dump(),"allocation":allocation.model_dump()}
+    client=TestClient(app)
+    pdf=client.post("/api/export/pdf",json=payload);assert pdf.status_code==200
+    text="\n".join(page.extract_text() for page in PdfReader(io.BytesIO(pdf.content)).pages)
+    assert all(value in text for value in ("Participant Offering","Faculty 0 — Cyber","11:00 AM - 11:20 AM","Match"))
+    assert text.index("Person 1") < text.index("Person 0") < text.index("Person 2")
+    excel=client.post("/api/export/editable",json=payload);assert excel.status_code==200
+    sheet=load_workbook(io.BytesIO(excel.content))["MyReflection"]
+    assert sheet["A1"].value=="Faculty 0 — Cyber"
+    assert [cell.value for cell in sheet[2]]==["#","Start Time","End Time","Assigned New Hire","Participant Offering","Offering Match","Prayer Status"]
+    assert [sheet.cell(row,4).value for row in (3,7,11)]==["Person 1","Person 0","Person 2"]
+
+
+def test_drag_edit_endpoint_validates_swaps_cross_dependencies_and_bus_balance():
+    cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male" if i<2 else "Female","University":f"U{i}","L3 Offering":"Cyber"}) for i in range(4)]
+    config=Configuration(activities=[Activity(id="main",name="Main",mode="group_count",value=2),Activity(id="quiz",name="Quiz",mode="group_count",value=2)])
+    main=ActivityAllocation(activity_id="main",activity_name="Main",groups=[Group(id="main-0",name="A",participant_ids=["P0","P2"]),Group(id="main-1",name="B",participant_ids=["P1","P3"])])
+    quiz=ActivityAllocation(activity_id="quiz",activity_name="Quiz",groups=[Group(id="quiz-0",name="A",participant_ids=["P0","P1"]),Group(id="quiz-1",name="B",participant_ids=["P2","P3"])])
+    hotel=ActivityAllocation(activity_id="hotel",activity_name="Hotel",groups=[Group(id="room-1",name="Room 1",participant_ids=["P0","P1"]),Group(id="room-2",name="Room 2",participant_ids=["P2","P3"])])
+    allocation=AllocationSnapshot(activities=[main,quiz,hotel])
+    base={"participants":[p.model_dump() for p in cohort],"configuration":config.model_dump(),"allocation":allocation.model_dump()}
+    client=TestClient(app)
+
+    valid=client.post("/api/allocations/edit",json={**base,"activity_id":"quiz","participant_id":"P0","target_group_id":"quiz-1","swap_with_id":"P2"})
+    assert valid.status_code==200
+    edited=valid.json()["allocation"]
+    edited_quiz=next(a for a in edited["activities"] if a["activity_id"]=="quiz")
+    assert edited_quiz["groups"][0]["participant_ids"]==["P2","P1"]
+
+    main_conflict=client.post("/api/allocations/edit",json={**base,"activity_id":"main","participant_id":"P0","target_group_id":"main-1","swap_with_id":"P3"})
+    assert main_conflict.status_code==200 and main_conflict.json()["requires_confirmation"] is True
+    assert any(item["rule"]=="roommates_same_main" for item in main_conflict.json()["conflicts"])
+    main_override=client.post("/api/allocations/edit",json={**base,"activity_id":"main","participant_id":"P0","target_group_id":"main-1","swap_with_id":"P3","allow_override":True})
+    assert main_override.status_code==200 and main_override.json()["allocation"]
+
+    hotel_conflict=client.post("/api/allocations/edit",json={**base,"activity_id":"hotel","participant_id":"P0","target_group_id":"room-2","swap_with_id":"P2"})
+    assert hotel_conflict.status_code==200 and hotel_conflict.json()["requires_confirmation"] is True
+    mixed=next(item for item in hotel_conflict.json()["conflicts"] if item["rule"]=="mixed_gender_room")
+    assert mixed["policy_sensitive"] is True and mixed["overridable"] is False
+    prohibited=client.post("/api/allocations/edit",json={**base,"activity_id":"hotel","participant_id":"P0","target_group_id":"room-2","swap_with_id":"P2","allow_override":True})
+    assert prohibited.status_code==422
+
+    supports=[SupportMember(id="S0",name="Support 0"),SupportMember(id="S1",name="Support 1")]
+    bus=ActivityAllocation(activity_id="bus",activity_name="BUS",groups=[Group(id="bus-0",name="BUS 1",participant_ids=["P0","P1","S0"]),Group(id="bus-1",name="BUS 2",participant_ids=["P2","P3","S1"])])
+    bus_allocation=AllocationSnapshot(activities=[bus])
+    bus_move=client.post("/api/allocations/edit",json={"participants":[p.model_dump() for p in cohort],"support_members":[s.model_dump() for s in supports],
+        "configuration":Configuration(activities=[]).model_dump(),"allocation":bus_allocation.model_dump(),"activity_id":"bus","participant_id":"P0","target_group_id":"bus-1"})
+    assert bus_move.status_code==200 and "requires_confirmation" not in bus_move.json()
+
+
+def test_reflection_manual_swaps_exchange_existing_slots_without_warnings_and_export_new_times():
+    cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male","University":f"U{i}","L3 Offering":"Cyber"}) for i in range(4)]
+    faculty=[FacultyMember(id="f0",name="Layla",offering="Cyber"),FacultyMember(id="f1",name="Aisha",offering="Engineering")]
+    reflection=ActivityAllocation(activity_id="reflection",activity_name="MyReflection",
+        groups=[Group(id="f0",name="Layla",participant_ids=["P0","P1","P2"]),Group(id="f1",name="Aisha",participant_ids=["P3"])],
+        sessions=[ReflectionSession(participant_id="P0",faculty_id="f0",start_time="10:00 AM",end_time="10:20 AM",offering_match=True,before_prayer=True),
+                  ReflectionSession(participant_id="P1",faculty_id="f0",start_time="10:20 AM",end_time="10:40 AM",offering_match=True,before_prayer=True),
+                  ReflectionSession(participant_id="P2",faculty_id="f0",start_time="10:40 AM",end_time="11:00 AM",offering_match=True,before_prayer=True),
+                  ReflectionSession(participant_id="P3",faculty_id="f1",start_time="10:00 AM",end_time="10:20 AM",offering_match=False,before_prayer=True)])
+    configuration=Configuration(activities=[])
+    base={"participants":[p.model_dump() for p in cohort],"faculty_members":[f.model_dump() for f in faculty],
+          "configuration":configuration.model_dump(),"allocation":AllocationSnapshot(activities=[reflection]).model_dump(),"activity_id":"reflection"}
+    client=TestClient(app)
+
+    same=client.post("/api/allocations/edit",json={**base,"participant_id":"P0","target_group_id":"f0","swap_with_id":"P2"})
+    assert same.status_code==200 and "requires_confirmation" not in same.json()
+    edited=AllocationSnapshot.model_validate(same.json()["allocation"])
+    sessions={session.participant_id:session for session in edited.activities[0].sessions}
+    assert sessions["P2"].start_time=="10:00 AM" and sessions["P0"].start_time=="10:40 AM"
+    assert sessions["P2"].faculty_id==sessions["P0"].faculty_id=="f0"
+
+    cross_base={**base,"allocation":edited.model_dump()}
+    cross=client.post("/api/allocations/edit",json={**cross_base,"participant_id":"P0","target_group_id":"f1","swap_with_id":"P3"})
+    assert cross.status_code==200 and "requires_confirmation" not in cross.json()
+    cross_allocation=AllocationSnapshot.model_validate(cross.json()["allocation"])
+    cross_sessions={session.participant_id:session for session in cross_allocation.activities[0].sessions}
+    assert cross_sessions["P0"].faculty_id=="f1" and cross_sessions["P3"].faculty_id=="f0"
+    assert len({(session.faculty_id,session.start_time) for session in cross_sessions.values()})==4
+
+    export_payload={"participants":[p.model_dump() for p in cohort],"faculty_members":[f.model_dump() for f in faculty],
+                    "configuration":configuration.model_dump(),"allocation":cross_allocation.model_dump()}
+    excel=client.post("/api/export/editable",json=export_payload)
+    assert excel.status_code==200
+    values=[cell.value for row in load_workbook(io.BytesIO(excel.content))["MyReflection"].iter_rows() for cell in row]
+    assert "10:40 AM" in values and "Person 3" in values
+    pdf=client.post("/api/export/pdf/reflection",json=export_payload)
+    assert pdf.status_code==200
+    pdf_text="\n".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(pdf.content)).pages)
+    assert "10:40 AM" in pdf_text and "Person 3" in pdf_text

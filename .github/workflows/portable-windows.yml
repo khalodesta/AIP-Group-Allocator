@@ -1,0 +1,58 @@
+name: Build portable Windows ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - deployment/portable-windows
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-zip:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js for build
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Set up Python for build
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: frontend/requirements.txt
+
+      - name: Build portable release
+        shell: powershell
+        run: ./packaging/windows/build-release.ps1
+
+      - name: Smoke-test bundled application
+        shell: powershell
+        run: |
+          $package = Join-Path $PWD "release\AIP-Week2-Allocator"
+          $env:AIP_NO_BROWSER = "1"
+          & (Join-Path $package "START.bat")
+          $backend = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -TimeoutSec 10
+          if ($backend.status -ne "healthy") { throw "Backend health check failed" }
+          $frontend = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:3000" -TimeoutSec 10
+          if ($frontend.StatusCode -ne 200) { throw "Frontend health check failed" }
+          $proxied = Invoke-RestMethod -Uri "http://127.0.0.1:3000/api/health" -TimeoutSec 10
+          if ($proxied.status -ne "healthy") { throw "Frontend API proxy health check failed" }
+          & (Join-Path $package "STOP.bat")
+
+      - name: Upload Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: AIP-Week2-Allocator-Windows
+          path: release/AIP-Week2-Allocator-Windows.zip
+          if-no-files-found: error
+          retention-days: 14
