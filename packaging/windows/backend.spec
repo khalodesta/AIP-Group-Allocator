@@ -1,6 +1,8 @@
 from PyInstaller.utils.hooks import collect_all
+from pathlib import Path
 
-datas = [("frontend/backend", "backend")]
+repo = Path(SPECPATH).parents[1]
+datas = [(str(repo / "frontend" / "backend"), "backend")]
 binaries = []
 hiddenimports = []
 for package in ("ortools", "pandas", "numpy", "openpyxl", "reportlab", "uvicorn", "fastapi", "pydantic"):
@@ -10,8 +12,8 @@ for package in ("ortools", "pandas", "numpy", "openpyxl", "reportlab", "uvicorn"
     hiddenimports += package_hiddenimports
 
 a = Analysis(
-    ["packaging/windows/backend_launcher.py"],
-    pathex=["."],
+    [str(Path(SPECPATH) / "backend_launcher.py")],
+    pathex=[str(repo), str(repo / "frontend" / "backend")],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,

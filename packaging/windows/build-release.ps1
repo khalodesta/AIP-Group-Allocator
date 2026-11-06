@@ -13,15 +13,21 @@ Write-Host "Building frontend..."
 Push-Location $Frontend
 $env:PORTABLE_WINDOWS_BUILD = "1"
 npm ci
+if ($LASTEXITCODE -ne 0) { throw "npm ci failed" }
 npm run typecheck
+if ($LASTEXITCODE -ne 0) { throw "Frontend type check failed" }
 npm run build
+if ($LASTEXITCODE -ne 0) { throw "Frontend build failed" }
 Pop-Location
 
 Write-Host "Testing and packaging backend..."
 python -m pip install --disable-pip-version-check -r (Join-Path $Frontend "requirements.txt") "pyinstaller==6.16.0"
+if ($LASTEXITCODE -ne 0) { throw "Python dependency installation failed" }
 Push-Location $Repo
 python -m pytest frontend/backend/tests -q
+if ($LASTEXITCODE -ne 0) { throw "Backend tests failed" }
 python -m PyInstaller --noconfirm --clean --distpath (Join-Path $Output "pyinstaller") --workpath (Join-Path $Output "pyinstaller-work") packaging/windows/backend.spec
+if ($LASTEXITCODE -ne 0) { throw "PyInstaller backend packaging failed" }
 Pop-Location
 
 Remove-Item $PackageRoot -Recurse -Force -ErrorAction SilentlyContinue
