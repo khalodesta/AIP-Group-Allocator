@@ -91,6 +91,18 @@ def test_custom_aliases_share_exact_university_identity_despite_stale_ids():
     assert group_for["p0"] != group_for["p1"]
 
 
+def test_classification_follows_activities_actually_generated_during_partial_requests():
+    people=cohort()
+    for person in people: person.attributes["University"]="Unreviewed Fictional Academy"
+    config=Configuration(activities=[Activity(id="main",name="Main Groups",value=3)])
+    req=OptimizeRequest(participants=people,configuration=config,regenerate_activity_ids=["hotel"])
+    with pytest.raises(ValueError,match="University classification required"):
+        optimize(req)
+    # A missing BUS snapshot can still require generation during a partial run.
+    with pytest.raises(ValueError,match="University classification required"):
+        _bus_allocation(request(people),[main_groups(people)])
+
+
 def prayer_settings(people, **changes):
     return ReflectionSettings(enabled=True, selected_participant_ids=[p.id for p in people],
         start_time="11:15", prayer_deadline="11:40", resume_time="13:00",

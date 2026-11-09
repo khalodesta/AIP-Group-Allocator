@@ -249,8 +249,6 @@ def group_sizes(n: int, mode: str, value: int) -> List[int]:
 def optimize(request: OptimizeRequest) -> AllocationSnapshot:
     people = request.participants
     requested = set(request.regenerate_activity_ids or [a.id for a in request.configuration.activities])
-    if requested & {"main", "quiz", "team", "bus"}:
-        validate_university_classifications(people, request.configuration.custom_universities)
     if request.faculty_members:
         if len(request.faculty_members) != 3: raise ValueError("Exactly three faculty members are required")
         if request.regenerate_activity_ids is None or requested & {"bus", "hotel"}:
@@ -266,6 +264,8 @@ def optimize(request: OptimizeRequest) -> AllocationSnapshot:
         if activity.id not in CORE_ACTIVITY_IDS: continue
         if activity.id in previous and (activity.locked or activity.id not in regenerate): fixed.append(previous[activity.id])
         else: to_solve.append(activity)
+    if any(activity.id in {"main", "quiz", "team"} for activity in to_solve):
+        validate_university_classifications(people, request.configuration.custom_universities)
     prior_pairs = defaultdict(int)
     for alloc in fixed:
         for group in alloc.groups:
@@ -400,6 +400,7 @@ def _validate_support(request: OptimizeRequest):
 
 
 def _bus_allocation(request: OptimizeRequest, core: List[ActivityAllocation]):
+    validate_university_classifications(request.participants, request.configuration.custom_universities)
     people = request.participants; ids = [p.id for p in people]; n = len(people)
     model = cp_model.CpModel(); variables = {(i,t): model.NewBoolVar(f"bus_{i}_{t}") for i in range(n) for t in range(2)}
     for i in range(n): model.AddExactlyOne(variables[i,t] for t in range(2))

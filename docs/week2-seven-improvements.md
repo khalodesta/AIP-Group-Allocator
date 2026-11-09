@@ -140,11 +140,15 @@ node --test tests/results-ui.test.cjs
 PORTABLE_WINDOWS_BUILD=1 npm run build
 ```
 
-Python critical-error lint and Git whitespace checks also run. Browser acceptance
-uses fictional hires, faculty, and support records and exercises classification,
-navigation, support metadata, prayer extension, six results tabs, editing, and
-downloads. Final run counts and the Windows workflow/artifact status are recorded
-in the delivery report.
+Final local verification passed: **89 backend tests**, **9 React component tests**,
+TypeScript checking, Python critical-error lint, Git whitespace checks, and the
+production build with `PORTABLE_WINDOWS_BUILD=1`. No final local checks failed.
+Live Chrome acceptance passed with 30 fictional hires, five support members, and
+three faculty: classification and reusable alias persistence, support import and
+navigation, fixed-end failure and explicit extension, all six Results tabs, 30
+prayer-aware appointments, the 38-person hotel manifest, appointment swapping,
+Undo, and Save. Route tests also verify same/cross-faculty swaps and PDF/Excel
+consistency and privacy.
 
 The PyInstaller spec, portable Node runtime, START/STOP launchers, and standalone
 Next.js output are preserved. A frozen-runtime fallback resolves the directory
