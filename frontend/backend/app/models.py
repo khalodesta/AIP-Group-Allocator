@@ -1,7 +1,38 @@
 from enum import Enum
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field, field_validator
-from app.services.normalization import normalize_offering
+from typing import Any, Dict, List, Literal, Optional
+from pydantic import BaseModel, Field, field_validator, model_validator
+from app.services.normalization import display_gender, normalize_offering, normalize_text, resolve_university
+
+UniversityCategory = Literal["public", "private", "national", "international", "other"]
+
+
+class CustomUniversity(BaseModel):
+    id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    aliases: List[str] = Field(default_factory=list)
+    category: UniversityCategory
+
+    @field_validator("id", "name")
+    @classmethod
+    def required_text(cls, value):
+        if not value.strip(): raise ValueError("University ID and name are required")
+        return value.strip()
+
+
+class TimeInterval(BaseModel):
+    start_time: str
+    end_time: str
+
+    @model_validator(mode="after")
+    def valid_interval(self):
+        from datetime import datetime
+        try:
+            start = datetime.strptime(self.start_time, "%H:%M")
+            end = datetime.strptime(self.end_time, "%H:%M")
+        except ValueError:
+            raise ValueError("Faculty availability must use valid HH:MM times")
+        if end <= start: raise ValueError("Faculty unavailable interval must end after it starts")
+        return self
 
 
 class Strategy(str, Enum):
@@ -29,6 +60,10 @@ class FacultyMember(BaseModel):
     id: str
     name: str
     offering: str
+    prayer_unavailable: bool = True
+    unavailable_intervals: List[TimeInterval] = Field(default_factory=list)
+    available_from: Optional[str] = None
+    available_until: Optional[str] = None
 
     @field_validator("offering")
     @classmethod
@@ -42,6 +77,21 @@ class FacultyMember(BaseModel):
 class SupportMember(BaseModel):
     id: str
     name: str
+    gender: Optional[Literal["Male", "Female"]] = None
+    category: Optional[Literal["Support Lead", "Analyst Support"]] = None
+
+    @field_validator("gender", mode="before")
+    @classmethod
+    def normalize_support_gender(cls, value):
+        if value in (None, ""): return None
+        result = display_gender(value)
+        if not result: raise ValueError("Support gender must be Male or Female")
+        return result
+
+    @field_validator("category", mode="before")
+    @classmethod
+    def empty_category(cls, value):
+        return None if value == "" else value
 
 
 class ChemistryRecord(BaseModel):
@@ -69,6 +119,11 @@ class Activity(BaseModel):
     value: int = Field(ge=1, le=60)
     locked: bool = False
 
+    @model_validator(mode="after")
+    def professional_activity_name(self):
+        if self.id == "reflection": self.name = "My Reflections"
+        return self
+
 
 class ReflectionSettings(BaseModel):
     enabled: bool = False
@@ -77,6 +132,7 @@ class ReflectionSettings(BaseModel):
     session_duration_minutes: int = Field(default=20, ge=1, le=240)
     prayer_deadline: str = "12:00"
     resume_time: str = "13:00"
+    end_time: Optional[str] = None
 
 
 class Configuration(BaseModel):
@@ -89,6 +145,25 @@ class Configuration(BaseModel):
     include_business_chemistry: bool = False
     allow_accommodation_policy_overrides: bool = False
     reflection_settings: ReflectionSettings = Field(default_factory=ReflectionSettings)
+    custom_universities: List[CustomUniversity] = Field(default_factory=list)
+
+    @field_validator("custom_universities")
+    @classmethod
+    def unambiguous_directory(cls, entries):
+        ids = set(); aliases = {}
+        for entry in entries:
+            if entry.id in ids: raise ValueError("Custom university IDs must be unique")
+            ids.add(entry.id)
+            for value in [entry.name, *entry.aliases]:
+                key = normalize_text(value)
+                if not key: continue
+                if key in aliases and aliases[key] != entry.id:
+                    raise ValueError("A custom university alias cannot identify two different institutions")
+                official = resolve_university(value)
+                if official and official["id"] != entry.id:
+                    raise ValueError("A custom university alias cannot replace the stable identity of a different known institution")
+                aliases[key] = entry.id
+        return entries
 
 
 class Group(BaseModel):
@@ -112,6 +187,13 @@ class ActivityAllocation(BaseModel):
     groups: List[Group]
     locked: bool = False
     sessions: List[ReflectionSession] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
+    room_summary: Dict[str, int] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def professional_activity_name(self):
+        if self.activity_id == "reflection": self.activity_name = "My Reflections"
+        return self
 
 
 class AllocationSnapshot(BaseModel):

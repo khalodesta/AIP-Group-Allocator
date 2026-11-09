@@ -18,6 +18,7 @@
         "جامعه القاهره"
       ],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -31,6 +32,7 @@
         "جامعه الاسكندريه"
       ],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -46,6 +48,7 @@
         "جامعه عين شمس"
       ],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -59,6 +62,7 @@
         "جامعه اسيوط"
       ],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -70,6 +74,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -85,6 +90,7 @@
         "جامعه المنصوره"
       ],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -96,22 +102,27 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
     {
       "id": "eg-capital-university",
-      "official_english_name": "Capital University",
+      "official_english_name": "Capital-Helwan University",
       "official_arabic_name": "جامعة العاصمة",
       "abbreviations": [],
       "english_variations": [
-        "Helwan University"
+        "Helwan University",
+        "Capital University",
+        "Capital-Helwan University"
       ],
       "arabic_variations": [
+        "جامعة حلوان",
         "جامعه العاصمه",
         "جامعه حلوان"
       ],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -125,6 +136,7 @@
       ],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -138,6 +150,7 @@
       ],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -151,6 +164,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -168,6 +182,7 @@
         "جامعه جنوب الوادي"
       ],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -181,6 +196,7 @@
       ],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -192,6 +208,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -205,6 +222,7 @@
       ],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -218,6 +236,7 @@
       ],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -229,6 +248,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -240,6 +260,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -251,6 +272,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -262,6 +284,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -273,6 +296,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -284,6 +308,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -295,6 +320,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -306,6 +332,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -317,6 +344,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -328,6 +356,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -339,6 +368,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -350,6 +380,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -361,6 +392,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -376,6 +408,7 @@
       ],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -389,6 +422,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -402,6 +436,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -419,6 +454,7 @@
         "الجامعه الالمانيه بالقاهره"
       ],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -430,6 +466,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -445,6 +482,7 @@
       ],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -456,6 +494,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -467,6 +506,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -478,6 +518,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -489,6 +530,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -500,6 +542,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -511,6 +554,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -522,6 +566,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -533,6 +578,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -544,6 +590,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -555,6 +602,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -566,6 +614,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -577,6 +626,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -588,6 +638,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -599,6 +650,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -610,6 +662,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -621,6 +674,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -632,6 +686,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -643,6 +698,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -654,6 +710,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -665,6 +722,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -676,6 +734,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -687,6 +746,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -698,6 +758,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -709,6 +770,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -720,6 +782,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -731,6 +794,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -742,6 +806,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -753,6 +818,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -764,6 +830,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -775,6 +842,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -786,6 +854,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://scu.eg/accredited-private-universities/",
       "last_verified_date": "2026-11-03"
     },
@@ -797,6 +866,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private",
+      "diversity_category": "private",
       "source_url": "https://scu.eg/accredited-private-universities/",
       "last_verified_date": "2026-11-03"
     },
@@ -808,6 +878,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -819,6 +890,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -830,6 +902,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -841,6 +914,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -852,6 +926,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -863,6 +938,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -874,6 +950,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -885,17 +962,26 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
     {
       "id": "eg-helwan-national-university",
       "official_english_name": "Helwan National University",
-      "official_arabic_name": null,
-      "abbreviations": [],
-      "english_variations": [],
-      "arabic_variations": [],
+      "official_arabic_name": "جامعة حلوان الأهلية",
+      "abbreviations": [
+        "HNU"
+      ],
+      "english_variations": [
+        "Helwan Ahlia University",
+        "Helwan Ahleya University"
+      ],
+      "arabic_variations": [
+        "جامعه حلوان الاهليه"
+      ],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -913,6 +999,7 @@
         "جامعه المنصوره الاهليه"
       ],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -924,6 +1011,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -935,6 +1023,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -946,6 +1035,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -957,6 +1047,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -968,6 +1059,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -979,6 +1071,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -990,6 +1083,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1001,6 +1095,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1012,6 +1107,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1023,6 +1119,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1034,6 +1131,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1045,6 +1143,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1062,6 +1161,7 @@
         "جامعه القاهره الاهليه"
       ],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1073,6 +1173,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1084,6 +1185,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1095,6 +1197,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1106,6 +1209,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1117,6 +1221,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1128,6 +1233,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1139,6 +1245,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1150,6 +1257,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1161,6 +1269,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "national_ahlia",
+      "diversity_category": "national",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1172,6 +1281,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "special_nature",
+      "diversity_category": "other",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1189,8 +1299,11 @@
         "الجامعه الامريكيه بالقاهره"
       ],
       "category": "international_agreement",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
-      "last_verified_date": "2026-11-03"
+      "last_verified_date": "2026-11-03",
+      "diversity_source_url": "https://www1.aucegypt.edu/catalog06/catalog06.pdf",
+      "classification_note": "Private institution established under an international cultural agreement; retain both classifications."
     },
     {
       "id": "eg-egypt-japan-university-of-science-and-technology",
@@ -1203,6 +1316,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "international_agreement",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1218,6 +1332,7 @@
       ],
       "arabic_variations": [],
       "category": "international_agreement",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1229,6 +1344,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "international_agreement",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1240,6 +1356,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "international_agreement",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1251,6 +1368,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "international_agreement",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1265,6 +1383,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "framework_agreement",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1276,6 +1395,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "framework_agreement",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1292,6 +1412,7 @@
       ],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1309,6 +1430,7 @@
       ],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1320,6 +1442,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1331,6 +1454,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1342,6 +1466,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1353,6 +1478,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1364,6 +1490,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1375,6 +1502,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1386,6 +1514,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1397,6 +1526,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "foreign_branch",
+      "diversity_category": "international",
       "source_url": "https://scu.eg/branches-of-international-universities/",
       "last_verified_date": "2026-11-03"
     },
@@ -1408,6 +1538,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1419,6 +1550,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1430,6 +1562,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1441,6 +1574,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1452,6 +1586,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1463,6 +1598,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1474,6 +1610,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1485,6 +1622,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1496,6 +1634,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1507,6 +1646,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1518,6 +1658,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1529,6 +1670,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "public_technological",
+      "diversity_category": "public",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1540,6 +1682,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private_technological",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1551,6 +1694,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "private_technological",
+      "diversity_category": "private",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     },
@@ -1562,6 +1706,7 @@
       "english_variations": [],
       "arabic_variations": [],
       "category": "government_supervision",
+      "diversity_category": "other",
       "source_url": "https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/",
       "last_verified_date": "2026-11-03"
     }

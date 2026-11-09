@@ -2,7 +2,7 @@
 import {useMemo,useState} from "react";
 import {Building2,Check,ChevronDown} from "lucide-react";
 
-export type University={id:string;official_english_name:string;official_arabic_name:string|null;abbreviations:string[];english_variations:string[];arabic_variations:string[];category:string};
+export type University={id:string;official_english_name:string;official_arabic_name:string|null;abbreviations:string[];english_variations:string[];arabic_variations:string[];category:string;diversity_category?:string|null};
 const normalize=(value:string)=>value.toLocaleLowerCase().normalize("NFKD").replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه").replace(/ؤ/g,"و").replace(/ئ/g,"ي").replace(/[ًٌٍَُِّْـ]/g,"").replace(/[^\p{L}\p{N}\s]/gu," ").replace(/\s+/g," ").trim();
 export function resolveUniversity(value:string,directory:University[]){const key=normalize(value);return directory.find(u=>[u.official_english_name,u.official_arabic_name,...u.abbreviations,...u.english_variations,...u.arabic_variations].filter(Boolean).some(x=>normalize(String(x))===key));}
 function rank(u:University,query:string){const q=normalize(query),abbr=u.abbreviations.map(normalize),names=[u.official_english_name,u.official_arabic_name,...u.english_variations,...u.arabic_variations].filter(Boolean).map(x=>normalize(String(x)));if(abbr.includes(q))return 0;if(names.some(x=>x.startsWith(q)))return 1;if(abbr.some(x=>x.startsWith(q)))return 2;if(names.some(x=>x.split(" ").some(word=>word.startsWith(q))))return 3;if(names.some(x=>x.includes(q))||abbr.some(x=>x.includes(q)))return 4;return 99}

@@ -8,12 +8,14 @@ valid substitute.
 
 1. Push the `deployment/portable-windows` branch to an approved private GitHub repository.
 2. Open **Actions → Build portable Windows ZIP → Run workflow**.
-3. Download the `AIP-Week2-Allocator-Windows` artifact.
+3. Download the `AIP-Week2-Allocator-Windows` artifact after the workflow succeeds. Feature branches can also be selected for a manual workflow run.
 4. Extract `AIP-Week2-Allocator-Windows.zip` and test it on an IT-approved clean Windows x64 device.
 
 The artifact contains an official checksum-verified Node.js Windows x64 runtime and
 a PyInstaller-packaged Python backend. The recipient does not install Node.js,
 Python, npm packages, or pip packages.
+
+The workflow smoke-tests the packaged directory, all six allocations, two BUS Support Leads, prayer continuation, complete hotel coverage, and PDF/Excel downloads through the standalone frontend API proxy.
 
 ## Local Windows build
 
@@ -43,7 +45,7 @@ Before distribution, test on a clean company-equivalent Windows x64 environment:
 - paths under Downloads, Desktop, and a folder containing spaces;
 - no global Python or Node.js available to the user;
 - no administrator privileges and no internet connection at runtime;
-- all six allocations, both Excel upload modes, editing, MyReflection swaps,
+- all six allocations, both Excel upload modes, editing, My Reflections swaps,
   Excel/PDF export, stop/restart, duplicate start, and occupied ports 3000/8000.
 
 Unsigned internal executables may be blocked by SmartScreen, Defender, WDAC,

@@ -12,7 +12,7 @@ from app.services.normalization import display_gender, display_offering, normali
 from app.services.excel import blank_template, match_chemistry, parse_chemistry
 
 def people(n=30):
-    return [Participant(id=f"P{i}", name=f"Person {i}", attributes={"Gender":"Female" if i%2 else "Male", "University":f"University {i%8}"}) for i in range(n)]
+    return [Participant(id=f"P{i}", name=f"Person {i}", attributes={"Gender":"Female" if i%2 else "Male", "University":f"University {i%8}", "University Category":"other"}) for i in range(n)]
 
 def config(n=30):
     return Configuration(activities=[Activity(id="main",name="Main Groups",mode="max_size",value=6), Activity(id="sports",name="Sports Day",mode="max_size",value=5), Activity(id="quiz",name="Quiz Night",mode="group_count",value=5)], factors=[Factor(id="gender",name="Gender",source_column="Gender"), Factor(id="dept",name="Department",source_column="Department")], time_limit_seconds=4)
@@ -73,7 +73,7 @@ def test_arabic_partial_identity_and_similar_universities_stay_distinct():
 
 def test_zero_university_duplicates_when_feasible_and_gender_balanced():
     p = [Participant(id=f"P{i}", name=f"Person {i}", attributes={
-        "Gender": "Female" if i % 2 else "Male", "University": f"University {i % 4}"
+        "Gender": "Female" if i % 2 else "Male", "University": f"University {i % 4}", "University Category":"other"
     }) for i in range(8)]
     c = Configuration(activities=[Activity(id="main", name="Main", mode="max_size", value=4)], time_limit_seconds=5)
     a = optimize(OptimizeRequest(participants=p, configuration=c))
@@ -84,7 +84,7 @@ def test_zero_university_duplicates_when_feasible_and_gender_balanced():
 
 def test_unavoidable_university_duplicates_are_counted_exactly():
     p = [Participant(id=f"P{i}", name=f"Person {i}", attributes={
-        "Gender": "Female" if i % 2 else "Male", "University": "Only University"
+        "Gender": "Female" if i % 2 else "Male", "University": "Only University", "University Category":"other"
     }) for i in range(6)]
     c = Configuration(activities=[Activity(id="main", name="Main", mode="group_count", value=2)], time_limit_seconds=5)
     a = optimize(OptimizeRequest(participants=p, configuration=c))
@@ -182,24 +182,26 @@ def test_business_chemistry_parsing_and_safe_matching():
 
 def test_week2_six_allocations_and_hotel_hard_constraints():
     cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male" if i<14 else "Female",
-        "University":f"University {i%8}","UniversityId":f"u{i%8}","L3 Offering":["Cyber","Customer","AI & Data"][i%3],
+        "University":f"University {i%8}", "University Category":"other","UniversityId":f"u{i%8}","L3 Offering":["Cyber","Customer","AI & Data"][i%3],
         "Primary Chemistry":["Pioneer","Driver","Guardian","Integrator"][i%4],
         "Secondary Chemistry":["Driver","Guardian","Integrator","Pioneer"][i%4]}) for i in range(27)]
     config=Configuration(activities=[Activity(id=x,name=x,mode="max_size",value=6) for x in ("main","quiz","team")],time_limit_seconds=3,include_business_chemistry=True)
     request=OptimizeRequest(participants=cohort,configuration=config,
         faculty_members=[FacultyMember(id=f"f{i}",name=f"Faculty {i}",offering=o) for i,o in enumerate(("Cyber","Customer","AI & Data"))],
-        support_members=[SupportMember(id=f"s{i}",name=f"Support {i}") for i in range(5)])
+        support_members=[SupportMember(id=f"s{i}",name=f"Support {i}",gender="Male" if i%2==0 else "Female",category="Support Lead" if i<2 else "Analyst Support") for i in range(5)])
     allocation=optimize(request); activities={a.activity_id:a for a in allocation.activities}
     assert set(activities)=={"main","quiz","team","bus","reflection","hotel"}
     main={pid:g.id for g in activities["main"].groups for pid in g.participant_ids}; pmap={p.id:p for p in cohort}
     assigned=[pid for room in activities["hotel"].groups for pid in room.participant_ids]
-    assert len(assigned)==len(set(assigned))==27
+    assert len(assigned)==len(set(assigned))==35
     for room in activities["hotel"].groups:
         assert len(room.participant_ids)<=2
         if len(room.participant_ids)==2:
             left,right=room.participant_ids
-            assert pmap[left].attributes["Gender"]==pmap[right].attributes["Gender"]
-            assert main[left]!=main[right]
+            gender={p.id:p.attributes["Gender"] for p in cohort}
+            gender.update({member.id:member.gender for member in request.support_members})
+            assert gender[left]==gender[right]
+            if left in pmap and right in pmap: assert main[left]!=main[right]
     assert sorted(len(g.participant_ids) for g in activities["reflection"].groups)==[9,9,9]
 
     # Chemistry-disabled mode must accept the same 27-person cohort without any
@@ -213,7 +215,7 @@ def test_week2_six_allocations_and_hotel_hard_constraints():
         assigned=[pid for group in activity.groups for pid in group.participant_ids if pid.startswith("P")]
         assert sorted(assigned)==sorted(p.id for p in without_chemistry), activity_id
 
-    # Changing only gender must not alter MyReflection assignments. Gender still
+    # Changing only gender must not alter My Reflections assignments. Gender still
     # remains available to the core/BUS allocations and as the hotel hard rule.
     alternate_gender=[p.model_copy(update={"attributes":{**p.attributes,"Gender":"Male" if i%2==0 else "Female"}}) for i,p in enumerate(without_chemistry)]
     alternate_gender_result=optimize(request.model_copy(update={"participants":alternate_gender,"configuration":disabled_config}))
@@ -228,47 +230,43 @@ def test_enabled_business_chemistry_requires_complete_profiles():
         optimize(OptimizeRequest(participants=cohort,configuration=config))
 
 
-def test_enhanced_reflection_schedules_selected_people_before_prayer_and_rejects_conflicts():
+def test_enhanced_reflection_schedules_selected_people_before_and_after_prayer():
     cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male" if i<12 else "Female",
-        "University":f"University {i%6}","UniversityId":f"u{i%6}","L3 Offering":["Cyber","Customer","AI & Data"][i%3]}) for i in range(27)]
+        "University":f"University {i%6}", "University Category":"other","UniversityId":f"u{i%6}","L3 Offering":["Cyber","Customer","AI & Data"][i%3]}) for i in range(27)]
     selected=[f"P{i}" for i in range(9)]
     settings=ReflectionSettings(enabled=True,selected_participant_ids=selected,start_time="11:00",
         session_duration_minutes=20,prayer_deadline="12:00",resume_time="13:00")
     config=Configuration(activities=[Activity(id=x,name=x,mode="max_size",value=6) for x in ("main","quiz","team")],
         reflection_settings=settings,time_limit_seconds=3)
     faculty=[FacultyMember(id=f"f{i}",name=f"Faculty {i}",offering=o) for i,o in enumerate(("Cyber","Customer","AI & Data"))]
-    request=OptimizeRequest(participants=cohort,configuration=config,faculty_members=faculty)
+    request=OptimizeRequest(participants=cohort,configuration=config,faculty_members=faculty,
+        support_members=[SupportMember(id=f"s{i}",name=f"Support {i}",gender="Male",category="Support Lead") for i in range(2)])
     allocation=optimize(request); reflection=next(a for a in allocation.activities if a.activity_id=="reflection")
     assert len(reflection.sessions)==27
     session_map={s.participant_id:s for s in reflection.sessions}
-    assert all(session_map[pid].before_prayer for pid in selected)
+    from app.services.optimizer import validate_reflection_sessions
+    assert not validate_reflection_sessions(reflection,request)
     for faculty_id in (f.id for f in faculty):
         intervals=[(s.start_time,s.end_time) for s in reflection.sessions if s.faculty_id==faculty_id]
         assert len(intervals)==len(set(intervals))
 
-    impossible=config.model_copy(update={"reflection_settings":settings.model_copy(update={"selected_participant_ids":[f"P{i}" for i in range(10)]})})
-    with pytest.raises(ValueError,match="10 participants selected, 9 slots available, shortfall 1"):
-        optimize(request.model_copy(update={"configuration":impossible}))
+    continuation=config.model_copy(update={"reflection_settings":settings.model_copy(update={"selected_participant_ids":[f"P{i}" for i in range(27)]})})
+    continued=optimize(request.model_copy(update={"configuration":continuation}))
+    appointments=next(a for a in continued.activities if a.activity_id=="reflection").sessions
+    assert len(appointments)==27 and any(not session.before_prayer for session in appointments)
 
-    # With three selected people on each faculty, moving another selected person
-    # into that faculty would exceed its pre-prayer capacity and must be rejected.
-    selected_by_group={g.id:[pid for pid in g.participant_ids if pid in selected] for g in reflection.groups}
-    source=next(g for g in reflection.groups if selected_by_group[g.id])
-    target=next(g for g in reflection.groups if g.id!=source.id and len(selected_by_group[g.id])==3)
-    selected_pid=selected_by_group[source.id][0]
-    unselected_pid=next(pid for pid in target.participant_ids if pid not in selected)
+    source,target=reflection.groups[:2]
     response=TestClient(app).post("/api/allocations/swap",json={"participants":[p.model_dump() for p in cohort],
-        "faculty_members":[f.model_dump() for f in faculty],"configuration":config.model_dump(),
-        "allocation":allocation.model_dump(),"activity_id":"reflection","participant_a":selected_pid,"participant_b":unselected_pid})
-    assert response.status_code==422
-    assert "pre-prayer capacity conflict" in response.text
+        "faculty_members":[f.model_dump() for f in faculty],"support_members":[s.model_dump() for s in request.support_members],"configuration":config.model_dump(),
+        "allocation":allocation.model_dump(),"activity_id":"reflection","participant_a":source.participant_ids[0],"participant_b":target.participant_ids[0]})
+    assert response.status_code==200 and "requires_confirmation" not in response.json()
 
 
 def test_enhanced_reflection_exports_include_schedule_fields():
     cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male","University":"Cairo University","L3 Offering":offering})
             for i,offering in enumerate(("Cyber","Customer","AI & Data"))]
     faculty=[FacultyMember(id=f"f{i}",name=f"Faculty {i}",offering=offering) for i,offering in enumerate(("Cyber","Customer","AI & Data"))]
-    reflection=ActivityAllocation(activity_id="reflection",activity_name="MyReflection",
+    reflection=ActivityAllocation(activity_id="reflection",activity_name="My Reflections",
         groups=[Group(id="f0",name="Faculty 0",participant_ids=["P1"]),Group(id="f1",name="Faculty 1",participant_ids=["P0"]),Group(id="f2",name="Faculty 2",participant_ids=["P2"])],
         sessions=[ReflectionSession(participant_id="P0",faculty_id="f1",start_time="11:00 AM",end_time="11:20 AM",offering_match=True,before_prayer=True),
                   ReflectionSession(participant_id="P1",faculty_id="f0",start_time="11:00 AM",end_time="11:20 AM",offering_match=True,before_prayer=True),
@@ -283,7 +281,7 @@ def test_enhanced_reflection_exports_include_schedule_fields():
     assert all(value in text for value in ("Participant Offering","Faculty 0 — Cyber","11:00 AM - 11:20 AM","Match"))
     assert text.index("Person 1") < text.index("Person 0") < text.index("Person 2")
     excel=client.post("/api/export/editable",json=payload);assert excel.status_code==200
-    sheet=load_workbook(io.BytesIO(excel.content))["MyReflection"]
+    sheet=load_workbook(io.BytesIO(excel.content))["My Reflections"]
     assert sheet["A1"].value=="Faculty 0 — Cyber"
     assert [cell.value for cell in sheet[2]]==["#","Start Time","End Time","Assigned New Hire","Participant Offering","Offering Match","Prayer Status"]
     assert [sheet.cell(row,4).value for row in (3,7,11)]==["Person 1","Person 0","Person 2"]
@@ -318,7 +316,7 @@ def test_drag_edit_endpoint_validates_swaps_cross_dependencies_and_bus_balance()
     prohibited=client.post("/api/allocations/edit",json={**base,"activity_id":"hotel","participant_id":"P0","target_group_id":"room-2","swap_with_id":"P2","allow_override":True})
     assert prohibited.status_code==422
 
-    supports=[SupportMember(id="S0",name="Support 0"),SupportMember(id="S1",name="Support 1")]
+    supports=[SupportMember(id="S0",name="Support 0",gender="Male",category="Support Lead"),SupportMember(id="S1",name="Support 1",gender="Female",category="Support Lead")]
     bus=ActivityAllocation(activity_id="bus",activity_name="BUS",groups=[Group(id="bus-0",name="BUS 1",participant_ids=["P0","P1","S0"]),Group(id="bus-1",name="BUS 2",participant_ids=["P2","P3","S1"])])
     bus_allocation=AllocationSnapshot(activities=[bus])
     bus_move=client.post("/api/allocations/edit",json={"participants":[p.model_dump() for p in cohort],"support_members":[s.model_dump() for s in supports],
@@ -328,14 +326,14 @@ def test_drag_edit_endpoint_validates_swaps_cross_dependencies_and_bus_balance()
 
 def test_reflection_manual_swaps_exchange_existing_slots_without_warnings_and_export_new_times():
     cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male","University":f"U{i}","L3 Offering":"Cyber"}) for i in range(4)]
-    faculty=[FacultyMember(id="f0",name="Layla",offering="Cyber"),FacultyMember(id="f1",name="Aisha",offering="Engineering")]
-    reflection=ActivityAllocation(activity_id="reflection",activity_name="MyReflection",
-        groups=[Group(id="f0",name="Layla",participant_ids=["P0","P1","P2"]),Group(id="f1",name="Aisha",participant_ids=["P3"])],
+    faculty=[FacultyMember(id="f0",name="Layla",offering="Cyber"),FacultyMember(id="f1",name="Aisha",offering="Engineering"),FacultyMember(id="f2",name="Faculty 2",offering="Customer")]
+    reflection=ActivityAllocation(activity_id="reflection",activity_name="My Reflections",
+        groups=[Group(id="f0",name="Layla",participant_ids=["P0","P1","P2"]),Group(id="f1",name="Aisha",participant_ids=["P3"]),Group(id="f2",name="Faculty 2",participant_ids=[])],
         sessions=[ReflectionSession(participant_id="P0",faculty_id="f0",start_time="10:00 AM",end_time="10:20 AM",offering_match=True,before_prayer=True),
                   ReflectionSession(participant_id="P1",faculty_id="f0",start_time="10:20 AM",end_time="10:40 AM",offering_match=True,before_prayer=True),
                   ReflectionSession(participant_id="P2",faculty_id="f0",start_time="10:40 AM",end_time="11:00 AM",offering_match=True,before_prayer=True),
                   ReflectionSession(participant_id="P3",faculty_id="f1",start_time="10:00 AM",end_time="10:20 AM",offering_match=False,before_prayer=True)])
-    configuration=Configuration(activities=[])
+    configuration=Configuration(activities=[],reflection_settings=ReflectionSettings(start_time="10:00"))
     base={"participants":[p.model_dump() for p in cohort],"faculty_members":[f.model_dump() for f in faculty],
           "configuration":configuration.model_dump(),"allocation":AllocationSnapshot(activities=[reflection]).model_dump(),"activity_id":"reflection"}
     client=TestClient(app)
@@ -359,7 +357,7 @@ def test_reflection_manual_swaps_exchange_existing_slots_without_warnings_and_ex
                     "configuration":configuration.model_dump(),"allocation":cross_allocation.model_dump()}
     excel=client.post("/api/export/editable",json=export_payload)
     assert excel.status_code==200
-    values=[cell.value for row in load_workbook(io.BytesIO(excel.content))["MyReflection"].iter_rows() for cell in row]
+    values=[cell.value for row in load_workbook(io.BytesIO(excel.content))["My Reflections"].iter_rows() for cell in row]
     assert "10:40 AM" in values and "Person 3" in values
     pdf=client.post("/api/export/pdf/reflection",json=export_payload)
     assert pdf.status_code==200

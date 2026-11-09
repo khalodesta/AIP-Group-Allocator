@@ -35,6 +35,13 @@ jobs:
         shell: powershell
         run: ./packaging/windows/build-release.ps1
 
+      - name: Test results components
+        shell: powershell
+        working-directory: frontend
+        run: |
+          node --test tests/results-ui.test.cjs
+          if ($LASTEXITCODE -ne 0) { throw "Results component tests failed" }
+
       - name: Smoke-test bundled application
         shell: powershell
         run: |
@@ -47,6 +54,9 @@ jobs:
           if ($frontend.StatusCode -ne 200) { throw "Frontend health check failed" }
           $proxied = Invoke-RestMethod -Uri "http://127.0.0.1:3000/api/health" -TimeoutSec 10
           if ($proxied.status -ne "healthy") { throw "Frontend API proxy health check failed" }
+          $directory = Invoke-RestMethod -Uri "http://127.0.0.1:3000/api/universities" -TimeoutSec 10
+          if ($directory.count -lt 130) { throw "Bundled offline university directory is missing" }
+          & ./packaging/windows/smoke-allocations.ps1
           & (Join-Path $package "STOP.bat")
 
       - name: Upload Windows ZIP

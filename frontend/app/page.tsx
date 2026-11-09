@@ -32,6 +32,7 @@ import type {
   Allocation,
   ChemistryRecord,
   Configuration,
+  CustomUniversity,
   FacultyMember,
   Metrics,
   Participant,
@@ -42,6 +43,11 @@ import {
   type University,
 } from "@/components/UniversityAutocomplete";
 import { toast } from "sonner";
+import {ParticipantIdentity, ResultsLegend} from "@/components/ParticipantIdentity";
+import {UniversityReview} from "@/components/UniversityReview";
+import {canonicalCategory,classifiedParticipants,mergedUniversityDirectory,parseCustomDirectory,universityIdentity} from "@/components/universityClassification";
+import {hotelRoomSummary} from "@/components/hotelSummary";
+const CUSTOM_DIRECTORY_KEY="aip-university-directory-v1";
 
 type Step = "data" | "team" | "sizes" | "results";
 const steps: { id: Step; label: string }[] = [
@@ -85,6 +91,7 @@ const initialConfig: Configuration = {
     locked: false,
   })),
   factors: [],
+  custom_universities: [],
   seed: 42,
   time_limit_seconds: 20,
   repeat_weight: 1,
@@ -97,6 +104,7 @@ const initialConfig: Configuration = {
     session_duration_minutes: 20,
     prayer_deadline: "12:00",
     resume_time: "13:00",
+    end_time: null,
   },
 };
 const uid = (prefix: string) => `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
@@ -149,6 +157,7 @@ export default function Home() {
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
     [success, setSuccess] = useState(""),
+    [scheduleExtension,setScheduleExtension]=useState<string|null>(null),
     [universities, setUniversities] = useState<University[]>([]),
     [editMode, setEditMode] = useState(false),
     [editDraft, setEditDraft] = useState<Allocation | null>(null),
@@ -162,10 +171,16 @@ export default function Home() {
     [showOverrides, setShowOverrides] = useState(false),
     [pendingExport, setPendingExport] = useState<null | (() => void)>(null);
   const masterInput = useRef<HTMLInputElement>(null),
-    chemInput = useRef<HTMLInputElement>(null);
+    chemInput = useRef<HTMLInputElement>(null),
+    supportInput = useRef<HTMLInputElement>(null),
+    directoryInput = useRef<HTMLInputElement>(null);
+  const customUniversities=config.custom_universities??[];
+  const allUniversities=useMemo(()=>mergedUniversityDirectory(universities,customUniversities),[universities,customUniversities]);
+  const normalizedParticipants=useMemo(()=>classifiedParticipants(participants,universities,customUniversities),[participants,universities,customUniversities]);
+  const unresolvedUniversities=normalizedParticipants.filter(person=>!person.attributes["University Category"]);
   const pmap = useMemo(
-    () => Object.fromEntries(participants.map((p) => [p.id, p])),
-    [participants],
+    () => Object.fromEntries(normalizedParticipants.map((p) => [p.id, p])),
+    [normalizedParticipants],
   );
   const smap = useMemo(
     () => Object.fromEntries(support.map((p) => [p.id, p])),
@@ -183,6 +198,10 @@ export default function Home() {
   const chemistryEnabled = config.include_business_chemistry === true;
   const reflectionSettings =
     config.reflection_settings ?? initialConfig.reflection_settings;
+  useEffect(()=>{
+    try { const saved=localStorage.getItem(CUSTOM_DIRECTORY_KEY); if(saved)setConfig(c=>({...c,custom_universities:parseCustomDirectory(JSON.parse(saved))})); }
+    catch {setError("Saved university corrections could not be loaded. Import a valid directory or confirm classifications again.");}
+  },[]);
   useEffect(() => {
     jsonApi("/api/universities")
       .then((x) => setUniversities(x.universities))
@@ -200,7 +219,35 @@ export default function Home() {
       setSuccess("");
     }
   }, [success]);
+  function saveUniversityDirectory(entries:CustomUniversity[]) {
+    try {
+      const validated=parseCustomDirectory(entries);
+      for (const item of validated) for (const alias of [item.name,...item.aliases]) {
+        const known=universityIdentity(alias,universities);
+        if(known&&known.id!==item.id)throw new Error(`“${alias}” already identifies ${known.official_english_name}. Use an alias belonging to the same institution.`);
+      }
+      setConfig(c=>({...c,custom_universities:validated}));
+      try {localStorage.setItem(CUSTOM_DIRECTORY_KEY,JSON.stringify({schema_version:1,universities:validated}));}
+      catch {setError("Classification retained for this cohort. Browser storage is unavailable; export the custom directory to retain it.");}
+      invalidate();return true;
+    } catch(e) {setError(message(e));return false;}
+  }
+  function confirmUniversity(entry:CustomUniversity) {return saveUniversityDirectory([...customUniversities.filter(item=>item.id!==entry.id),entry]);}
+  async function importDirectory(file:File) {
+    try { const imported=parseCustomDirectory(JSON.parse(await file.text())); const merged=new Map(customUniversities.map(item=>[item.id,item]));for(const entry of imported)merged.set(entry.id,entry);saveUniversityDirectory([...merged.values()]); }
+    catch(e){setError(message(e));}
+  }
+  function exportDirectory() {
+    const url=URL.createObjectURL(new Blob([JSON.stringify({schema_version:1,universities:customUniversities},null,2)],{type:"application/json"}));
+    const link=document.createElement("a");link.href=url;link.download="AIP_Custom_University_Directory.json";link.click();URL.revokeObjectURL(url);
+  }
+  async function uploadSupport(file:File) {
+    setLoading(true);
+    try {const body=new FormData();body.append("file",file);const data=await jsonApi("/api/upload/support",{method:"POST",body});setSupport(data.support_members);setSupportDraft(String(data.support_members.length));invalidate();setSuccess("Support team imported. Review any missing gender or support category before continuing.");}
+    catch(e){setError(message(e));}finally{setLoading(false);}
+  }
   function invalidate() {
+    setScheduleExtension(null);
     setAllocation(null);
     setGenerated(null);
     setMetrics(null);
@@ -299,7 +346,7 @@ export default function Home() {
           ? p
           : field === "name"
             ? { ...p, name: value }
-            : { ...p, attributes: { ...p.attributes, [field]: value } },
+            : { ...p, attributes: { ...p.attributes, [field]: value, ...(field==="University"?{"University Category":null}:{}) } },
       ),
     );
     invalidate();
@@ -352,6 +399,7 @@ export default function Home() {
           ...p.attributes,
           Gender: "",
           University: "",
+          "University Category": null,
           "L3 Offering": "",
           "Primary Chemistry": "",
           "Secondary Chemistry": "",
@@ -383,6 +431,8 @@ export default function Home() {
             ...Array.from({ length: n - list.length }, () => ({
               id: uid("S"),
               name: "",
+              gender: null,
+              category: null,
             })),
           ]
         : list.slice(0, n),
@@ -459,14 +509,18 @@ export default function Home() {
       );
       return false;
     }
-    if (support.some((x) => !x.name.trim())) {
-      setError("Complete every support team member name.");
+    if (support.some((x) => !x.name.trim() || !x.gender || !x.category)) {
+      setError("Complete every support team member’s name, gender, and support category.");
       return false;
+    }
+    if(support.filter(member=>member.category==="Support Lead").length<2){
+      setError("At least two Support Leads are required so that each BUS Team has an experienced support member.");return false;
     }
     return true;
   }
   async function generate() {
     if (!validateData() || !validateTeam()) return;
+    if(unresolvedUniversities.length){go("data");setError("University classification required. Confirm every university category before generating allocations.");return;}
     if (
       allocation &&
       !confirm("Regenerating will overwrite current manual edits. Continue?")
@@ -479,7 +533,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          participants,
+          participants: normalizedParticipants,
           faculty_members: faculty,
           support_members: support,
           configuration: config,
@@ -489,9 +543,12 @@ export default function Home() {
       setGenerated(structuredClone(data.allocation));
       setMetrics(data.metrics);
       setTab("main");
+      setScheduleExtension(null);
       go("results");
     } catch (e) {
-      setError(message(e));
+      const detail=message(e),suggested=detail.match(/extend the final end time to (\d{1,2}:\d{2})/i)?.[1];
+      if(suggested)setScheduleExtension(suggested.padStart(5,"0"));
+      setError(detail);
     } finally {
       setLoading(false);
     }
@@ -509,7 +566,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          participants,
+          participants: normalizedParticipants,
           faculty_members: faculty,
           support_members: support,
           configuration: config,
@@ -579,7 +636,7 @@ export default function Home() {
     if (!editDraft) return;
     try {
       const payload = {
-        participants,
+        participants: normalizedParticipants,
         faculty_members: faculty,
         support_members: support,
         configuration: config,
@@ -644,7 +701,7 @@ export default function Home() {
     if (!source || !target || (source.id === target.id && !swapWithId)) return;
     if (
       !swapWithId &&
-      target.participant_ids.length >= source.participant_ids.length
+      (tab==="hotel"?target.participant_ids.length>=2&&!config.allow_accommodation_policy_overrides:target.participant_ids.length>=source.participant_ids.length)
     ) {
       setError(
         "That group is already at capacity. Drop onto a participant in the destination group to swap instead.",
@@ -655,7 +712,7 @@ export default function Home() {
   }
   const exportBody = allocation
     ? {
-        participants,
+        participants: normalizedParticipants,
         faculty_members: faculty,
         support_members: support,
         configuration: config,
@@ -793,9 +850,17 @@ export default function Home() {
                 }}
                 resize={resizePeople}
                 clear={clearPeople}
-                universities={universities}
+                universities={allUniversities}
               />
             )}
+            {participants.length>0&&<>
+              <UniversityReview people={participants} directory={universities} custom={customUniversities} confirm={confirmUniversity}/>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button className="btn btn-outline" onClick={()=>directoryInput.current?.click()}>Import custom university directory</button>
+                <button className="btn btn-outline" onClick={exportDirectory}>Export custom university directory</button>
+                <input hidden ref={directoryInput} type="file" accept=".json,application/json" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value="";if(file)importDirectory(file)}}/>
+              </div>
+            </>}
             <Next
               onClick={() => validateData() && go("team")}
               label="Continue to Faculty & Support"
@@ -807,7 +872,7 @@ export default function Home() {
             <TopBack onClick={() => go("data")} step="Step 2 of 4" />
             <Title
               title="Faculty & support team"
-              text="Faculty participate only in MyReflection. Support members participate only in BUS Teams."
+              text="Faculty attend My Reflections. Support Leads and Analyst Support join BUS Teams. Everyone receives a hotel room assignment."
             />
             <div className="grid gap-5 lg:grid-cols-2">
               <div className="card overflow-visible p-6">
@@ -841,6 +906,18 @@ export default function Home() {
                     />
                   </div>
                 ))}
+                <details className="mt-5 border-t pt-3 text-sm">
+                  <summary className="cursor-pointer font-bold text-sky">Faculty availability</summary>
+                  <p className="mt-2 text-xs text-slate-500">Record availability explicitly. No faculty gender is inferred.</p>
+                  {faculty.map((member,index)=><div className="mt-3 rounded-lg border p-3" key={member.id}>
+                    <b>{member.name||`Faculty ${index+1}`}</b>
+                    <label className="mt-2 flex items-center gap-2"><input type="checkbox" checked={member.prayer_unavailable!==false} onChange={e=>{setFaculty(list=>list.map(item=>item.id===member.id?{...item,prayer_unavailable:e.target.checked}:item));invalidate();}}/>Unavailable during the prayer break</label>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <TimeField label="Available from (optional)" value={member.available_from??""} change={value=>{setFaculty(list=>list.map(item=>item.id===member.id?{...item,available_from:value||null}:item));invalidate();}}/>
+                      <TimeField label="Available until (optional)" value={member.available_until??""} change={value=>{setFaculty(list=>list.map(item=>item.id===member.id?{...item,available_until:value||null}:item));invalidate();}}/>
+                    </div>
+                  </div>)}
+                </details>
               </div>
               <div className="card p-6">
                 <h2 className="text-xl font-extrabold">Support team members</h2>
@@ -848,6 +925,7 @@ export default function Home() {
                   <input
                     className="input w-28"
                     type="number"
+                    aria-label="Support team count"
                     min="0"
                     max="30"
                     value={supportDraft ?? ""}
@@ -857,21 +935,17 @@ export default function Home() {
                     Apply Count
                   </button>
                 </div>
+                <p className="mt-3 text-sm text-slate-500">Support Leads coordinate the buses; Analyst Support assist the onboarding team. At least two Support Leads are required.</p>
+                <button className="btn btn-outline mt-3" onClick={()=>supportInput.current?.click()}>Import support Excel</button>
+                <input ref={supportInput} hidden type="file" accept=".xlsx" onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value="";if(file)uploadSupport(file)}}/>
                 {support.map((s, i) => (
-                  <input
-                    className="input mt-3"
-                    key={s.id}
-                    placeholder={`Support member ${i + 1}`}
-                    value={s.name ?? ""}
-                    onChange={(e) =>
-                      setSupport((x) =>
-                        x.map((y) =>
-                          y.id === s.id ? { ...y, name: e.target.value } : y,
-                        ),
-                      )
-                    }
-                  />
+                  <div className="mt-4 grid gap-2 border-t pt-3 sm:grid-cols-2" key={s.id}>
+                    <input className="input sm:col-span-2" aria-label={`Support member ${i+1} name`} placeholder={`Support member ${i+1} name`} value={s.name??""} onChange={e=>{setSupport(list=>list.map(member=>member.id===s.id?{...member,name:e.target.value}:member));invalidate();}}/>
+                    <select className="input" aria-label={`Support member ${i+1} gender`} value={s.gender??""} onChange={e=>{setSupport(list=>list.map(member=>member.id===s.id?{...member,gender:e.target.value as SupportMember["gender"]}:member));invalidate();}}><option value="">Choose gender</option><option>Male</option><option>Female</option></select>
+                    <select className="input" aria-label={`Support member ${i+1} category`} value={s.category??""} onChange={e=>{setSupport(list=>list.map(member=>member.id===s.id?{...member,category:e.target.value as SupportMember["category"]}:member));invalidate();}}><option value="">Choose support category</option><option value="Support Lead">Support Lead</option><option value="Analyst Support">Analyst Support</option></select>
+                  </div>
                 ))}
+                <p className="mt-3 text-xs text-slate-500">Support Leads: {support.filter(s=>s.category==="Support Lead").length} · Analyst Support: {support.filter(s=>s.category==="Analyst Support").length}</p>
               </div>
             </div>
             <ReflectionSettingsPanel
@@ -917,7 +991,7 @@ export default function Home() {
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
                 ["BUS Teams", "Fixed at 2"],
-                ["MyReflection", "3 faculty lists"],
+                ["My Reflections", "3 faculty lists"],
                 ["Hotel Rooms", "Maximum 2 occupants"],
               ].map((x) => (
                 <div className="card p-5" key={x[0]}>
@@ -926,6 +1000,8 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            {scheduleExtension&&<div role="status" className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">My Reflections needs a longer schedule to respect the protected break. Earliest feasible completion: <b>{scheduleExtension}</b>.<button className="btn btn-outline ml-3" onClick={()=>{const end=scheduleExtension;updateReflection({end_time:end});setSuccess(`Final end time set to ${end}. Generate allocations to apply the extended schedule.`);}}>Set final end time to {scheduleExtension}</button></div>}
+            {unresolvedUniversities.length>0&&<div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">University classification required before generation. <button className="font-bold underline" onClick={()=>go("data")}>Review classifications</button></div>}
             <Next
               onClick={generate}
               label={
@@ -946,6 +1022,7 @@ export default function Home() {
             />
             {allocation && (
               <>
+                <ResultsLegend/>
                 <div className="space-y-4">
                   <div className="flex overflow-x-auto rounded-xl border bg-white p-1">
                     {displayedAllocation?.activities.map((a) => (
@@ -1123,6 +1200,7 @@ export default function Home() {
                           activity={current}
                           people={pmap}
                           support={smap}
+                          faculty={faculty}
                           chemistryEnabled={chemistryEnabled}
                           a={swapA}
                           b={swapB}
@@ -1259,7 +1337,7 @@ function Title({ title, text }: { title: string; text: string }) {
     text ===
       "Upload the AIP Master workbook and optionally include Business Chemistry in allocation." ||
     text ===
-      "Faculty participate only in MyReflection. Support members participate only in BUS Teams." ||
+      "Faculty participate only in My Reflections. Support members participate only in BUS Teams." ||
     text === "All six allocations will be generated together.";
   return (
     <div className="mb-7">
@@ -1627,8 +1705,7 @@ function ReflectionSettingsPanel({
   facultyCount: number;
   change: (patch: Partial<Configuration["reflection_settings"]>) => void;
 }) {
-  const males = participants.filter((p) => p.attributes.Gender === "Male"),
-    selected = new Set(settings.selected_participant_ids);
+  const selected = new Set(settings.selected_participant_ids);
   const toMinutes = (value: string) => {
     const [h, m] = value.split(":").map(Number);
     return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : 0;
@@ -1651,9 +1728,9 @@ function ReflectionSettingsPanel({
           onChange={(e) => change({ enabled: e.target.checked === true })}
         />
         <span>
-          <b className="text-lg text-navy">Enhance My Reflections</b>
+          <b className="text-lg text-navy">Enable My Reflections Time Optimization (For Friday Prayer)</b>
           <span className="block text-sm text-slate-500">
-            Optionally schedule selected participants before Friday prayer.
+            Schedule appointments before prayer and continue after the protected break.
           </span>
         </span>
       </label>
@@ -1664,14 +1741,14 @@ function ReflectionSettingsPanel({
               <div>
                 <h3 className="font-extrabold">Friday prayer accommodation</h3>
                 <p className="text-sm text-slate-500">
-                  Select only participants who require an earlier session.
+                  Explicitly select participants who need the prayer break protected.
                 </p>
               </div>
               <div className="flex gap-2">
                 <button
                   className="text-sm font-bold text-sky"
                   onClick={() =>
-                    change({ selected_participant_ids: males.map((p) => p.id) })
+                    change({ selected_participant_ids: participants.map((p) => p.id) })
                   }
                 >
                   Select All
@@ -1685,8 +1762,8 @@ function ReflectionSettingsPanel({
               </div>
             </div>
             <div className="mt-3 max-h-64 space-y-2 overflow-y-auto rounded-xl border p-3">
-              {males.length ? (
-                males.map((p) => (
+              {participants.length ? (
+                participants.map((p) => (
                   <label
                     className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-slate-50"
                     key={p.id}
@@ -1707,7 +1784,7 @@ function ReflectionSettingsPanel({
                 ))
               ) : (
                 <p className="text-sm text-slate-500">
-                  No male participants are currently available.
+                  No participants are currently available.
                 </p>
               )}
             </div>
@@ -1734,7 +1811,7 @@ function ReflectionSettingsPanel({
                 />
               </label>
               <TimeField
-                label="Friday prayer deadline"
+                label="Friday prayer start"
                 value={settings.prayer_deadline}
                 change={(value) => change({ prayer_deadline: value })}
               />
@@ -1743,9 +1820,10 @@ function ReflectionSettingsPanel({
                 value={settings.resume_time}
                 change={(value) => change({ resume_time: value })}
               />
+              <TimeField label="Fixed final end time (optional)" value={settings.end_time??""} change={value=>change({end_time:value||null})}/>
             </div>
             <div
-              className={`mt-4 rounded-xl p-3 text-sm ${selected.size > capacity ? "bg-red-50 text-red-700" : "bg-blue-50 text-blue-900"}`}
+              className="mt-4 rounded-xl bg-blue-50 p-3 text-sm text-blue-900"
             >
               <b>
                 {available} complete slots per faculty · {capacity} total
@@ -1753,9 +1831,7 @@ function ReflectionSettingsPanel({
               </b>
               <p>
                 {selected.size} selected
-                {selected.size > capacity
-                  ? ` · shortfall ${selected.size - capacity}`
-                  : ""}
+                {selected.size>capacity?` · remaining appointments continue from ${settings.resume_time} after prayer`:" · appointments may run before or after the protected break"}
               </p>
             </div>
           </div>
@@ -2041,6 +2117,7 @@ function EditPanel({
   activity,
   people,
   support,
+  faculty,
   chemistryEnabled,
   a,
   b,
@@ -2051,6 +2128,7 @@ function EditPanel({
   activity: NonNullable<Allocation>["activities"][number];
   people: Record<string, Participant>;
   support: Record<string, SupportMember>;
+  faculty: FacultyMember[];
   chemistryEnabled: boolean;
   a: string;
   b: string;
@@ -2061,7 +2139,7 @@ function EditPanel({
   const options = activity.groups.flatMap((g) =>
     g.participant_ids.map((id) => ({
       id,
-      label: editLabel(id, g.name, people, support, chemistryEnabled),
+      label: faculty.find(member=>member.id===id)?`${faculty.find(member=>member.id===id)?.name} · Faculty · ${g.name}`:editLabel(id, g.name, people, support, chemistryEnabled),
     })),
   );
   return (
@@ -2126,11 +2204,8 @@ function AllocationCards({
   editable?: boolean;
 }) {
   if (!activity) return null;
-  const singles =
-      activity.activity_id === "hotel"
-        ? activity.groups.filter((g) => g.participant_ids.length === 1).length
-        : 0,
-    sessions = activity.sessions ?? [];
+  const sessions = activity.sessions ?? [];
+  const hotelSummary=activity.activity_id==="hotel"?hotelRoomSummary(activity.groups,people,support,faculty):null;
   if (
     activity.activity_id === "reflection" &&
     reflectionSettings.enabled &&
@@ -2151,13 +2226,20 @@ function AllocationCards({
     );
   return (
     <>
-      {singles > 0 && (
-        <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          {singles} single-occupancy {singles === 1 ? "room was" : "rooms were"}{" "}
-          required because no valid same-gender roommate from a different Main
-          Group was available.
+      {hotelSummary&&<>
+        <div className="card mt-5 grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+          <SummaryStat label="Total rooms required" value={hotelSummary.total_rooms}/>
+          <SummaryStat label="New-hire shared rooms" value={hotelSummary.new_hire_shared}/>
+          <SummaryStat label="New hire + Analyst Support" value={hotelSummary.new_hire_analyst_shared}/>
+          <SummaryStat label="Single new-hire rooms" value={hotelSummary.new_hire_single}/>
+          <SummaryStat label="Single Support Lead rooms" value={hotelSummary.support_lead_single}/>
+          <SummaryStat label="Single Analyst Support rooms" value={hotelSummary.analyst_support_single}/>
+          <SummaryStat label="Single faculty rooms" value={hotelSummary.faculty_single}/>
+          {(hotelSummary.other_shared_rooms??0)>0&&<SummaryStat label="Approved manual room arrangements" value={hotelSummary.other_shared_rooms??0}/>}
         </div>
-      )}
+        {hotelSummary.new_hire_single>0&&<p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{hotelSummary.new_hire_single} new hire(s) require a single room. Review compatible same-gender Analyst Support availability or reserve these single rooms.</p>}
+      </>}
+      {activity.activity_id!=="hotel"&&activity.warnings?.map(warning=><p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900" key={warning}>{warning}</p>)}
       <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {activity.groups.map((g) => (
           <DroppableGroup groupId={g.id} editable={editable} key={g.id}>
@@ -2175,7 +2257,8 @@ function AllocationCards({
               <ol className="divide-y p-4">
                 {g.participant_ids.map((id, i) => {
                   const person = people[id],
-                    helper = support[id];
+                    helper = support[id],
+                    facultyMember = faculty.find(member=>member.id===id);
                   return (
                     <li className="flex gap-3 py-3 text-sm" key={id}>
                       <b className="pt-0.5 text-sky">{i + 1}.</b>
@@ -2185,9 +2268,7 @@ function AllocationCards({
                         editable={editable}
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="font-bold text-navy">
-                            {person?.name || helper?.name || id}
-                          </div>
+                          <ParticipantIdentity name={person?.name||helper?.name||facultyMember?.name||id} gender={person?.attributes.Gender??helper?.gender} category={person?canonicalCategory(person.attributes["University Category"]):undefined} role={helper?.category??(facultyMember?"Faculty":activity.activity_id==="hotel"?"New hire":undefined)}/>
                           {person && (
                             <ParticipantDetails
                               person={person}
@@ -2195,11 +2276,7 @@ function AllocationCards({
                             />
                           )}
                         </div>
-                        {helper && (
-                          <span className="ml-auto h-fit rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
-                            Support
-                          </span>
-                        )}
+
                       </EditablePerson>
                     </li>
                   );
@@ -2310,7 +2387,7 @@ function ReflectionSchedule({
                             {session.start_time}–{session.end_time}
                           </td>
                           <td className="whitespace-nowrap px-3 py-2 font-bold text-navy">
-                            {person?.name || session.participant_id}
+                            <ParticipantIdentity name={person?.name||session.participant_id} gender={person?.attributes.Gender} category={canonicalCategory(person?.attributes["University Category"])}/>
                           </td>
                           <td className="max-w-64 px-3 py-2 text-slate-600">
                             <span className="block truncate" title={university}>
@@ -2346,7 +2423,7 @@ function ReflectionSchedule({
                           <td className="px-3 py-2">
                             {accommodated ? (
                               <span className="whitespace-nowrap rounded-md bg-teal/10 px-2 py-1 font-bold text-teal">
-                                Before prayer
+                                {session.before_prayer?"Before prayer":"After prayer"}
                               </span>
                             ) : (
                               <span className="text-slate-400">—</span>
@@ -2367,7 +2444,7 @@ function ReflectionSchedule({
 }
 function clockMinutes(value: string) {
   const match = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (!match) return Number.MAX_SAFE_INTEGER;
+  if (!match) {const clock=value.match(/^(\d{1,2}):(\d{2})$/);return clock?Number(clock[1])*60+Number(clock[2]):Number.MAX_SAFE_INTEGER;}
   let hour = Number(match[1]) % 12;
   if (match[3].toUpperCase() === "PM") hour += 12;
   return hour * 60 + Number(match[2]);
@@ -2508,10 +2585,12 @@ function ReflectionSummary({
     ).length,
     matches = sessions.filter((s) => s.offering_match).length;
   return (
-    <div className="card mt-5 grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="card mt-5 grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
       <SummaryStat label="Participants" value={sessions.length} />
       <SummaryStat label="Accommodation requested" value={selected.size} />
       <SummaryStat label="Before prayer" value={accommodated} />
+      <SummaryStat label="After prayer" value={sessions.filter(session=>selected.has(session.participant_id)&&!session.before_prayer).length}/>
+      <SummaryStat label="Completion time" value={[...sessions].sort((a,b)=>clockMinutes(b.end_time)-clockMinutes(a.end_time))[0]?.end_time??"—"}/>
       <SummaryStat
         label="Offering match"
         value={`${sessions.length ? Math.round((matches / sessions.length) * 100) : 0}%`}
@@ -2582,7 +2661,7 @@ function editLabel(
   chemistryEnabled: boolean,
 ) {
   const person = people[id];
-  if (!person) return `${support[id]?.name || id} · Support · ${group}`;
+  if (!person) return `${support[id]?.name || id} · ${support[id]?.category || "Support category required"} · ${group}`;
   const university =
       String(person.attributes.University ?? "").trim() ||
       "University not provided",

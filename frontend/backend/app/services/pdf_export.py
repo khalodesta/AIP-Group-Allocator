@@ -13,10 +13,12 @@ from reportlab.lib.units import mm
 from reportlab.platypus import KeepTogether, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from app.models import AllocationSnapshot, FacultyMember, Participant, SupportMember
+from app.services.excel import HOTEL_SUMMARY_LABELS, hotel_room_summary
 from app.services.normalization import display_offering
 
 
-ACTIVITY_TITLES = {"main": "MAIN TEAMS", "sports": "SPORTS DAY GROUPS", "quiz": "QUIZ NIGHT GROUPS"}
+ACTIVITY_TITLES = {"main": "MAIN TEAMS", "sports": "SPORTS DAY GROUPS", "quiz": "QUIZ NIGHT GROUPS",
+                   "reflection": "My Reflections", "hotel": "PRIVATE HOTEL ROOM MANIFEST"}
 
 
 def _team_label(index: int) -> str:
@@ -64,11 +66,13 @@ def export_pdf(participants: list[Participant], allocation: AllocationSnapshot,
     output = io.BytesIO()
     people = {person.id: person.name for person in participants}
     people.update({person.id: person.name for person in (support_members or [])})
+    people.update({person.id: person.name for person in (faculty_members or [])})
     participant_map = {person.id: person for person in participants}
     faculty_map = {person.id: person for person in (faculty_members or [])}
     document = SimpleDocTemplate(output, pagesize=A4, rightMargin=14 * mm, leftMargin=14 * mm,
                                  topMargin=12 * mm, bottomMargin=12 * mm,
-                                 title="AIP Group Allocations", author="AIP Onboarding Program")
+                                 title="AIP Hotel Rooms Private" if activity_ids == {"hotel"} else "AIP Group Allocations",
+                                 author="AIP Onboarding Program")
     styles = getSampleStyleSheet()
     story = []
     program = ParagraphStyle("Program", parent=styles["Heading2"], fontName="Helvetica-Bold", fontSize=10,
@@ -79,13 +83,54 @@ def export_pdf(participants: list[Participant], allocation: AllocationSnapshot,
                               textColor=colors.HexColor("#64748B"), alignment=TA_CENTER, spaceAfter=8)
     usable_width = A4[0] - 28 * mm
 
-    selected = [a for a in allocation.activities if activity_ids is None or a.activity_id in activity_ids]
+    selected = [a for a in allocation.activities
+                if (a.activity_id != "hotel" if activity_ids is None else a.activity_id in activity_ids)]
     for activity_index, activity in enumerate(selected):
         if activity_index:
             story.append(PageBreak())
         story.extend([Paragraph("AIP ONBOARDING PROGRAM", program),
                       Paragraph(ACTIVITY_TITLES.get(activity.activity_id, escape(activity.activity_name.upper())), activity_style),
-                      Paragraph("Group allocations", subtitle)])
+                      Paragraph("Internal accommodation manifest" if activity.activity_id == "hotel" else "Group allocations", subtitle)])
+        if activity.activity_id == "hotel":
+            roles = {person.id: "New Hire" for person in participants}
+            roles.update({person.id: person.category or "Support category required" for person in (support_members or [])})
+            roles.update({person.id: "Faculty" for person in (faculty_members or [])})
+            summary = hotel_room_summary(activity, participants, support_members or [], faculty_members or [])
+            story.append(Paragraph(f"Total rooms required: {summary['total_rooms']}", styles["Heading2"]))
+            summary_rows = [["Occupancy summary", "Rooms"]]
+            summary_rows.extend([label, str(summary[key])] for key, label in HOTEL_SUMMARY_LABELS.items()
+                                if key != "total_rooms" and key in summary)
+            summary_table = Table(summary_rows, colWidths=[usable_width - 20*mm, 20*mm], repeatRows=1)
+            manifest_style = TableStyle([
+                ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#163B64")),
+                ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+                ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+                ("FONTSIZE", (0,0), (-1,-1), 8),
+                ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F5F8FB")]),
+                ("GRID", (0,0), (-1,-1), .35, colors.HexColor("#CBD8E5")),
+                ("VALIGN", (0,0), (-1,-1), "TOP"),
+                ("TOPPADDING", (0,0), (-1,-1), 5),
+                ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+            ])
+            summary_table.setStyle(manifest_style)
+            story.extend([summary_table, Spacer(1,5*mm)])
+            cell_style = ParagraphStyle("HotelCell", parent=styles["BodyText"], fontSize=8, leading=11)
+            manifest_rows = [["Room", "Occupants", "Occupant roles", "Occupancy"]]
+            for room in activity.groups:
+                manifest_rows.append([
+                    Paragraph(escape(room.name), cell_style),
+                    Paragraph("<br/>".join(escape(people.get(pid,pid)) for pid in room.participant_ids), cell_style),
+                    Paragraph("<br/>".join(escape(roles.get(pid,"Unknown")) for pid in room.participant_ids), cell_style),
+                    "Single" if len(room.participant_ids) == 1 else str(len(room.participant_ids)),
+                ])
+            manifest = Table(manifest_rows, colWidths=[22*mm, 76*mm, 58*mm, usable_width-156*mm], repeatRows=1)
+            manifest.setStyle(manifest_style)
+            story.append(manifest)
+            if summary["single_new_hire_rooms"]:
+                story.extend([Spacer(1,3*mm), Paragraph(
+                    "Single new-hire rooms require accommodation review. Add an available same-gender Analyst Support member or confirm the single-room booking.",
+                    styles["BodyText"])])
+            continue
         if activity.activity_id == "reflection" and activity.sessions:
             faculty_heading=ParagraphStyle("FacultyHeading",fontName="Helvetica-Bold",fontSize=11,leading=14,textColor=colors.HexColor("#163B64"),spaceBefore=5,spaceAfter=4)
             for group in activity.groups:

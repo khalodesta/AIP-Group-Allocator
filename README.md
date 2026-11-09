@@ -1,5 +1,9 @@
 # AIP Smart Group Allocator
 
+For the current six-activity Week 2 implementation, university category review,
+support roles, prayer-aware scheduling, complete hotel manifest, and release
+verification, see [Week 2 improvements](docs/week2-seven-improvements.md).
+
 An explainable, local-first tool for creating permanent onboarding groups and temporary activity groups using university diversity, gender balance, and different teammate exposure.
 
 ## What is included
