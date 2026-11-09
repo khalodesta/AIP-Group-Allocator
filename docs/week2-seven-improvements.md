@@ -140,7 +140,7 @@ node --test tests/results-ui.test.cjs
 PORTABLE_WINDOWS_BUILD=1 npm run build
 ```
 
-Final local verification passed: **89 backend tests**, **9 React component tests**,
+Final local verification passed: **90 backend tests**, **9 React component tests**,
 TypeScript checking, Python critical-error lint, Git whitespace checks, and the
 production build with `PORTABLE_WINDOWS_BUILD=1`. No final local checks failed.
 Live Chrome acceptance passed with 30 fictional hires, five support members, and
@@ -157,6 +157,14 @@ directory, all six allocations, prayer continuation, hotel coverage, and PDF/Exc
 downloads through the packaged frontend proxy. A local macOS production build
 does not establish Windows compatibility; the Windows workflow must pass before
 claiming the ZIP is ready.
+
+The [Windows workflow](https://github.com/khalodesta/AIP-Group-Allocator/actions/runs/42626750855)
+completed successfully for application commit `c450cf1` on 2026-11-09. Its Windows
+Python 3.12 run passed all **90 backend tests**, all **9 component tests**, and the
+bundled six-allocation/export smoke test. Four dependency deprecation warnings
+(Starlette, ReportLab and protobuf) did not affect these checks. The updated
+[Windows artifact](https://github.com/khalodesta/AIP-Group-Allocator/actions/runs/42626750855/artifacts/13679246730)
+contains `AIP-Week2-Allocator-Windows.zip`.
 
 Confirmed mappings depend on the current browser profile unless exported.
 Schedules remain within one calendar day. The CI smoke test does not replace a
