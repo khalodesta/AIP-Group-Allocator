@@ -1,0 +1,433 @@
+{
+  "participants": [
+    {
+      "id": "P00",
+      "name": "Fictional Hire 00",
+      "attributes": {
+        "Gender": "Female",
+        "University": "GUC",
+        "L3 Offering": "Cyber",
+        "Primary Chemistry": "Pioneer",
+        "Secondary Chemistry": "Driver",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P01",
+      "name": "Fictional Hire 01",
+      "attributes": {
+        "Gender": "Male",
+        "University": "AUC",
+        "L3 Offering": "AI & Data",
+        "Primary Chemistry": "Integrator",
+        "Secondary Chemistry": "Guardian",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P02",
+      "name": "Fictional Hire 02",
+      "attributes": {
+        "Gender": "Male",
+        "University": "Misr International University",
+        "L3 Offering": "Customer",
+        "Primary Chemistry": "Integrator",
+        "Secondary Chemistry": "Integrator",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P03",
+      "name": "Fictional Hire 03",
+      "attributes": {
+        "Gender": "Female",
+        "University": "The British University in Egypt",
+        "L3 Offering": "ET&P",
+        "Primary Chemistry": "Guardian",
+        "Secondary Chemistry": "Pioneer",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P04",
+      "name": "Fictional Hire 04",
+      "attributes": {
+        "Gender": "Female",
+        "University": "Misr University for Science and Technology",
+        "L3 Offering": "AI & Data",
+        "Primary Chemistry": "Guardian",
+        "Secondary Chemistry": "Driver",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P05",
+      "name": "Fictional Hire 05",
+      "attributes": {
+        "Gender": "Male",
+        "University": "GUC",
+        "L3 Offering": "Customer",
+        "Primary Chemistry": "Driver",
+        "Secondary Chemistry": "Guardian",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P06",
+      "name": "Fictional Hire 06",
+      "attributes": {
+        "Gender": "Male",
+        "University": "AUC",
+        "L3 Offering": "ET&P",
+        "Primary Chemistry": "Driver",
+        "Secondary Chemistry": "Integrator",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P07",
+      "name": "Fictional Hire 07",
+      "attributes": {
+        "Gender": "Male",
+        "University": "Misr International University",
+        "L3 Offering": "Engineering",
+        "Primary Chemistry": "Pioneer",
+        "Secondary Chemistry": "Pioneer",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P08",
+      "name": "Fictional Hire 08",
+      "attributes": {
+        "Gender": "Female",
+        "University": "The British University in Egypt",
+        "L3 Offering": "Customer",
+        "Primary Chemistry": "Pioneer",
+        "Secondary Chemistry": "Driver",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P09",
+      "name": "Fictional Hire 09",
+      "attributes": {
+        "Gender": "Female",
+        "University": "Misr University for Science and Technology",
+        "L3 Offering": "ET&P",
+        "Primary Chemistry": "Integrator",
+        "Secondary Chemistry": "Guardian",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P10",
+      "name": "Fictional Hire 10",
+      "attributes": {
+        "Gender": "Male",
+        "University": "GUC",
+        "L3 Offering": "Engineering",
+        "Primary Chemistry": "Integrator",
+        "Secondary Chemistry": "Integrator",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P11",
+      "name": "Fictional Hire 11",
+      "attributes": {
+        "Gender": "Female",
+        "University": "AUC",
+        "L3 Offering": "Cyber",
+        "Primary Chemistry": "Guardian",
+        "Secondary Chemistry": "Pioneer",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P12",
+      "name": "Fictional Hire 12",
+      "attributes": {
+        "Gender": "Male",
+        "University": "Misr International University",
+        "L3 Offering": "ET&P",
+        "Primary Chemistry": "Guardian",
+        "Secondary Chemistry": "Driver",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P13",
+      "name": "Fictional Hire 13",
+      "attributes": {
+        "Gender": "Female",
+        "University": "The British University in Egypt",
+        "L3 Offering": "Engineering",
+        "Primary Chemistry": "Driver",
+        "Secondary Chemistry": "Guardian",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P14",
+      "name": "Fictional Hire 14",
+      "attributes": {
+        "Gender": "Female",
+        "University": "Misr University for Science and Technology",
+        "L3 Offering": "Cyber",
+        "Primary Chemistry": "Driver",
+        "Secondary Chemistry": "Integrator",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P15",
+      "name": "Fictional Hire 15",
+      "attributes": {
+        "Gender": "Male",
+        "University": "GUC",
+        "L3 Offering": "AI & Data",
+        "Primary Chemistry": "Pioneer",
+        "Secondary Chemistry": "Pioneer",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P16",
+      "name": "Fictional Hire 16",
+      "attributes": {
+        "Gender": "Male",
+        "University": "AUC",
+        "L3 Offering": "Engineering",
+        "Primary Chemistry": "Pioneer",
+        "Secondary Chemistry": "Driver",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P17",
+      "name": "Fictional Hire 17",
+      "attributes": {
+        "Gender": "Female",
+        "University": "Misr International University",
+        "L3 Offering": "Cyber",
+        "Primary Chemistry": "Integrator",
+        "Secondary Chemistry": "Guardian",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P18",
+      "name": "Fictional Hire 18",
+      "attributes": {
+        "Gender": "Female",
+        "University": "The British University in Egypt",
+        "L3 Offering": "AI & Data",
+        "Primary Chemistry": "Integrator",
+        "Secondary Chemistry": "Integrator",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P19",
+      "name": "Fictional Hire 19",
+      "attributes": {
+        "Gender": "Male",
+        "University": "Misr University for Science and Technology",
+        "L3 Offering": "Customer",
+        "Primary Chemistry": "Guardian",
+        "Secondary Chemistry": "Pioneer",
+        "University Category": "private"
+      }
+    },
+    {
+      "id": "P20",
+      "name": "Fictional Hire 20",
+      "attributes": {
+        "Gender": "Female",
+        "University": "Cairo University",
+        "L3 Offering": "Cyber",
+        "Primary Chemistry": "Guardian",
+        "Secondary Chemistry": "Driver",
+        "University Category": "public"
+      }
+    },
+    {
+      "id": "P21",
+      "name": "Fictional Hire 21",
+      "attributes": {
+        "Gender": "Male",
+        "University": "Ain Shams University",
+        "L3 Offering": "AI & Data",
+        "Primary Chemistry": "Driver",
+        "Secondary Chemistry": "Guardian",
+        "University Category": "public"
+      }
+    },
+    {
+      "id": "P22",
+      "name": "Fictional Hire 22",
+      "attributes": {
+        "Gender": "Male",
+        "University": "Alexandria University",
+        "L3 Offering": "Customer",
+        "Primary Chemistry": "Driver",
+        "Secondary Chemistry": "Integrator",
+        "University Category": "public"
+      }
+    },
+    {
+      "id": "P23",
+      "name": "Fictional Hire 23",
+      "attributes": {
+        "Gender": "Female",
+        "University": "Capital-Helwan University",
+        "L3 Offering": "ET&P",
+        "Primary Chemistry": "Pioneer",
+        "Secondary Chemistry": "Pioneer",
+        "University Category": "public"
+      }
+    },
+    {
+      "id": "P24",
+      "name": "Fictional Hire 24",
+      "attributes": {
+        "Gender": "Male",
+        "University": "Cairo University",
+        "L3 Offering": "AI & Data",
+        "Primary Chemistry": "Pioneer",
+        "Secondary Chemistry": "Driver",
+        "University Category": "public"
+      }
+    },
+    {
+      "id": "P25",
+      "name": "Fictional Hire 25",
+      "attributes": {
+        "Gender": "Male",
+        "University": "Ain Shams University",
+        "L3 Offering": "Customer",
+        "Primary Chemistry": "Integrator",
+        "Secondary Chemistry": "Guardian",
+        "University Category": "public"
+      }
+    },
+    {
+      "id": "P26",
+      "name": "Fictional Hire 26",
+      "attributes": {
+        "Gender": "Female",
+        "University": "Alexandria University",
+        "L3 Offering": "ET&P",
+        "Primary Chemistry": "Integrator",
+        "Secondary Chemistry": "Integrator",
+        "University Category": "public"
+      }
+    }
+  ],
+  "configuration": {
+    "schema_version": 2,
+    "activities": [
+      {
+        "id": "main",
+        "name": "Main Groups",
+        "mode": "max_size",
+        "value": 6,
+        "locked": false
+      },
+      {
+        "id": "quiz",
+        "name": "Quiz Night",
+        "mode": "max_size",
+        "value": 6,
+        "locked": false
+      },
+      {
+        "id": "team",
+        "name": "Team Building",
+        "mode": "max_size",
+        "value": 6,
+        "locked": false
+      }
+    ],
+    "factors": [],
+    "seed": 42,
+    "time_limit_seconds": 30.0,
+    "repeat_weight": 1000,
+    "include_business_chemistry": true,
+    "allow_accommodation_policy_overrides": false,
+    "reflection_settings": {
+      "enabled": true,
+      "selected_participant_ids": [
+        "P01",
+        "P02",
+        "P05",
+        "P06",
+        "P07",
+        "P10",
+        "P12",
+        "P15",
+        "P16",
+        "P19"
+      ],
+      "start_time": "11:15",
+      "session_duration_minutes": 20,
+      "prayer_deadline": "11:40",
+      "resume_time": "13:00",
+      "end_time": null
+    },
+    "custom_universities": []
+  },
+  "faculty_members": [
+    {
+      "id": "F0",
+      "name": "Fictional Faculty 0",
+      "offering": "Cyber"
+    },
+    {
+      "id": "F1",
+      "name": "Fictional Faculty 1",
+      "offering": "Customer"
+    },
+    {
+      "id": "F2",
+      "name": "Fictional Faculty 2",
+      "offering": "Engineering"
+    }
+  ],
+  "support_members": [
+    {
+      "id": "S0",
+      "name": "Fictional Support 0",
+      "gender": "Male",
+      "category": "Support Lead"
+    },
+    {
+      "id": "S1",
+      "name": "Fictional Support 1",
+      "gender": "Female",
+      "category": "Support Lead"
+    },
+    {
+      "id": "S2",
+      "name": "Fictional Support 2",
+      "gender": "Male",
+      "category": "Analyst Support"
+    },
+    {
+      "id": "S3",
+      "name": "Fictional Support 3",
+      "gender": "Female",
+      "category": "Analyst Support"
+    },
+    {
+      "id": "S4",
+      "name": "Fictional Support 4",
+      "gender": "Male",
+      "category": "Analyst Support"
+    }
+  ],
+  "existing_allocation": null,
+  "regenerate_activity_ids": null,
+  "locked_assignments": {}
+}

@@ -6,6 +6,7 @@ on:
     branches:
       - deployment/portable-windows
       - 'release/windows-final-*'
+      - release/windows-original-packaging
 
 permissions:
   contents: read
@@ -44,7 +45,7 @@ jobs:
         shell: powershell
         working-directory: frontend
         run: |
-          node --test tests/results-ui.test.cjs
+          node --test tests/results-ui.test.cjs tests/proxy-timeout.test.cjs
           if ($LASTEXITCODE -ne 0) { throw "Results component tests failed" }
 
       - name: Smoke-test bundled application
@@ -63,7 +64,7 @@ jobs:
       - name: Upload Windows ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: AIP-Week2-Allocator-Windows
+          name: AIP-Week2-Allocator-Windows-Original-Packaging
           path: |
             release/AIP-Week2-Allocator-Windows.zip
             release/SHA256SUMS.txt

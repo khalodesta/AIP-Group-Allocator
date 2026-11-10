@@ -1,38 +1,30 @@
 AIP WEEK 2 ALLOCATOR - WINDOWS QUICK START
 ========================================
 
-1. Download the Windows package from the successful GitHub Actions build.
-2. Extract the downloaded ZIP. If it contains another ZIP named
-   AIP-Week2-Allocator-Windows.zip, extract that ZIP as well.
-3. Keep all files together in the extracted AIP-Week2-Allocator folder.
-   You can put this folder in Downloads or on your Desktop.
-4. Double-click START.bat. Allow up to two minutes for the first launch.
-5. Your browser opens at http://localhost:3000.
-   If it does not open, type that address in your browser.
-6. Download your Excel and PDF results before finishing. Your previous
-   allocation session may not be preserved after closing or restarting.
-7. Double-click STOP.bat when finished. Closing the browser does not stop
-   the application. To use it again, double-click START.bat.
+1. Download any results from the old copy, then close it with its STOP.bat.
+   Extract the downloaded GitHub artifact ZIP into a new folder.
+2. Extract AIP-Week2-Allocator-Windows.zip inside it as well.
+3. Open the extracted AIP-Week2-Allocator folder. Keep all files together.
+4. Double-click START.bat. If PowerShell asks, press R to run once.
+5. Wait for your browser to open at http://localhost:3000.
+   If it does not open, type that address into your browser.
+6. Upload your Excel files and generate the allocations. Generation may take
+   over 30 seconds; keep the page open while it completes.
+7. Download your Excel/PDF results before closing. A previous allocation
+   session may not be preserved after a restart.
+8. Double-click STOP.bat when finished. Press R if PowerShell asks.
 
-No separate Node.js, Python, VS Code or other installation is required.
+No Python, Node.js, VS Code, npm or pip installation is needed.
 Internet access is not required after downloading and extracting the package.
-Uploaded information is processed locally on this laptop by the application.
-Keep employee files and exported results in your approved company locations.
+Uploaded information is processed locally on this laptop.
+Store employee files and exported results in approved company locations.
 
-IF STARTUP DOES NOT WORK
------------------------
-If START.bat says the app is already running, it opens the existing app.
-If it says port 8000 or 3000 is occupied, another application or another copy
-is using that address. Use STOP.bat in the other app folder if applicable,
-or contact the application administrator. Do not end unrelated programs.
-Try STOP.bat followed by START.bat if this copy did not finish starting.
+If a port is occupied, close another running copy using its own STOP.bat,
+or contact the AIP application administrator. Do not stop unrelated programs.
+For startup or generation problems, review the logs folder beside START.bat:
+launcher-error.log, backend-error.log and frontend-error.log.
+Review logs before sharing them. Contact the administrator who supplied this
+application and provide the error message and BUILD-INFO.json.
 
-Startup details are in the logs folder beside START.bat. The main files are
-launcher-error.log, supervisor.log, backend-error.log and frontend-error.log.
-Review logs before sharing them with anyone.
-
-For help, contact the AIP application administrator who supplied this package.
-Give them the startup message and the BUILD-INFO.json file from this folder.
-
-Company security policies still apply. Unsigned software may require IT
-approval. Do not disable Windows security or bypass company restrictions.
+Company security policies apply. Do not change execution policies or disable
+security protection. Company-managed laptops may require IT approval.

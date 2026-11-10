@@ -24,12 +24,10 @@ Write-Host "Testing and packaging backend..."
 python -m pip install --disable-pip-version-check -r (Join-Path $Frontend "requirements.txt") "pyinstaller==6.16.0"
 if ($LASTEXITCODE -ne 0) { throw "Python dependency installation failed" }
 Push-Location $Repo
-python -m pytest -c frontend/backend/pytest.ini frontend/backend/tests packaging/windows/tests -q
+python -m pytest frontend/backend/tests -q
 if ($LASTEXITCODE -ne 0) { throw "Backend tests failed" }
 python -m PyInstaller --noconfirm --clean --distpath (Join-Path $Output "pyinstaller") --workpath (Join-Path $Output "pyinstaller-work") packaging/windows/backend.spec
 if ($LASTEXITCODE -ne 0) { throw "PyInstaller backend packaging failed" }
-python -m PyInstaller --noconfirm --clean --distpath (Join-Path $Output "pyinstaller") --workpath (Join-Path $Output "pyinstaller-work") packaging/windows/launcher.spec
-if ($LASTEXITCODE -ne 0) { throw "PyInstaller launcher packaging failed" }
 Pop-Location
 
 Remove-Item $PackageRoot -Recurse -Force -ErrorAction SilentlyContinue
@@ -46,7 +44,7 @@ New-Item -ItemType Directory -Force -Path (Join-Path $PackageRoot "app\frontend\
 Copy-Item (Join-Path $Frontend ".next\static") (Join-Path $PackageRoot "app\frontend\.next\static") -Recurse -Force
 if (Test-Path (Join-Path $Frontend "public")) { Copy-Item (Join-Path $Frontend "public") (Join-Path $PackageRoot "app\frontend\public") -Recurse -Force }
 Copy-Item (Join-Path $Output "pyinstaller\allocator-backend.exe") (Join-Path $PackageRoot "app\backend\allocator-backend.exe") -Force
-Copy-Item (Join-Path $Output "pyinstaller\allocator-launcher.exe") (Join-Path $PackageRoot "app\launcher\allocator-launcher.exe") -Force
+Copy-Item (Join-Path $PSScriptRoot "start.ps1"), (Join-Path $PSScriptRoot "stop.ps1") (Join-Path $PackageRoot "app\launcher") -Force
 Copy-Item (Join-Path $PSScriptRoot "START.bat"), (Join-Path $PSScriptRoot "STOP.bat"), (Join-Path $PSScriptRoot "README.txt") $PackageRoot -Force
 
 Write-Host "Downloading official portable Node.js runtime..."
@@ -77,9 +75,7 @@ foreach ($SourcePath in $SourceFiles) {
   }
 }
 @{commit=$Commit; branch=$env:GITHUB_REF_NAME; node=$NodeVersion; sources=$SourceHashes} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $PackageRoot "BUILD-INFO.json") -Encoding UTF8
-# .NET ZIP includes .next dot-directories; Compress-Archive can omit hidden files.
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[IO.Compression.ZipFile]::CreateFromDirectory($PackageRoot, $Zip, [IO.Compression.CompressionLevel]::Optimal, $true)
+Compress-Archive -Path $PackageRoot -DestinationPath $Zip -CompressionLevel Optimal
 $ZipHash = (Get-FileHash $Zip -Algorithm SHA256).Hash.ToLowerInvariant()
 Set-Content (Join-Path $Output "SHA256SUMS.txt") "$ZipHash  AIP-Week2-Allocator-Windows.zip" -Encoding UTF8
 @{commit=$Commit; branch=$env:GITHUB_REF_NAME; zip="AIP-Week2-Allocator-Windows.zip"; bytes=(Get-Item $Zip).Length; sha256=$ZipHash} | ConvertTo-Json | Set-Content (Join-Path $Output "release-manifest.json") -Encoding UTF8
