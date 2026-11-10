@@ -15,7 +15,10 @@ def request_for(name="balanced27", seconds=4):
 
 
 def core_request(name="balanced27"):
-    request = request_for(name)
+    # Quality regressions use the application's normal solve budget. Four-second
+    # benchmark runs can exhaust presolve on shared Windows CI before any CP-SAT
+    # incumbent exists; the separate benchmark keeps that short limit unchanged.
+    request = request_for(name, seconds=20)
     request.faculty_members = []  # Exercise the joint model without unrelated scheduling.
     return request
 
