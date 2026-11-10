@@ -13,15 +13,14 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 [IO.Compression.ZipFile]::ExtractToDirectory((Resolve-Path $Zip).Path, $TestRoot)
 
 function Run-Batch([string]$Name, [string]$Label) {
-  $Out = Join-Path $Diagnostic "$Label.out.txt"
-  $Err = Join-Path $Diagnostic "$Label.err.txt"
-  $Process = Start-Process -FilePath $env:ComSpec -ArgumentList "/d /c call `"$(Join-Path $Package $Name)`"" -PassThru -WindowStyle Hidden -RedirectStandardOutput $Out -RedirectStandardError $Err
+  # Original PowerShell startup can leave inherited console handles open in
+  # descendants. Stream to CI directly instead of reading a locked capture file.
+  Write-Host "Running $Name ($Label)"
+  $Process = Start-Process -FilePath $env:ComSpec -ArgumentList "/d /c call `"$(Join-Path $Package $Name)`"" -PassThru -NoNewWindow
   $null = $Process.Handle
   if (-not $Process.WaitForExit(180000)) { $Process.Kill(); throw "$Name exceeded its startup/shutdown time bound" }
   $Process.Refresh()
-  $Text = [IO.File]::ReadAllText($Out) + [IO.File]::ReadAllText($Err)
-  Write-Host $Text
-  if ($Process.ExitCode -ne 0) { throw "$Name failed: $Text" }
+  if ($Process.ExitCode -ne 0) { throw "$Name failed with exit code $($Process.ExitCode); see packaged startup logs" }
 }
 function Assert-Healthy {
   foreach ($Base in @('http://127.0.0.1:8000','http://127.0.0.1:3000')) {
