@@ -1,11 +1,12 @@
 # Exercises the built, frozen backend through the standalone frontend proxy.
 # All identities are fictional; this script is only used for release validation.
+param([string]$BaseUri = "http://127.0.0.1:3000")
 $ErrorActionPreference = "Stop"
-$BaseUri = "http://127.0.0.1:3000"
 $People = @(0..5 | ForEach-Object {
   @{ id="P$_"; name="Fictional Hire $_"; attributes=@{
     Gender=$(if ($_ -lt 4) { "Male" } else { "Female" })
     University=$(if ($_ % 2) { "GUC" } else { "Cairo University" })
+    "University Category"=$(if ($_ % 2) { "private" } else { "public" })
     "L3 Offering"=@("Cyber", "Customer", "Engineering")[$_ % 3]
   }}
 })

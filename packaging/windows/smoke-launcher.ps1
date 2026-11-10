@@ -68,7 +68,12 @@ try {
   $Second = Get-Content $StateFile -Raw | ConvertFrom-Json
   if ($First.supervisor.created -ne $Second.supervisor.created -or $First.backend.pid -ne $Second.backend.pid -or $First.frontend.pid -ne $Second.frontend.pid) { throw "Duplicate start created extra processes" }
   $Directory = Invoke-RestMethod "http://127.0.0.1:3000/api/universities" -TimeoutSec 10
-  if ($Directory.count -lt 130 -or @($Directory.universities | Where-Object { $_.category -notin @('public','private') }).Count) { throw "Offline Public/Private university directory is incomplete" }
+  # The directory retains legal-category metadata and explicitly unresolved
+  # entries. Only diversity_category is a binary grouping classification.
+  if ($Directory.count -lt 130 -or @($Directory.universities | Where-Object { $_.diversity_category -and $_.diversity_category -notin @('public','private') }).Count) { throw "Offline Public/Private university directory is incomplete" }
+  foreach ($Category in @('public','private')) {
+    if (-not @($Directory.universities | Where-Object { $_.diversity_category -eq $Category }).Count) { throw "Offline directory is missing $Category grouping mappings" }
+  }
   if (-not @($Directory.universities | Where-Object { $_.official_english_name -eq 'Capital-Helwan University' }).Count) { throw "Latest Capital-Helwan source data missing" }
   & (Join-Path $PSScriptRoot 'smoke-allocations.ps1')
   Run-Batch 'STOP.bat' 0 'first-stop' | Out-Null
