@@ -2,7 +2,7 @@ from PyInstaller.utils.hooks import collect_all
 from pathlib import Path
 
 repo = Path(SPECPATH).parents[1]
-datas = [(str(repo / "frontend" / "backend"), "backend")]
+datas = [(str(repo / "frontend" / "backend" / "data"), "backend/data")]
 binaries = []
 hiddenimports = []
 for package in ("ortools", "pandas", "numpy", "openpyxl", "reportlab", "uvicorn", "fastapi", "pydantic"):

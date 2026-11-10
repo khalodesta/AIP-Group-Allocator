@@ -38,7 +38,7 @@ def generated():
             "time_limit_seconds": 2,
             "reflection_settings": {"enabled": True, "start_time": "11:15", "prayer_deadline": "11:40",
                                     "resume_time": "13:10", "session_duration_minutes": 20,
-                                    "selected_participant_ids": [f"P{i}" for i in range(12)]},
+                                    "selected_participant_ids": [f"P{i}" for i in range(7)]},
         },
     }
     response = TestClient(app).post("/api/optimize", json=payload)
@@ -220,11 +220,121 @@ def test_unknown_classification_blocks_generation_and_reusable_aliases_resolve()
     client = TestClient(app)
     unknown = client.post("/api/optimize", json=payload)
     assert unknown.status_code == 422 and "University classification required" in unknown.text
-    payload["configuration"]["custom_universities"] = [{"id": "fictional-college", "name": "Fictional College", "aliases": ["FC"], "category": "national"}]
+    payload["configuration"]["custom_universities"] = [{"id": "fictional-college", "name": "Fictional College", "aliases": ["FC"], "category": "public"}]
     classified = client.post("/api/optimize", json=payload)
     assert classified.status_code == 200, classified.text
     result = classified.json()
     assert result["metrics"]["same_university_pairs"] == 2
     assert result["metrics"]["factor_balance_scores"]["university_category"] == 1
-    assert all(group["university_category_counts"] == {"national": 2}
+    assert all(group["university_category_counts"] == {"public": 2}
                for group in result["metrics"]["activity_group_details"]["main"])
+
+
+def test_official_nonbinary_university_requires_administrator_binary_confirmation():
+    """An official Ahleya category is never silently reclassified as private."""
+    from app.services.normalization import resolve_university
+    institution = resolve_university("Helwan National University")
+    payload = {"participants": [{"id": f"P{i}", "name": f"Fictional National Graduate {i}", "attributes": {
+        "Gender": "Male", "University": "Helwan National University"}} for i in range(4)],
+        "configuration": {"activities": [{"id": "main", "name": "Main Groups", "mode": "group_count", "value": 2}], "time_limit_seconds": 1}}
+    client = TestClient(app)
+    unresolved = client.post("/api/optimize", json=payload)
+    assert unresolved.status_code == 422 and "University classification required" in unresolved.text
+    payload["configuration"]["custom_universities"] = [{
+        "id": institution["id"], "name": institution["official_english_name"], "aliases": [], "category": "public"}]
+    confirmed = client.post("/api/optimize", json=payload)
+    assert confirmed.status_code == 200, confirmed.text
+    assert all(group["university_category_counts"] == {"public": 2}
+               for group in confirmed.json()["metrics"]["activity_group_details"]["main"])
+    payload["configuration"]["custom_universities"][0]["category"] = "national"
+    unsupported = client.post("/api/optimize", json=payload)
+    assert unsupported.status_code == 422
+
+
+def test_prayer_selection_rejects_female_ids_in_generate_and_saved_allocations(generated):
+    payload = copy.deepcopy(generated)
+    payload["configuration"]["reflection_settings"]["selected_participant_ids"].append("P8")
+    client = TestClient(app)
+    response = client.post("/api/optimize", json=payload)
+    assert response.status_code == 422 and "male" in response.text.casefold()
+    validation = client.post("/api/allocations/validate", json=payload)
+    assert validation.status_code == 200 and not validation.json()["valid"]
+    assert "male" in str(validation.json()["errors"]).casefold()
+    for path in ("/api/export/pdf", "/api/export/editable"):
+        exported = client.post(path, json=payload)
+        assert exported.status_code == 422
+
+
+def minutes(value):
+    time = datetime.strptime(value, "%I:%M %p")
+    return time.hour * 60 + time.minute
+
+
+def test_unselected_continue_during_break_and_faculty_can_idle_until_resume(generated):
+    reflection = next(activity for activity in generated["allocation"]["activities"] if activity["activity_id"] == "reflection")
+    selected = set(generated["configuration"]["reflection_settings"]["selected_participant_ids"])
+    sessions = reflection["sessions"]
+    assert all(minutes(session["end_time"]) <= 700 or minutes(session["start_time"]) >= 790
+               for session in sessions if session["participant_id"] in selected)
+    assert any(session["participant_id"] not in selected and minutes(session["start_time"]) < 790
+               and minutes(session["end_time"]) > 700 for session in sessions)
+    found_idle = False
+    for faculty in generated["faculty_members"]:
+        ordered = sorted((session for session in sessions if session["faculty_id"] == faculty["id"]), key=lambda session: minutes(session["start_time"]))
+        assert len(ordered) == 4
+        assert all(minutes(left["end_time"]) <= minutes(right["start_time"]) for left, right in zip(ordered, ordered[1:]))
+        found_idle |= any(minutes(right["start_time"]) >= 790 and minutes(left["end_time"]) < 790
+                          and minutes(right["start_time"]) > minutes(left["end_time"])
+                          for left, right in zip(ordered, ordered[1:]))
+    assert found_idle
+
+
+def test_legacy_individual_faculty_availability_is_ignored(generated):
+    payload = copy.deepcopy(generated)
+    for member in payload["faculty_members"]:
+        member.update({"available_from": "18:00", "available_until": "18:20", "prayer_unavailable": True,
+                       "unavailable_intervals": [{"start_time": "00:00", "end_time": "17:59"}]})
+    response = TestClient(app).post("/api/optimize", json=payload)
+    assert response.status_code == 200, response.text
+    reflection = next(activity for activity in response.json()["allocation"]["activities"] if activity["activity_id"] == "reflection")
+    assert len(reflection["sessions"]) == 12
+    assert max(minutes(session["end_time"]) for session in reflection["sessions"]) < 18 * 60
+    assert all("available_from" not in member for member in generated["faculty_members"])
+
+
+@pytest.mark.parametrize("cross_faculty", [False, True])
+def test_manual_prayer_swaps_reject_protected_slots_and_valid_swaps_export(generated, cross_faculty):
+    reflection = next(activity for activity in generated["allocation"]["activities"] if activity["activity_id"] == "reflection")
+    selected = set(generated["configuration"]["reflection_settings"]["selected_participant_ids"])
+    sessions = reflection["sessions"]
+    protected = next(session for session in sessions if session["participant_id"] in selected and minutes(session["start_time"]) >= 790)
+    restricted_slot = next(session for session in sessions if session["participant_id"] not in selected
+                           and minutes(session["start_time"]) < 790 and minutes(session["end_time"]) > 700
+                           and ((session["faculty_id"] != protected["faculty_id"]) if cross_faculty else (session["faculty_id"] == protected["faculty_id"])))
+    response = TestClient(app).post("/api/allocations/edit", json={
+        **generated, "activity_id": "reflection", "participant_id": protected["participant_id"],
+        "target_group_id": restricted_slot["faculty_id"], "swap_with_id": restricted_slot["participant_id"], "allow_override": True})
+    assert response.status_code == 422 and "protected" in response.text.casefold()
+    compatible = next(session for session in sessions if session["participant_id"] != protected["participant_id"]
+                      and (minutes(session["end_time"]) <= 700 or minutes(session["start_time"]) >= 790)
+                      and ((session["faculty_id"] != protected["faculty_id"]) if cross_faculty else (session["faculty_id"] == protected["faculty_id"])))
+    valid = TestClient(app).post("/api/allocations/edit", json={
+        **generated, "activity_id": "reflection", "participant_id": protected["participant_id"],
+        "target_group_id": compatible["faculty_id"], "swap_with_id": compatible["participant_id"]})
+    assert valid.status_code == 200 and "requires_confirmation" not in valid.json(), valid.text
+    allocation = valid.json()["allocation"]
+    updated = next(activity for activity in allocation["activities"] if activity["activity_id"] == "reflection")
+    exchanged = next(session for session in updated["sessions"] if session["participant_id"] == protected["participant_id"])
+    assert exchanged["faculty_id"] == compatible["faculty_id"] and exchanged["start_time"] == compatible["start_time"]
+    payload = {**generated, "allocation": allocation}
+    pdf = TestClient(app).post("/api/export/pdf/reflection", json=payload)
+    assert pdf.status_code == 200
+    text = pdf_text(pdf.content)
+    assert compatible["start_time"] in text and "Participant Offering" in text
+    # Faculty offerings remain in exports; only the Results UI hides them.
+    assert any(f"{member['name']} — {member['offering']}" in text for member in generated["faculty_members"])
+    excel = TestClient(app).post("/api/export/editable", json=payload)
+    assert excel.status_code == 200
+    book = load_workbook(io.BytesIO(excel.content))
+    rows = list(book["My Reflections"].iter_rows(values_only=True))
+    assert any(compatible["start_time"] in row and f"Integration Hire {protected['participant_id'][1:]}" in row for row in rows)

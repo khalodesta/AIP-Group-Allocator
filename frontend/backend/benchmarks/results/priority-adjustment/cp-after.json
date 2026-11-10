@@ -1,0 +1,2528 @@
+{
+  "python": "3.9.6",
+  "ortools": "9.11.4210",
+  "time_limit_seconds": 4,
+  "seed": 42,
+  "mode": "cp_sat",
+  "runs": [
+    {
+      "case": "balanced27",
+      "input_sha256": "f392ada5b10b4bbf598c64ec2c0d3f508e0eba213c898f39bb4cdc76491654cd",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 6.0516,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0015
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0289
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 1.3244
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0013
+        },
+        {
+          "first_variable": "room_Female_0_2",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.3511
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 1
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 7
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 4
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 14,
+            "male": 7,
+            "female": 7,
+            "public": 4,
+            "private": 10,
+            "same_university_pairs": 5,
+            "same_offering_pairs": 13,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 18,
+            "same_secondary_pairs": 18
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 13,
+            "male": 7,
+            "female": 6,
+            "public": 3,
+            "private": 10,
+            "same_university_pairs": 5,
+            "same_offering_pairs": 11,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 15,
+            "same_secondary_pairs": 15
+          }
+        ]
+      },
+      "maximum_gender_gap": 1,
+      "scaled_gender_deviation": 292,
+      "worst_scaled_gender_deviation": 16,
+      "scaled_category_deviation": 328,
+      "same_university_pairs": 15,
+      "repeated_teammates_three_activities": 25,
+      "same_offering_pairs": 47,
+      "average_distinct_offerings": 4.118,
+      "same_primary_pairs": 67,
+      "same_secondary_pairs": 72,
+      "chemistry_objective_enabled": true,
+      "hard_constraint_violations": []
+    },
+    {
+      "case": "balanced30",
+      "input_sha256": "50cf769f16f65acc334fc2c265d9f2a290908d6cc6890ccc338759a195e55736",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 15.1321,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0016
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0064
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 5.0003
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 2.9614
+        },
+        {
+          "first_variable": "room_Female_0_2",
+          "status": "OPTIMAL",
+          "solver_seconds": 2.7333
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 4
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 6,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 6,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 4,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 7,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 4,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 6,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 3,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 15,
+            "male": 7,
+            "female": 8,
+            "public": 7,
+            "private": 8,
+            "same_university_pairs": 6,
+            "same_offering_pairs": 16,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 21,
+            "same_secondary_pairs": 21
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 15,
+            "male": 8,
+            "female": 7,
+            "public": 8,
+            "private": 7,
+            "same_university_pairs": 6,
+            "same_offering_pairs": 16,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 21,
+            "same_secondary_pairs": 21
+          }
+        ]
+      },
+      "maximum_gender_gap": 1,
+      "scaled_gender_deviation": 60,
+      "worst_scaled_gender_deviation": 15,
+      "scaled_category_deviation": 60,
+      "same_university_pairs": 19,
+      "repeated_teammates_three_activities": 28,
+      "same_offering_pairs": 68,
+      "average_distinct_offerings": 4.0,
+      "same_primary_pairs": 100,
+      "same_secondary_pairs": 85,
+      "chemistry_objective_enabled": true,
+      "hard_constraint_violations": []
+    },
+    {
+      "case": "uneven30",
+      "input_sha256": "a7263df697dd5e0454c24c142e6c14e644a6b46e0b7fbfca9d3fb2603a56dcb0",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 7.9297,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0018
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0053
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 3.5014
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0047
+        },
+        {
+          "first_variable": "room_Female_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0002
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 4,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 6,
+            "female": 0,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 7
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 6,
+            "female": 0,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 3
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 6,
+            "female": 0,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 5,
+            "female": 1,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 7,
+            "same_secondary_pairs": 6
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 15,
+            "male": 13,
+            "female": 2,
+            "public": 3,
+            "private": 12,
+            "same_university_pairs": 9,
+            "same_offering_pairs": 17,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 21,
+            "same_secondary_pairs": 21
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 15,
+            "male": 13,
+            "female": 2,
+            "public": 3,
+            "private": 12,
+            "same_university_pairs": 9,
+            "same_offering_pairs": 15,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 21,
+            "same_secondary_pairs": 21
+          }
+        ]
+      },
+      "maximum_gender_gap": 11,
+      "scaled_gender_deviation": 288,
+      "worst_scaled_gender_deviation": 24,
+      "scaled_category_deviation": 288,
+      "same_university_pairs": 33,
+      "repeated_teammates_three_activities": 31,
+      "same_offering_pairs": 58,
+      "average_distinct_offerings": 4.412,
+      "same_primary_pairs": 90,
+      "same_secondary_pairs": 98,
+      "chemistry_objective_enabled": true,
+      "hard_constraint_violations": []
+    },
+    {
+      "case": "private_majority",
+      "input_sha256": "af233599960a6dff239c75b30dd447efaf5567d0949e96e524c4743e41fcf628",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 15.8504,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0015
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0086
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 5.0061
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 3.1492
+        },
+        {
+          "first_variable": "room_Female_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 3.247
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 0,
+            "private": 6,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 0,
+            "private": 6,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 3
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 4,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 0,
+            "private": 6,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 0,
+            "private": 6,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 0,
+            "private": 6,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 0,
+            "private": 6,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 6,
+            "same_secondary_pairs": 6
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 15,
+            "male": 8,
+            "female": 7,
+            "public": 1,
+            "private": 14,
+            "same_university_pairs": 13,
+            "same_offering_pairs": 15,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 21,
+            "same_secondary_pairs": 21
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 15,
+            "male": 7,
+            "female": 8,
+            "public": 2,
+            "private": 13,
+            "same_university_pairs": 11,
+            "same_offering_pairs": 17,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 21,
+            "same_secondary_pairs": 21
+          }
+        ]
+      },
+      "maximum_gender_gap": 1,
+      "scaled_gender_deviation": 60,
+      "worst_scaled_gender_deviation": 15,
+      "scaled_category_deviation": 492,
+      "same_university_pairs": 38,
+      "repeated_teammates_three_activities": 39,
+      "same_offering_pairs": 60,
+      "average_distinct_offerings": 4.294,
+      "same_primary_pairs": 92,
+      "same_secondary_pairs": 104,
+      "chemistry_objective_enabled": true,
+      "hard_constraint_violations": []
+    },
+    {
+      "case": "public_majority",
+      "input_sha256": "e94d639d54d4c18aebdff94a0dc51539d443fdffca6b2c41d709bffa2d1dd7f2",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 5.0152,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0013
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0131
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.3928
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0013
+        },
+        {
+          "first_variable": "room_Female_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.2602
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 5,
+            "private": 1,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 5,
+            "private": 1,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 4,
+            "private": 1,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 5,
+            "private": 0,
+            "same_university_pairs": 3,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 5,
+            "private": 0,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 5,
+            "private": 1,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 4,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 5,
+            "private": 1,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 6,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 5,
+            "private": 0,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 4,
+            "private": 1,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 5,
+            "private": 0,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 5,
+            "private": 1,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 5,
+            "private": 1,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 4,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 5,
+            "private": 0,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 4,
+            "private": 1,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 5,
+            "private": 0,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 1
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 14,
+            "male": 7,
+            "female": 7,
+            "public": 12,
+            "private": 2,
+            "same_university_pairs": 12,
+            "same_offering_pairs": 13,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 18,
+            "same_secondary_pairs": 18
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 13,
+            "male": 7,
+            "female": 6,
+            "public": 12,
+            "private": 1,
+            "same_university_pairs": 12,
+            "same_offering_pairs": 11,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 15,
+            "same_secondary_pairs": 15
+          }
+        ]
+      },
+      "maximum_gender_gap": 1,
+      "scaled_gender_deviation": 292,
+      "worst_scaled_gender_deviation": 16,
+      "scaled_category_deviation": 408,
+      "same_university_pairs": 44,
+      "repeated_teammates_three_activities": 30,
+      "same_offering_pairs": 54,
+      "average_distinct_offerings": 3.765,
+      "same_primary_pairs": 71,
+      "same_secondary_pairs": 64,
+      "chemistry_objective_enabled": true,
+      "hard_constraint_violations": []
+    },
+    {
+      "case": "chemistry_disabled",
+      "input_sha256": "3ab734d391f28ce1035e55345e7b842964af2ea57790b6531e0178c1280c17c1",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 4.4994,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0011
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0038
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0096
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0014
+        },
+        {
+          "first_variable": "room_Female_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.24
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 4,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 1
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 6
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 14,
+            "male": 7,
+            "female": 7,
+            "public": 4,
+            "private": 10,
+            "same_university_pairs": 5,
+            "same_offering_pairs": 13,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 28,
+            "same_secondary_pairs": 19
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 13,
+            "male": 7,
+            "female": 6,
+            "public": 3,
+            "private": 10,
+            "same_university_pairs": 5,
+            "same_offering_pairs": 11,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 22,
+            "same_secondary_pairs": 17
+          }
+        ]
+      },
+      "maximum_gender_gap": 1,
+      "scaled_gender_deviation": 292,
+      "worst_scaled_gender_deviation": 16,
+      "scaled_category_deviation": 328,
+      "same_university_pairs": 23,
+      "repeated_teammates_three_activities": 27,
+      "same_offering_pairs": 56,
+      "average_distinct_offerings": 3.647,
+      "same_primary_pairs": 86,
+      "same_secondary_pairs": 85,
+      "chemistry_objective_enabled": false,
+      "hard_constraint_violations": []
+    },
+    {
+      "case": "different_sizes",
+      "input_sha256": "d2ec963b4e253c5ab604a4322fbae9a894349308e6798f161c3b4348dd08c22b",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 6.1876,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0016
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0281
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 1.3014
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0013
+        },
+        {
+          "first_variable": "room_Female_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.4745
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 2,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 6",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 1
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 7,
+            "male": 4,
+            "female": 3,
+            "public": 2,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 7,
+            "male": 3,
+            "female": 4,
+            "public": 2,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 7,
+            "male": 4,
+            "female": 3,
+            "public": 2,
+            "private": 5,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 7,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 1,
+            "private": 5,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 6,
+            "same_secondary_pairs": 4
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 0,
+            "same_secondary_pairs": 1
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 6",
+            "new_hires": 4,
+            "male": 2,
+            "female": 2,
+            "public": 1,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 0
+          },
+          {
+            "group": "Group 7",
+            "new_hires": 3,
+            "male": 2,
+            "female": 1,
+            "public": 1,
+            "private": 2,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 2,
+            "same_primary_pairs": 0,
+            "same_secondary_pairs": 0
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 14,
+            "male": 7,
+            "female": 7,
+            "public": 4,
+            "private": 10,
+            "same_university_pairs": 5,
+            "same_offering_pairs": 13,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 18,
+            "same_secondary_pairs": 18
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 13,
+            "male": 7,
+            "female": 6,
+            "public": 3,
+            "private": 10,
+            "same_university_pairs": 5,
+            "same_offering_pairs": 11,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 15,
+            "same_secondary_pairs": 15
+          }
+        ]
+      },
+      "maximum_gender_gap": 1,
+      "scaled_gender_deviation": 244,
+      "worst_scaled_gender_deviation": 17,
+      "scaled_category_deviation": 200,
+      "same_university_pairs": 17,
+      "repeated_teammates_three_activities": 27,
+      "same_offering_pairs": 43,
+      "average_distinct_offerings": 3.789,
+      "same_primary_pairs": 71,
+      "same_secondary_pairs": 67,
+      "chemistry_objective_enabled": true,
+      "hard_constraint_violations": []
+    },
+    {
+      "case": "same_university",
+      "input_sha256": "223a53b87b41d3e07b8b2499a93d9eeab894063c570e67124d9e68bb79796598",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 14.5349,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0018
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0034
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 5.0004
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 2.2558
+        },
+        {
+          "first_variable": "room_Female_0_2",
+          "status": "OPTIMAL",
+          "solver_seconds": 2.6279
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 6,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 6,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 6
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 6
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 7,
+            "same_secondary_pairs": 7
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 4,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 3,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 6,
+            "private": 0,
+            "same_university_pairs": 15,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 15,
+            "male": 7,
+            "female": 8,
+            "public": 15,
+            "private": 0,
+            "same_university_pairs": 105,
+            "same_offering_pairs": 17,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 21,
+            "same_secondary_pairs": 21
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 15,
+            "male": 8,
+            "female": 7,
+            "public": 15,
+            "private": 0,
+            "same_university_pairs": 105,
+            "same_offering_pairs": 15,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 21,
+            "same_secondary_pairs": 21
+          }
+        ]
+      },
+      "maximum_gender_gap": 1,
+      "scaled_gender_deviation": 60,
+      "worst_scaled_gender_deviation": 15,
+      "scaled_category_deviation": 0,
+      "same_university_pairs": 435,
+      "repeated_teammates_three_activities": 25,
+      "same_offering_pairs": 58,
+      "average_distinct_offerings": 4.412,
+      "same_primary_pairs": 100,
+      "same_secondary_pairs": 93,
+      "chemistry_objective_enabled": true,
+      "hard_constraint_violations": []
+    },
+    {
+      "case": "locked27",
+      "input_sha256": "4e3152b255cdee801a0c01a9b8ca94ad3b34c19a73593b9242d2f9a74359bffa",
+      "status": "FEASIBLE",
+      "fallback_used": false,
+      "seconds": 5.7422,
+      "solver_stages": [
+        {
+          "first_variable": "x_0_0_0",
+          "status": "FEASIBLE",
+          "solver_seconds": 4.0012
+        },
+        {
+          "first_variable": "bus_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0285
+        },
+        {
+          "first_variable": "reflection_0_0",
+          "status": "OPTIMAL",
+          "solver_seconds": 1.3035
+        },
+        {
+          "first_variable": "room_Male_0_1",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.0013
+        },
+        {
+          "first_variable": "room_Female_0_5",
+          "status": "OPTIMAL",
+          "solver_seconds": 0.074
+        }
+      ],
+      "per_group": {
+        "main": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 1,
+            "female": 5,
+            "public": 0,
+            "private": 6,
+            "same_university_pairs": 2,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 4,
+            "female": 2,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 2,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 2,
+            "private": 3,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 1,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "quiz": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 3,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "team": [
+          {
+            "group": "Group 1",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 3,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 2",
+            "new_hires": 6,
+            "male": 3,
+            "female": 3,
+            "public": 2,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 2,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 4,
+            "same_secondary_pairs": 4
+          },
+          {
+            "group": "Group 3",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 4",
+            "new_hires": 5,
+            "male": 3,
+            "female": 2,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 0,
+            "same_offering_pairs": 1,
+            "distinct_offerings": 4,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 3
+          },
+          {
+            "group": "Group 5",
+            "new_hires": 5,
+            "male": 2,
+            "female": 3,
+            "public": 1,
+            "private": 4,
+            "same_university_pairs": 1,
+            "same_offering_pairs": 0,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 2,
+            "same_secondary_pairs": 2
+          }
+        ],
+        "bus": [
+          {
+            "group": "BUS Team 1",
+            "new_hires": 14,
+            "male": 7,
+            "female": 7,
+            "public": 4,
+            "private": 10,
+            "same_university_pairs": 5,
+            "same_offering_pairs": 13,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 18,
+            "same_secondary_pairs": 18
+          },
+          {
+            "group": "BUS Team 2",
+            "new_hires": 13,
+            "male": 7,
+            "female": 6,
+            "public": 3,
+            "private": 10,
+            "same_university_pairs": 5,
+            "same_offering_pairs": 11,
+            "distinct_offerings": 5,
+            "same_primary_pairs": 15,
+            "same_secondary_pairs": 15
+          }
+        ]
+      },
+      "maximum_gender_gap": 4,
+      "scaled_gender_deviation": 432,
+      "worst_scaled_gender_deviation": 57,
+      "scaled_category_deviation": 432,
+      "same_university_pairs": 17,
+      "repeated_teammates_three_activities": 29,
+      "same_offering_pairs": 43,
+      "average_distinct_offerings": 4.353,
+      "same_primary_pairs": 68,
+      "same_secondary_pairs": 76,
+      "chemistry_objective_enabled": true,
+      "hard_constraint_violations": []
+    }
+  ]
+}

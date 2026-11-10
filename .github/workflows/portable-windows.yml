@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - deployment/portable-windows
+      - 'release/windows-final-*'
 
 permissions:
   contents: read
@@ -16,6 +17,10 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: "false"
 
       - name: Set up Node.js for build
         uses: actions/setup-node@v4
@@ -44,25 +49,24 @@ jobs:
 
       - name: Smoke-test bundled application
         shell: powershell
-        run: |
-          $package = Join-Path $PWD "release\AIP-Week2-Allocator"
-          $env:AIP_NO_BROWSER = "1"
-          & (Join-Path $package "START.bat")
-          $backend = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -TimeoutSec 10
-          if ($backend.status -ne "healthy") { throw "Backend health check failed" }
-          $frontend = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:3000" -TimeoutSec 10
-          if ($frontend.StatusCode -ne 200) { throw "Frontend health check failed" }
-          $proxied = Invoke-RestMethod -Uri "http://127.0.0.1:3000/api/health" -TimeoutSec 10
-          if ($proxied.status -ne "healthy") { throw "Frontend API proxy health check failed" }
-          $directory = Invoke-RestMethod -Uri "http://127.0.0.1:3000/api/universities" -TimeoutSec 10
-          if ($directory.count -lt 130) { throw "Bundled offline university directory is missing" }
-          & ./packaging/windows/smoke-allocations.ps1
-          & (Join-Path $package "STOP.bat")
+        run: ./packaging/windows/smoke-launcher.ps1
+
+      - name: Save Windows test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-build-diagnostics
+          path: ${{ runner.temp }}/AIP-launcher-diagnostics
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Upload Windows ZIP
         uses: actions/upload-artifact@v4
         with:
           name: AIP-Week2-Allocator-Windows
-          path: release/AIP-Week2-Allocator-Windows.zip
+          path: |
+            release/AIP-Week2-Allocator-Windows.zip
+            release/SHA256SUMS.txt
+            release/release-manifest.json
           if-no-files-found: error
           retention-days: 14

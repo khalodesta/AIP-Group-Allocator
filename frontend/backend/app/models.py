@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
 from app.services.normalization import display_gender, normalize_offering, normalize_text, resolve_university
 
-UniversityCategory = Literal["public", "private", "national", "international", "other"]
+UniversityCategory = Literal["public", "private"]
 
 
 class CustomUniversity(BaseModel):
@@ -17,22 +17,6 @@ class CustomUniversity(BaseModel):
     def required_text(cls, value):
         if not value.strip(): raise ValueError("University ID and name are required")
         return value.strip()
-
-
-class TimeInterval(BaseModel):
-    start_time: str
-    end_time: str
-
-    @model_validator(mode="after")
-    def valid_interval(self):
-        from datetime import datetime
-        try:
-            start = datetime.strptime(self.start_time, "%H:%M")
-            end = datetime.strptime(self.end_time, "%H:%M")
-        except ValueError:
-            raise ValueError("Faculty availability must use valid HH:MM times")
-        if end <= start: raise ValueError("Faculty unavailable interval must end after it starts")
-        return self
 
 
 class Strategy(str, Enum):
@@ -60,10 +44,8 @@ class FacultyMember(BaseModel):
     id: str
     name: str
     offering: str
-    prayer_unavailable: bool = True
-    unavailable_intervals: List[TimeInterval] = Field(default_factory=list)
-    available_from: Optional[str] = None
-    available_until: Optional[str] = None
+    # Legacy per-faculty availability fields are ignored by Pydantic. All three
+    # faculty use the global schedule; only selected participants have a break.
 
     @field_validator("offering")
     @classmethod

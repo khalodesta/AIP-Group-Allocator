@@ -3,16 +3,16 @@ from pydantic import ValidationError
 from app.models import ActivityAllocation, AllocationSnapshot, Configuration, CustomUniversity, Group, Participant
 from app.services.normalization import (
     display_university, normalize_university, participant_university_category,
-    university_category, validate_university_classifications,
+    university_category, university_directory, validate_university_classifications,
 )
 from app.services.scoring import score_allocation
 
 
 @pytest.mark.parametrize("name,category", [
     ("Cairo University", "public"), ("ASU", "public"), ("GUC", "private"),
-    ("AUC", "private"), ("Helwan National University", "national"),
-    ("جامعة حلوان الأهلية", "national"), ("Galala University", "national"),
-    ("Coventry Egypt", "international"), ("Unknown Fictional University", None),
+    ("AUC", "private"), ("Helwan National University", None),
+    ("جامعة حلوان الأهلية", None), ("Galala University", None),
+    ("Coventry Egypt", None), ("Unknown Fictional University", None),
 ])
 def test_offline_categories(name, category):
     assert university_category(name) == category
@@ -31,15 +31,15 @@ def test_custom_aliases_review_and_reusable_corrections():
     with pytest.raises(ValueError) as error:
         validate_university_classifications(people)
     assert str(error.value).count("Example Academy") == 1
-    mappings = [CustomUniversity(id="custom:example",name="Example Academy",aliases=["EA", "Example-Academy"],category="national")]
+    mappings = [CustomUniversity(id="custom:example",name="Example Academy",aliases=["EA", "Example-Academy"],category="private")]
     validate_university_classifications(people,mappings)
     assert {normalize_university(alias,mappings) for alias in ("EA", "Example Academy", "Example-Academy")} == {"custom:example"}
-    assert university_category("EA",mappings) == "national"
+    assert university_category("EA",mappings) == "private"
     # Exported configuration carries the reviewed directory to another machine.
     restored=Configuration.model_validate_json(Configuration(activities=[],custom_universities=mappings).model_dump_json())
-    assert university_category("EA",restored.custom_universities)=="national"
-    correction=[CustomUniversity(id="eg-cairo-university",name="Cairo University",aliases=["CU"],category="other")]
-    assert university_category("CU",correction)=="other"
+    assert university_category("EA",restored.custom_universities)=="private"
+    correction=[CustomUniversity(id="eg-cairo-university",name="Cairo University",aliases=["CU"],category="private")]
+    assert university_category("CU",correction)=="private"
 
 
 def test_explicit_cohort_classification_and_conflicting_alias_validation():
@@ -59,6 +59,34 @@ def test_explicit_cohort_classification_and_conflicting_alias_validation():
         validate_university_classifications([
             Participant(id="p1",name="Fictional 1",attributes={"University":"Example Academy","University Category":"public"}),
             Participant(id="p2",name="Fictional 2",attributes={"University":"Example-Academy","University Category":"private"})])
+
+
+@pytest.mark.parametrize("category",["national","international","other","unclassified",""])
+def test_only_public_and_private_can_be_confirmed(category):
+    with pytest.raises(ValidationError):
+        CustomUniversity(id="example",name="Fictional Academy",aliases=[],category=category)
+    person=Participant(id="p",name="Fictional",attributes={"University":"Fictional Academy","University Category":category})
+    assert participant_university_category(person) is None
+    with pytest.raises(ValueError,match="Confirm Public or Private"):
+        validate_university_classifications([person])
+
+
+def test_legal_metadata_never_guesses_a_binary_grouping_category():
+    assert {entry.get("diversity_category") for entry in university_directory()} <= {"public","private",None}
+    for name in ("Helwan National University","Coventry Egypt","Galala University"):
+        person=Participant(id="p",name="Fictional",attributes={"University":name})
+        with pytest.raises(ValueError,match="University classification required"):
+            validate_university_classifications([person])
+    mapping=CustomUniversity(id="eg-helwan-national-university",name="Helwan National University",aliases=["HNU"],category="private")
+    assert university_category("HNU",[mapping])=="private"
+    assert next(u for u in university_directory() if u["id"]==mapping.id)["category"]=="national_ahlia"
+
+
+def test_one_explicit_cohort_confirmation_applies_to_all_same_university_rows():
+    people=[Participant(id="p1",name="Fictional One",attributes={"University":"Fictional Academy","University Category":"private"}),
+            Participant(id="p2",name="Fictional Two",attributes={"University":"fictional-academy"})]
+    validate_university_classifications(people)
+    assert [person.attributes["University Category"] for person in people]==["private","private"]
 
 
 def test_category_quality_includes_bus_excludes_reflection_hotel_and_gender():

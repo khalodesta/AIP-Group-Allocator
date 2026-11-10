@@ -9,7 +9,7 @@ from app.services.normalization import normalize_gender, normalize_university, p
 def pair_sets(allocation: AllocationSnapshot) -> Dict[str, Set[Tuple[str, str]]]:
     result = {}
     for activity in allocation.activities:
-        if activity.activity_id not in {"main", "quiz", "team", "sports"}: continue
+        if activity.activity_id not in {"main", "quiz", "team"}: continue
         pairs = set()
         for group in activity.groups:
             pairs.update(tuple(sorted(pair)) for pair in combinations(group.participant_ids, 2))

@@ -11,14 +11,10 @@ OFFERING_ALIASES={
     "customer":"Customer","et p":"ET&P","etp":"ET&P","engineering":"Engineering","cyber":"Cyber"
 }
 
-UNIVERSITY_CATEGORIES = {"public", "private", "national", "international", "other"}
+UNIVERSITY_CATEGORIES = {"public", "private"}
 CATEGORY_GROUPS = {
     "public": "public", "public_technological": "public",
     "private": "private", "private_technological": "private",
-    "national_ahlia": "national", "national": "national",
-    "foreign_branch": "international", "international_agreement": "international",
-    "framework_agreement": "international", "international": "international",
-    "special_nature": "other", "government_supervision": "other", "other": "other",
 }
 
 def normalize_text(value: object) -> Optional[str]:
@@ -83,7 +79,8 @@ def display_university(value: object, custom_universities=None) -> Optional[str]
 def university_category(value: object, custom_universities=None) -> Optional[str]:
     university = resolve_university(value, custom_universities)
     if not university: return None
-    return university.get("diversity_category") or CATEGORY_GROUPS.get(university.get("category"))
+    grouping = university.get("diversity_category")
+    return grouping if grouping in UNIVERSITY_CATEGORIES else CATEGORY_GROUPS.get(university.get("category"))
 
 
 def participant_university_category(participant, custom_universities=None) -> Optional[str]:
@@ -95,20 +92,26 @@ def participant_university_category(participant, custom_universities=None) -> Op
 
 
 def validate_university_classifications(participants, custom_universities=None):
-    unresolved = {}
     confirmed = {}
     for person in participants:
         value = person.attributes.get("University") or "Missing university"
         category = participant_university_category(person, custom_universities)
-        if not category:
-            unresolved.setdefault(normalize_text(value), str(value))
-        else:
+        if category:
             identity = normalize_university(value, custom_universities)
             if identity in confirmed and confirmed[identity] != category:
                 raise ValueError(f"University classification required: conflicting categories for {value}. Confirm one category for this university.")
             confirmed[identity] = category
+    unresolved = {}
+    for person in participants:
+        value = person.attributes.get("University") or "Missing university"
+        identity = normalize_university(value, custom_universities)
+        if identity not in confirmed:
+            unresolved.setdefault(identity, str(value))
     if unresolved:
-        raise ValueError("University classification required: " + ", ".join(unresolved.values()) + ". Confirm a category for each unique university before generating allocations.")
+        raise ValueError("University classification required: " + ", ".join(unresolved.values()) + ". Confirm Public or Private for each unique university before generating allocations.")
+    for person in participants:
+        identity = normalize_university(person.attributes.get("University") or "Missing university", custom_universities)
+        person.attributes["University Category"] = confirmed[identity]
 
 def normalize_gender(value: object) -> Optional[str]:
     normalized=normalize_text(value)

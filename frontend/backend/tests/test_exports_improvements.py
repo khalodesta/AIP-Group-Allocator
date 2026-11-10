@@ -71,6 +71,7 @@ def test_participant_pdf_excludes_hotel_by_default_and_has_spaced_reflections_ti
 
 def test_editable_excel_roundtrips_support_roles_and_participant_categories():
     participants, support, faculty, allocation = manifest_fixture()
+    participants[1].attributes.update({"University": "German University in Cairo", "University Category": "private"})
     data = export_week2_workbook(participants, allocation, faculty, support)
     workbook = load_workbook(io.BytesIO(data))
     assert "My Reflections" in workbook.sheetnames and "MyReflection" not in workbook.sheetnames
@@ -78,7 +79,7 @@ def test_editable_excel_roundtrips_support_roles_and_participant_categories():
     assert [person.model_dump() for person in imported] == [person.model_dump() for person in support]
     imported_participants, _ = parse_excel(data)
     assert [person.id for person in imported_participants] == [person.id for person in participants]
-    assert all(person.attributes["University Category"] == "public" for person in imported_participants)
+    assert [person.attributes["University Category"] for person in imported_participants] == ["public", "private", "public", "public", "public", "public"]
     rows = list(workbook["Hotel Rooms"].iter_rows(values_only=True))
     assert rows[0] == ("Room", "Occupant 1", "Occupant 1 Role", "Occupant 2", "Occupant 2 Role", "Occupancy")
     assert len(rows) - 1 == 10
@@ -126,3 +127,22 @@ def test_master_excel_keeps_capital_helwan_aliases_distinct_from_national():
     assert {person.attributes["University"] for person in participants[:3]} == {"Capital-Helwan University"}
     assert len({person.attributes["UniversityId"] for person in participants[:3]}) == 1
     assert participants[3].attributes["UniversityId"] != participants[0].attributes["UniversityId"]
+
+
+def test_editable_excel_preserves_explicit_binary_grouping_for_custom_institutions():
+    participants, support, faculty, allocation = manifest_fixture()
+    participants[0].attributes.update({"University": "Fictional International Campus", "University Category": "private"})
+    participants[1].attributes.update({"University": "Fictional Ahleya Campus", "University Category": "public"})
+    data = export_week2_workbook(participants, allocation, faculty, support)
+    imported, _ = parse_excel(data)
+    assert imported[0].attributes["University Category"] == "private"
+    assert imported[1].attributes["University Category"] == "public"
+    assert imported[0].attributes["University"] == "Fictional International Campus"
+    assert imported[1].attributes["University"] == "Fictional Ahleya Campus"
+    text = pdf_text(export_pdf(participants, allocation, support, faculty_members=faculty))
+    assert "private" not in text and "public" not in text
+    assert "Fictional International Campus" not in text and "Fictional Ahleya Campus" not in text
+    # Staff metadata receives no invented university grouping on export.
+    book = load_workbook(io.BytesIO(data))
+    assert [cell.value for cell in book["Support Team"][1]] == ["Support ID", "Name", "Gender", "Support Category"]
+    assert [cell.value for cell in book["Faculty"][1]] == ["Faculty ID", "Name", "Offering"]

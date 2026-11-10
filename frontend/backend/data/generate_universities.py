@@ -4,9 +4,9 @@ from pathlib import Path
 
 SOURCE="https://sis.gov.eg/en/egyptians-abroad-portal/education/university-education/updated-list-of-accredited-higher-education-institutions/"
 VERIFIED="2026-11-03"
-# Keep the official legal classification and the five UI diversity categories
-# separate: an institution established by international agreement can be private.
-CATEGORY_GROUPS={"public":"public","public_technological":"public","private":"private","private_technological":"private","national_ahlia":"national","international_agreement":"international","framework_agreement":"international","foreign_branch":"international","special_nature":"other","government_supervision":"other"}
+# Preserve official legal classifications separately from binary grouping labels.
+# Institutions outside a reliable Public/Private mapping need administrator review.
+CATEGORY_GROUPS={"public":"public","public_technological":"public","private":"private","private_technological":"private"}
 groups={
 "public":["Cairo University","Alexandria University","Ain Shams University","Assiut University","Tanta University","Mansoura University","Zagazig University","Capital University","Minia University","Menoufia University","Suez Canal University","South Valley University","Banha University","Fayoum University","Beni Suef University","Kafrelsheikh University","Sohag University","Port Said University","Damanhour University","Aswan University","Damietta University","Sadat City University","Suez University","Arish University","New Valley University","Matrouh University","Luxor University","Hurghada University"],
 "private":["6th October University","October University for Modern Sciences and Arts","Misr University for Science and Technology","Misr International University","German University in Cairo","Al-Ahram Canadian University","The British University in Egypt","Modern University for Technology and Information","Sinai University","Pharos University in Alexandria","Al-Nahda University in Beni Suef","Future University","Egyptian Russian University","Delta University for Science and Technology in Gamasa","Heliopolis University","New Giza University","Deraya University in Minya","Badr University","Horus University","Egyptian Chinese University","Merritt University","Sphinx University","Peace University (El Salam University)","Badr University in Assiut","New Salhia University","El Haia University","May University","El Riada University for Science and Technology - Sadat City","Innovation University","City University of Cairo","Rasheed University","Badya University","Wady El Nil Fayoum University","Lotus University in Minia","Obour University for Modern Sciences and Technology","Memphis University","East Capital University","Egyptian University in Alamein","New Heliopolis University"],
@@ -71,7 +71,7 @@ for category,names in groups.items():
  for name in names:
   ar,abbr,variations,arvars=meta.get(name,(None,[],[],[]))
   source=("https://scu.eg/branches-of-international-universities/" if name=="Anglia Ruskin University - Egypt Branch" else "https://scu.eg/accredited-private-universities/" if name in {"Egyptian University in Alamein","New Heliopolis University"} else SOURCE)
-  item={"id":"eg-"+slug(name),"official_english_name":"Capital-Helwan University" if name=="Capital University" else name,"official_arabic_name":ar,"abbreviations":abbr,"english_variations":variations,"arabic_variations":arvars,"category":category,"diversity_category":"private" if name=="The American University in Cairo" else CATEGORY_GROUPS[category],"source_url":source,"last_verified_date":VERIFIED}
+  item={"id":"eg-"+slug(name),"official_english_name":"Capital-Helwan University" if name=="Capital University" else name,"official_arabic_name":ar,"abbreviations":abbr,"english_variations":variations,"arabic_variations":arvars,"category":category,"diversity_category":"private" if name=="The American University in Cairo" else CATEGORY_GROUPS.get(category),"source_url":source,"last_verified_date":VERIFIED}
   if name=="The American University in Cairo":
    item["diversity_source_url"]="https://www1.aucegypt.edu/catalog06/catalog06.pdf"
    item["classification_note"]="Private institution established under an international cultural agreement; retain both classifications."

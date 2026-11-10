@@ -1,7 +1,7 @@
 export type Participant={id:string;name:string;attributes:Record<string,string|number|null>};
-export type FacultyMember={id:string;name:string;offering:string;prayer_unavailable?:boolean;unavailable_intervals?:{start_time:string;end_time:string}[];available_from?:string|null;available_until?:string|null};
+export type FacultyMember={id:string;name:string;offering:string};
 export type SupportMember={id:string;name:string;gender?:"Male"|"Female"|null;category?:"Support Lead"|"Analyst Support"|null};
-export type UniversityCategory="public"|"private"|"national"|"international"|"other";
+export type UniversityCategory="public"|"private";
 export type CustomUniversity={id:string;name:string;aliases:string[];category:UniversityCategory};
 export type ChemistryRecord={source_name:string;primary:string;secondary:string;normalized_name:string;participant_id?:string;candidate_ids?:string[]};
 export type Factor={id:string;name:string;source_column:string;data_type:string;strategy:string;weight:number;enabled:boolean;missing_handling:string};

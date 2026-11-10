@@ -1,0 +1,58 @@
+{
+  "before": {
+    "optimizer_sha256": "f704865bc9ac903e43ace0f5bfc4f7c79716184fc7c14cb3c51136efb01781a5",
+    "balanced27_coefficients": {
+      "gender_dev_": [
+        703
+      ],
+      "university_category_dev_": [
+        703
+      ],
+      "worst_group_gender": [],
+      "university_pair_": [
+        307499230
+      ],
+      "r_": [
+        1
+      ],
+      "profile_L3 Offering": [
+        92249769
+      ],
+      "profile_Primary Chemistry": [
+        92249769
+      ],
+      "profile_Secondary Chemistry": [
+        30749923
+      ]
+    }
+  },
+  "after": {
+    "optimizer_sha256": "a9e7bec65fefef5203680b819f027227d4935b1a92ba20551480914e0a3919ed",
+    "balanced27_coefficients": {
+      "gender_dev_": [
+        86261161
+      ],
+      "university_category_dev_": [
+        86261161
+      ],
+      "worst_group_gender": [
+        86261161
+      ],
+      "university_pair_": [
+        476581
+      ],
+      "r_": [
+        721
+      ],
+      "profile_L3 Offering": [
+        2163
+      ],
+      "profile_Primary Chemistry": [
+        3
+      ],
+      "profile_Secondary Chemistry": [
+        1
+      ]
+    }
+  }
+}

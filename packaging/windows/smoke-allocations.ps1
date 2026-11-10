@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 $BaseUri = "http://127.0.0.1:3000"
 $People = @(0..5 | ForEach-Object {
   @{ id="P$_"; name="Fictional Hire $_"; attributes=@{
-    Gender=$(if ($_ % 2) { "Female" } else { "Male" })
+    Gender=$(if ($_ -lt 4) { "Male" } else { "Female" })
     University=$(if ($_ % 2) { "GUC" } else { "Cairo University" })
     "L3 Offering"=@("Cyber", "Customer", "Engineering")[$_ % 3]
   }}
@@ -26,7 +26,7 @@ $Payload = @{
     )
     time_limit_seconds=2
     reflection_settings=@{enabled=$true;start_time="11:15";prayer_deadline="11:40";resume_time="13:00";
-      session_duration_minutes=20;selected_participant_ids=@($People | ForEach-Object { $_.id })}
+      session_duration_minutes=20;selected_participant_ids=@($People | Where-Object { $_.attributes.Gender -eq "Male" } | ForEach-Object { $_.id })}
   }
 }
 $Result = Invoke-RestMethod -Method Post -Uri "$BaseUri/api/optimize" -ContentType "application/json" -Body ($Payload | ConvertTo-Json -Depth 16) -TimeoutSec 90
@@ -52,4 +52,24 @@ foreach ($Endpoint in @("pdf", "hotel-pdf", "editable")) {
   Invoke-WebRequest -UseBasicParsing -Method Post -Uri "$BaseUri/api/export/$Endpoint" -ContentType "application/json" -Body $Body -OutFile $Artifact -TimeoutSec 30
   if ((Get-Item $Artifact).Length -lt 1000) { throw "Bundled $Endpoint export is empty" }
 }
-Write-Host "All six bundled allocations, prayer continuation, room manifest and PDF/Excel exports passed."
+$Workbook = Join-Path $env:RUNNER_TEMP "AIP-fictional-smoke-editable.bin"
+$Boundary = "AIP-" + [guid]::NewGuid().ToString("N")
+$Header = [Text.Encoding]::UTF8.GetBytes("--$Boundary`r`nContent-Disposition: form-data; name=`"file`"; filename=`"fictional-master.xlsx`"`r`nContent-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`r`n`r`n")
+$Footer = [Text.Encoding]::UTF8.GetBytes("`r`n--$Boundary--`r`n")
+$Stream = New-Object IO.MemoryStream
+$Stream.Write($Header, 0, $Header.Length)
+$Bytes = [IO.File]::ReadAllBytes($Workbook)
+$Stream.Write($Bytes, 0, $Bytes.Length)
+$Stream.Write($Footer, 0, $Footer.Length)
+$Multipart = $Stream.ToArray()
+$Stream.Dispose()
+$Imported = Invoke-RestMethod -Method Post -Uri "$BaseUri/api/upload" -ContentType "multipart/form-data; boundary=$Boundary" -Body $Multipart -TimeoutSec 30
+if ($Imported.participants.Count -ne 6) { throw "Bundled Excel participant upload failed" }
+$ImportedSupport = Invoke-RestMethod -Method Post -Uri "$BaseUri/api/upload/support" -ContentType "multipart/form-data; boundary=$Boundary" -Body $Multipart -TimeoutSec 30
+if ($ImportedSupport.support_members.Count -ne 4) { throw "Bundled Excel support upload failed" }
+if (@($Imported.participants | Where-Object { $_.attributes.'University Category' -notin @('public', 'private') }).Count) { throw "Imported university categories were not Public/Private" }
+$Payload.participants = $Imported.participants
+$Payload.Remove('allocation')
+$Regenerated = Invoke-RestMethod -Method Post -Uri "$BaseUri/api/optimize" -ContentType "application/json" -Body ($Payload | ConvertTo-Json -Depth 16) -TimeoutSec 90
+if ($Regenerated.allocation.activities.Count -ne 6) { throw "Generating six allocations from the uploaded workbook failed" }
+Write-Host "Fictional Excel uploads, six allocations, prayer continuation, hotel manifest and PDF/Excel exports passed."

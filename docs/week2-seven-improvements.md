@@ -1,5 +1,10 @@
 # Week 2 improvements: implementation and verification
 
+This report describes the earlier Windows release. The subsequent
+[local corrections](local-corrections-review.md) supersede its university-category,
+prayer-selection, faculty-availability, and Results UI requirements. Those local
+corrections have not been packaged or deployed.
+
 Implemented on `feature/week2-seven-improvements`, branched from the fetched
 `origin/deployment/portable-windows` application. The starting working tree was
 clean. The existing six-activity UI, stateless API, internal IDs, browser editing

@@ -26,6 +26,16 @@ import {
   Trash2,
   UploadCloud,
   Users,
+  BedDouble,
+  Bus,
+  CalendarClock,
+  GripVertical,
+  LayoutGrid,
+  PencilLine,
+  Puzzle,
+  RotateCcw,
+  Trophy,
+  Undo2,
 } from "lucide-react";
 import { API, download, jsonApi } from "@/lib/api";
 import type {
@@ -43,10 +53,13 @@ import {
   type University,
 } from "@/components/UniversityAutocomplete";
 import { toast } from "sonner";
-import {ParticipantIdentity, ResultsLegend} from "@/components/ParticipantIdentity";
+import {genderRowClass,hotelRoomAppearance,ParticipantIdentity, ResultsLegend} from "@/components/ParticipantIdentity";
 import {UniversityReview} from "@/components/UniversityReview";
-import {canonicalCategory,classifiedParticipants,mergedUniversityDirectory,parseCustomDirectory,universityIdentity} from "@/components/universityClassification";
+import {canonicalCategory,classifiedParticipants,mergedUniversityDirectory,migrateCustomDirectory,parseCustomDirectory,universityIdentity,type PendingUniversity} from "@/components/universityClassification";
 import {hotelRoomSummary} from "@/components/hotelSummary";
+import {eligiblePrayerParticipants,prunePrayerSelection} from "@/components/reflectionUi";
+import {ReflectionResultsSummary as ReflectionSummary} from "@/components/ReflectionResultsSummary";
+import {AllocationGroupCard,FacultyScheduleHeader,HotelResultsSummary,ParticipantRow,ResultSectionHeader} from "@/components/ResultsPresentation";
 const CUSTOM_DIRECTORY_KEY="aip-university-directory-v1";
 
 type Step = "data" | "team" | "sizes" | "results";
@@ -61,6 +74,7 @@ const activities = [
   { id: "quiz", name: "Quiz Night", value: 6 },
   { id: "team", name: "Team Building", value: 6 },
 ];
+const resultActivityIcons:Record<string,typeof Users>={main:LayoutGrid,quiz:Trophy,team:Puzzle,bus:Bus,reflection:CalendarClock,hotel:BedDouble};
 const OFFERINGS = [
   "AI & Data",
   "Customer",
@@ -159,6 +173,7 @@ export default function Home() {
     [success, setSuccess] = useState(""),
     [scheduleExtension,setScheduleExtension]=useState<string|null>(null),
     [universities, setUniversities] = useState<University[]>([]),
+    [pendingUniversityReview,setPendingUniversityReview]=useState<PendingUniversity[]>([]),
     [editMode, setEditMode] = useState(false),
     [editDraft, setEditDraft] = useState<Allocation | null>(null),
     [undoStack, setUndoStack] = useState<Allocation[]>([]),
@@ -175,8 +190,8 @@ export default function Home() {
     supportInput = useRef<HTMLInputElement>(null),
     directoryInput = useRef<HTMLInputElement>(null);
   const customUniversities=config.custom_universities??[];
-  const allUniversities=useMemo(()=>mergedUniversityDirectory(universities,customUniversities),[universities,customUniversities]);
-  const normalizedParticipants=useMemo(()=>classifiedParticipants(participants,universities,customUniversities),[participants,universities,customUniversities]);
+  const allUniversities=useMemo(()=>mergedUniversityDirectory(universities,customUniversities,pendingUniversityReview),[universities,customUniversities,pendingUniversityReview]);
+  const normalizedParticipants=useMemo(()=>classifiedParticipants(participants,allUniversities,customUniversities),[participants,allUniversities,customUniversities]);
   const unresolvedUniversities=normalizedParticipants.filter(person=>!person.attributes["University Category"]);
   const pmap = useMemo(
     () => Object.fromEntries(normalizedParticipants.map((p) => [p.id, p])),
@@ -199,9 +214,25 @@ export default function Home() {
   const reflectionSettings =
     config.reflection_settings ?? initialConfig.reflection_settings;
   useEffect(()=>{
-    try { const saved=localStorage.getItem(CUSTOM_DIRECTORY_KEY); if(saved)setConfig(c=>({...c,custom_universities:parseCustomDirectory(JSON.parse(saved))})); }
+    try {
+      const saved=localStorage.getItem(CUSTOM_DIRECTORY_KEY);
+      if(saved){
+        const migrated=migrateCustomDirectory(JSON.parse(saved));
+        setConfig(c=>({...c,custom_universities:migrated.universities}));
+        setPendingUniversityReview(migrated.pending);
+        localStorage.setItem(CUSTOM_DIRECTORY_KEY,JSON.stringify({schema_version:2,universities:migrated.universities,pending_review:migrated.pending}));
+      }
+    }
     catch {setError("Saved university corrections could not be loaded. Import a valid directory or confirm classifications again.");}
   },[]);
+  useEffect(()=>{
+    setConfig(current=>{
+      const settings=current.reflection_settings??initialConfig.reflection_settings;
+      const selected=prunePrayerSelection(settings.selected_participant_ids,participants);
+      if(selected.length===settings.selected_participant_ids.length&&selected.every((id,index)=>id===settings.selected_participant_ids[index]))return current;
+      return {...current,reflection_settings:{...settings,selected_participant_ids:selected}};
+    });
+  },[participants]);
   useEffect(() => {
     jsonApi("/api/universities")
       .then((x) => setUniversities(x.universities))
@@ -226,8 +257,10 @@ export default function Home() {
         const known=universityIdentity(alias,universities);
         if(known&&known.id!==item.id)throw new Error(`“${alias}” already identifies ${known.official_english_name}. Use an alias belonging to the same institution.`);
       }
+      const remaining=pendingUniversityReview.filter(item=>!validated.some(confirmed=>confirmed.id===item.id));
       setConfig(c=>({...c,custom_universities:validated}));
-      try {localStorage.setItem(CUSTOM_DIRECTORY_KEY,JSON.stringify({schema_version:1,universities:validated}));}
+      setPendingUniversityReview(remaining);
+      try {localStorage.setItem(CUSTOM_DIRECTORY_KEY,JSON.stringify({schema_version:2,universities:validated,pending_review:remaining}));}
       catch {setError("Classification retained for this cohort. Browser storage is unavailable; export the custom directory to retain it.");}
       invalidate();return true;
     } catch(e) {setError(message(e));return false;}
@@ -732,7 +765,7 @@ export default function Home() {
     } else run();
   }
   return (
-    <div className="min-h-screen bg-mist">
+    <div className={`min-h-screen bg-mist ${step==="results"?"results-workspace":""}`}>
       <Header count={participants.length} />
       <main className="mx-auto max-w-7xl px-5 py-8">
         <Progress step={step} go={go} />
@@ -853,8 +886,9 @@ export default function Home() {
                 universities={allUniversities}
               />
             )}
+            {pendingUniversityReview.length>0&&<p role="status" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{pendingUniversityReview.length} saved university grouping {pendingUniversityReview.length===1?"mapping needs":"mappings need"} Public or Private confirmation. Earlier categories have been removed. Review these institutions when they appear in this cohort: {pendingUniversityReview.map(item=>item.name).join(", ")}.</p>}
             {participants.length>0&&<>
-              <UniversityReview people={participants} directory={universities} custom={customUniversities} confirm={confirmUniversity}/>
+              <UniversityReview people={participants} directory={allUniversities} custom={customUniversities} pending={pendingUniversityReview} confirm={confirmUniversity}/>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button className="btn btn-outline" onClick={()=>directoryInput.current?.click()}>Import custom university directory</button>
                 <button className="btn btn-outline" onClick={exportDirectory}>Export custom university directory</button>
@@ -906,18 +940,7 @@ export default function Home() {
                     />
                   </div>
                 ))}
-                <details className="mt-5 border-t pt-3 text-sm">
-                  <summary className="cursor-pointer font-bold text-sky">Faculty availability</summary>
-                  <p className="mt-2 text-xs text-slate-500">Record availability explicitly. No faculty gender is inferred.</p>
-                  {faculty.map((member,index)=><div className="mt-3 rounded-lg border p-3" key={member.id}>
-                    <b>{member.name||`Faculty ${index+1}`}</b>
-                    <label className="mt-2 flex items-center gap-2"><input type="checkbox" checked={member.prayer_unavailable!==false} onChange={e=>{setFaculty(list=>list.map(item=>item.id===member.id?{...item,prayer_unavailable:e.target.checked}:item));invalidate();}}/>Unavailable during the prayer break</label>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      <TimeField label="Available from (optional)" value={member.available_from??""} change={value=>{setFaculty(list=>list.map(item=>item.id===member.id?{...item,available_from:value||null}:item));invalidate();}}/>
-                      <TimeField label="Available until (optional)" value={member.available_until??""} change={value=>{setFaculty(list=>list.map(item=>item.id===member.id?{...item,available_until:value||null}:item));invalidate();}}/>
-                    </div>
-                  </div>)}
-                </details>
+
               </div>
               <div className="card p-6">
                 <h2 className="text-xl font-extrabold">Support team members</h2>
@@ -1014,20 +1037,19 @@ export default function Home() {
           </section>
         )}
         {step === "results" && (
-          <section>
+          <section className="results-root">
             <TopBack onClick={() => go("sizes")} step="Step 4 of 4" />
-            <Title
-              title="AIP Week 2 — Group Allocations"
-              text="Review, edit, and export the current accepted assignments."
-            />
+            <div className="results-page-header"><div><p className="result-eyebrow">AIP onboarding · Results</p><h1>Week 2 allocations</h1><p className="results-page-description">Review your groups, schedules, and accommodation.</p></div>{allocation&&<ResultsLegend/>}</div>
             {allocation && (
               <>
-                <ResultsLegend/>
-                <div className="space-y-4">
-                  <div className="flex overflow-x-auto rounded-xl border bg-white p-1">
-                    {displayedAllocation?.activities.map((a) => (
+                <div className="results-controls">
+                  <nav className="results-tabs" aria-label="Allocation activities">
+                    {displayedAllocation?.activities.map((a) => {
+                      const Icon=resultActivityIcons[a.activity_id]??Users;
+                      return (
                       <button
-                        className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-bold ${tab === a.activity_id ? "bg-navy text-white" : "text-slate-500"}`}
+                        className={`results-tab ${tab === a.activity_id ? "is-active" : ""}`}
+                        aria-pressed={tab===a.activity_id}
                         key={a.activity_id}
                         onClick={() => {
                           setTab(a.activity_id);
@@ -1035,15 +1057,16 @@ export default function Home() {
                           setSwapB("");
                         }}
                       >
+                        <Icon size={16} aria-hidden="true"/>
                         {a.activity_name}
                       </button>
-                    ))}
-                  </div>
+                    );})}
+                  </nav>
                   {!editMode ? (
-                    <div className="card flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="results-actions">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                          Results actions
+                        <p className="result-control-label">
+                          Manage allocations
                         </p>
                         <button
                           className="btn btn-outline mt-2"
@@ -1054,12 +1077,13 @@ export default function Home() {
                             setEditMode(true);
                           }}
                         >
+                          <PencilLine size={15} aria-hidden="true"/>
                           Edit Teams
                         </button>
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide text-slate-400 lg:text-right">
-                          Download saved results
+                        <p className="result-control-label lg:text-right">
+                          Export saved results
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2 lg:justify-end">
                           {overrides.some((x) => x.active) && (
@@ -1114,18 +1138,17 @@ export default function Home() {
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-2xl border-2 border-sky bg-blue-50 p-4 shadow-sm">
+                    <div className="results-edit-toolbar">
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-sky" />
-                            <h2 className="text-lg font-extrabold text-navy">
+                            <span className="edit-status-dot" aria-hidden="true"/>
+                            <h2 className="font-semibold text-navy">
                               Team editing mode
                             </h2>
                           </div>
                           <p className="mt-1 text-sm text-slate-600">
-                            Drag participants or use Switch Participants. Save
-                            when you are finished.
+                            Drag to exchange assignments or use Switch Participants. Your changes stay in this draft until saved.
                           </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -1133,6 +1156,7 @@ export default function Home() {
                             className="btn btn-primary"
                             onClick={saveDraft}
                           >
+                            <Check size={15} aria-hidden="true"/>
                             Save Changes
                           </button>
                           <button
@@ -1144,8 +1168,10 @@ export default function Home() {
                           <button
                             className="btn btn-outline"
                             disabled={!undoStack.length}
+                            title={undoStack.length?"Undo the last draft edit":"Make a change to enable Undo"}
                             onClick={undoDraft}
                           >
+                            <Undo2 size={15} aria-hidden="true"/>
                             Undo Last Change
                           </button>
                           <button
@@ -1161,6 +1187,7 @@ export default function Home() {
                               setDraftOverrides([]);
                             }}
                           >
+                            <RotateCcw size={15} aria-hidden="true"/>
                             Reset to Generated
                           </button>
                         </div>
@@ -1169,7 +1196,7 @@ export default function Home() {
                   )}
                 </div>
                 {editMode && (
-                  <label className="mt-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+                  <label className="results-policy-note">
                     <input
                       type="checkbox"
                       checked={
@@ -1192,6 +1219,7 @@ export default function Home() {
                     </span>
                   </label>
                 )}
+                {current&&<ResultSectionHeader title={current.activity_name} activityId={current.activity_id} groups={current.groups.length}/>}
                 {editMode ? (
                   <DndContext sensors={sensors} onDragEnd={dragEnd}>
                     {current && (
@@ -1215,6 +1243,7 @@ export default function Home() {
                           faculty={faculty}
                           chemistryEnabled={chemistryEnabled}
                           reflectionSettings={reflectionSettings}
+                          selectedIds={[swapA,swapB]}
                           editable
                         />
                       </>
@@ -1230,6 +1259,7 @@ export default function Home() {
                     reflectionSettings={reflectionSettings}
                   />
                 )}
+                {!current&&<div className="results-empty"><Users size={28} aria-hidden="true"/><h2>No allocations to display</h2><p>Choose an activity to review its saved assignments.</p></div>}
               </>
             )}
           </section>
@@ -1705,7 +1735,8 @@ function ReflectionSettingsPanel({
   facultyCount: number;
   change: (patch: Partial<Configuration["reflection_settings"]>) => void;
 }) {
-  const selected = new Set(settings.selected_participant_ids);
+  const eligible=eligiblePrayerParticipants(participants);
+  const selected = new Set(prunePrayerSelection(settings.selected_participant_ids,participants));
   const toMinutes = (value: string) => {
     const [h, m] = value.split(":").map(Number);
     return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : 0;
@@ -1741,14 +1772,14 @@ function ReflectionSettingsPanel({
               <div>
                 <h3 className="font-extrabold">Friday prayer accommodation</h3>
                 <p className="text-sm text-slate-500">
-                  Explicitly select participants who need the prayer break protected.
+                  Explicitly select male participants who need the prayer break protected. Unselected participants can continue during the break.
                 </p>
               </div>
               <div className="flex gap-2">
                 <button
                   className="text-sm font-bold text-sky"
                   onClick={() =>
-                    change({ selected_participant_ids: participants.map((p) => p.id) })
+                    change({ selected_participant_ids: eligible.map((p) => p.id) })
                   }
                 >
                   Select All
@@ -1762,8 +1793,8 @@ function ReflectionSettingsPanel({
               </div>
             </div>
             <div className="mt-3 max-h-64 space-y-2 overflow-y-auto rounded-xl border p-3">
-              {participants.length ? (
-                participants.map((p) => (
+              {eligible.length ? (
+                eligible.map((p) => (
                   <label
                     className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-slate-50"
                     key={p.id}
@@ -1784,7 +1815,7 @@ function ReflectionSettingsPanel({
                 ))
               ) : (
                 <p className="text-sm text-slate-500">
-                  No participants are currently available.
+                  No participants with recorded Male gender are currently available.
                 </p>
               )}
             </div>
@@ -2143,8 +2174,8 @@ function EditPanel({
     })),
   );
   return (
-    <div className="card mt-5 p-5">
-      <h2 className="font-extrabold">Edit {activity.activity_name}</h2>
+    <div className="results-switch-panel">
+      <h2 className="font-semibold">Edit {activity.activity_name}</h2>
       <p className="text-sm text-slate-500">
         {activity.activity_id === "reflection"
           ? "Select any two participants to exchange their existing faculty and appointment slots."
@@ -2153,6 +2184,7 @@ function EditPanel({
       <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
         <select
           className="input"
+          aria-label="First participant to switch"
           value={a ?? ""}
           onChange={(e) => setA(e.target.value)}
         >
@@ -2165,6 +2197,7 @@ function EditPanel({
         </select>
         <select
           className="input"
+          aria-label="Second participant to switch"
           value={b ?? ""}
           onChange={(e) => setB(e.target.value)}
         >
@@ -2178,6 +2211,7 @@ function EditPanel({
         <button
           className="btn btn-primary"
           disabled={!a || !b || a === b}
+          title={!a||!b?"Choose two participants to enable switching":a===b?"Choose two different participants":"Exchange these two assignments"}
           onClick={swap}
         >
           Switch Participants
@@ -2187,107 +2221,54 @@ function EditPanel({
   );
 }
 function AllocationCards({
-  activity,
-  people,
-  support,
-  faculty,
-  chemistryEnabled,
-  reflectionSettings,
-  editable = false,
+  activity,people,support,faculty,chemistryEnabled,reflectionSettings,editable=false,selectedIds=[],
 }: {
   activity: Allocation["activities"][number] | undefined;
-  people: Record<string, Participant>;
-  support: Record<string, SupportMember>;
+  people: Record<string,Participant>;
+  support: Record<string,SupportMember>;
   faculty: FacultyMember[];
-  chemistryEnabled: boolean;
-  reflectionSettings: Configuration["reflection_settings"];
-  editable?: boolean;
+  chemistryEnabled:boolean;
+  reflectionSettings:Configuration["reflection_settings"];
+  editable?:boolean;
+  selectedIds?:string[];
 }) {
-  if (!activity) return null;
-  const sessions = activity.sessions ?? [];
+  if(!activity)return null;
+  const sessions=activity.sessions??[];
   const hotelSummary=activity.activity_id==="hotel"?hotelRoomSummary(activity.groups,people,support,faculty):null;
-  if (
-    activity.activity_id === "reflection" &&
-    reflectionSettings.enabled &&
-    sessions.length
-  )
-    return (
-      <>
-        <ReflectionSummary activity={activity} settings={reflectionSettings} />
-        <ReflectionSchedule
-          activity={activity}
-          people={people}
-          faculty={faculty}
-          chemistryEnabled={chemistryEnabled}
-          settings={reflectionSettings}
-          editable={editable}
-        />
-      </>
-    );
-  return (
-    <>
-      {hotelSummary&&<>
-        <div className="card mt-5 grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
-          <SummaryStat label="Total rooms required" value={hotelSummary.total_rooms}/>
-          <SummaryStat label="New-hire shared rooms" value={hotelSummary.new_hire_shared}/>
-          <SummaryStat label="New hire + Analyst Support" value={hotelSummary.new_hire_analyst_shared}/>
-          <SummaryStat label="Single new-hire rooms" value={hotelSummary.new_hire_single}/>
-          <SummaryStat label="Single Support Lead rooms" value={hotelSummary.support_lead_single}/>
-          <SummaryStat label="Single Analyst Support rooms" value={hotelSummary.analyst_support_single}/>
-          <SummaryStat label="Single faculty rooms" value={hotelSummary.faculty_single}/>
-          {(hotelSummary.other_shared_rooms??0)>0&&<SummaryStat label="Approved manual room arrangements" value={hotelSummary.other_shared_rooms??0}/>}
-        </div>
-        {hotelSummary.new_hire_single>0&&<p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{hotelSummary.new_hire_single} new hire(s) require a single room. Review compatible same-gender Analyst Support availability or reserve these single rooms.</p>}
-      </>}
-      {activity.activity_id!=="hotel"&&activity.warnings?.map(warning=><p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900" key={warning}>{warning}</p>)}
-      <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {activity.groups.map((g) => (
-          <DroppableGroup groupId={g.id} editable={editable} key={g.id}>
-            <article className="card h-full overflow-hidden">
-              <div className="border-b bg-navy p-4 text-white">
-                <h3 className="text-lg font-extrabold">{g.name}</h3>
-                {activity.activity_id === "reflection" && (
-                  <p className="text-xs text-blue-100">
-                    Faculty offering:{" "}
-                    {faculty.find((f) => f.id === g.id)?.offering ||
-                      "Not provided"}
-                  </p>
-                )}
-              </div>
-              <ol className="divide-y p-4">
-                {g.participant_ids.map((id, i) => {
-                  const person = people[id],
-                    helper = support[id],
-                    facultyMember = faculty.find(member=>member.id===id);
-                  return (
-                    <li className="flex gap-3 py-3 text-sm" key={id}>
-                      <b className="pt-0.5 text-sky">{i + 1}.</b>
-                      <EditablePerson
-                        participantId={id}
-                        groupId={g.id}
-                        editable={editable}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <ParticipantIdentity name={person?.name||helper?.name||facultyMember?.name||id} gender={person?.attributes.Gender??helper?.gender} category={person?canonicalCategory(person.attributes["University Category"]):undefined} role={helper?.category??(facultyMember?"Faculty":activity.activity_id==="hotel"?"New hire":undefined)}/>
-                          {person && (
-                            <ParticipantDetails
-                              person={person}
-                              chemistryEnabled={chemistryEnabled}
-                            />
-                          )}
-                        </div>
-
-                      </EditablePerson>
-                    </li>
-                  );
-                })}
-              </ol>
-            </article>
-          </DroppableGroup>
-        ))}
-      </div>
-    </>
-  );
+  if(activity.activity_id==="reflection"&&reflectionSettings.enabled&&sessions.length)
+    return <>
+      <ReflectionSummary activity={activity}/>
+      <ReflectionSchedule activity={activity} people={people} faculty={faculty} chemistryEnabled={chemistryEnabled} settings={reflectionSettings} editable={editable} selectedIds={selectedIds}/>
+    </>;
+  return <>
+    {activity.activity_id==="reflection"&&<ReflectionSummary activity={activity}/>}
+    {hotelSummary&&<>
+      <HotelResultsSummary summary={hotelSummary}/>
+      {hotelSummary.new_hire_single>0&&<p className="results-notice" role="status"><AlertCircle size={17} aria-hidden="true"/><span>{hotelSummary.new_hire_single} new hire(s) require a single room. Review compatible same-gender Analyst Support availability or reserve these single rooms.</span></p>}
+    </>}
+    {activity.activity_id!=="hotel"&&activity.warnings?.map(warning=><p className="results-notice" role="status" key={warning}><AlertCircle size={17} aria-hidden="true"/>{warning}</p>)}
+    <div className={`results-group-grid ${hotelSummary?"results-room-grid":""}`}>
+      {activity.groups.map((group,groupIndex)=>{
+        const room=hotelSummary?hotelRoomAppearance(group.participant_ids,people,support):null;
+        return <DroppableGroup groupId={group.id} editable={editable} key={group.id}>
+          <AllocationGroupCard title={group.name} count={group.participant_ids.length} index={groupIndex+1} activityId={activity.activity_id} room={room}>
+            <ol className="allocation-participant-list">
+              {group.participant_ids.map((id,index)=>{
+                const person=people[id],helper=support[id],facultyMember=faculty.find(member=>member.id===id);
+                const gender=person?.attributes.Gender??helper?.gender;
+                const selected=editable&&selectedIds.includes(id);
+                return <li className={`result-person-row result-record ${room?"":genderRowClass(gender)} ${helper?"result-record-staff":""} ${selected?"is-selected":""}`} data-recorded-gender={String(gender??"unknown")} data-selected={selected||undefined} key={id}>
+                  <EditablePerson participantId={id} groupId={group.id} editable={editable}>
+                    <ParticipantRow index={index+1} name={person?.name||helper?.name||facultyMember?.name||id} gender={gender} category={person?canonicalCategory(person.attributes["University Category"]):undefined} role={helper?.category??(facultyMember?"Faculty":hotelSummary?"New hire":undefined)} person={person} offering={person?standardOffering(person.attributes["L3 Offering"]):undefined} chemistryEnabled={chemistryEnabled} selected={selected}/>
+                  </EditablePerson>
+                </li>;
+              })}
+            </ol>
+          </AllocationGroupCard>
+        </DroppableGroup>;
+      })}
+    </div>
+  </>;
 }
 function ReflectionSchedule({
   activity,
@@ -2296,6 +2277,7 @@ function ReflectionSchedule({
   chemistryEnabled,
   settings,
   editable = false,
+  selectedIds = [],
 }: {
   activity: Allocation["activities"][number];
   people: Record<string, Participant>;
@@ -2303,10 +2285,11 @@ function ReflectionSchedule({
   chemistryEnabled: boolean;
   settings: Configuration["reflection_settings"];
   editable?: boolean;
+  selectedIds?: string[];
 }) {
   const sessions = activity.sessions ?? [];
   return (
-    <div className="mt-5 space-y-4">
+    <div className="reflection-schedules">
       {faculty.map((assigned) => {
         const assignedSessions = sessions
           .filter((session) => session.faculty_id === assigned.id)
@@ -2319,23 +2302,11 @@ function ReflectionSchedule({
             editable={editable}
             key={assigned.id}
           >
-            <section className="card overflow-hidden">
-              <div className="flex items-center justify-between border-b bg-navy px-5 py-3 text-white">
-                <div>
-                  <h3 className="font-extrabold">
-                    {assigned.name} — {standardOffering(assigned.offering)}
-                  </h3>
-                  <p className="text-xs text-blue-100">
-                    Appointments in chronological order
-                  </p>
-                </div>
-                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold">
-                  {assignedSessions.length} assigned
-                </span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[1120px] text-left text-xs">
-                  <thead className="bg-slate-100 text-[11px] uppercase tracking-wide text-slate-600">
+            <section className="faculty-schedule">
+              <FacultyScheduleHeader name={assigned.name}/>
+              <div className="reflection-table-container">
+                <table className="reflection-table" aria-label={`Appointments with ${assigned.name}`}>
+                  <thead>
                     <tr>
                       {[
                         "#",
@@ -2348,7 +2319,8 @@ function ReflectionSchedule({
                         "Prayer Status",
                       ].map((column) => (
                         <th
-                          className="whitespace-nowrap px-3 py-2.5 font-extrabold"
+                          className="reflection-column-heading"
+                          scope="col"
                           key={column}
                         >
                           {column}
@@ -2356,7 +2328,7 @@ function ReflectionSchedule({
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody>
                     {assignedSessions.map((session, index) => {
                       const person = people[session.participant_id],
                         university =
@@ -2381,31 +2353,33 @@ function ReflectionSchedule({
                           groupId={assigned.id}
                           index={index + 1}
                           editable={editable}
+                          gender={person?.attributes.Gender}
+                          selected={editable&&selectedIds.includes(session.participant_id)}
                           key={session.participant_id}
                         >
-                          <td className="whitespace-nowrap px-3 py-2 font-bold text-navy">
-                            {session.start_time}–{session.end_time}
+                          <td data-label="Time" className="reflection-time-cell">
+                            <span className="session-time">{session.start_time}<span className="session-time-divider">–</span>{session.end_time}</span>
                           </td>
-                          <td className="whitespace-nowrap px-3 py-2 font-bold text-navy">
+                          <td data-label="Participant" className="reflection-name-cell">
                             <ParticipantIdentity name={person?.name||session.participant_id} gender={person?.attributes.Gender} category={canonicalCategory(person?.attributes["University Category"])}/>
                           </td>
-                          <td className="max-w-64 px-3 py-2 text-slate-600">
-                            <span className="block truncate" title={university}>
+                          <td data-label="University" className="reflection-university-cell">
+                            <span title={university}>
                               {university}
                             </span>
                           </td>
-                          <td className="max-w-52 px-3 py-2 text-slate-600">
-                            <span className="block truncate" title={offering}>
+                          <td data-label="L3 Offering" className="reflection-offering-cell">
+                            <span title={offering}>
                               {offering}
                             </span>
                           </td>
-                          <td className="px-3 py-2">
+                          <td data-label="Business Chemistry" className={chemistryEnabled?"reflection-chemistry-cell":"reflection-chemistry-cell is-empty"}>
                             {chemistryEnabled && primary && secondary ? (
-                              <div className="flex whitespace-nowrap gap-1">
-                                <span className="rounded bg-slate-200 px-1.5 py-0.5 text-slate-700">
+                              <div className="reflection-chemistry">
+                                <span className="chemistry-segment">
                                   P: {primary}
                                 </span>
-                                <span className="rounded bg-slate-200 px-1.5 py-0.5 text-slate-700">
+                                <span className="chemistry-segment">
                                   S: {secondary}
                                 </span>
                               </div>
@@ -2413,16 +2387,16 @@ function ReflectionSchedule({
                               <span className="text-slate-400">—</span>
                             )}
                           </td>
-                          <td className="px-3 py-2">
+                          <td data-label="Match">
                             <span
-                              className={`whitespace-nowrap rounded-md px-2 py-1 font-bold ${session.offering_match ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}
+                              className={`schedule-status ${session.offering_match ? "status-match" : "status-review"}`}
                             >
                               {session.offering_match ? "Match" : "Mismatch"}
                             </span>
                           </td>
-                          <td className="px-3 py-2">
+                          <td data-label="Prayer Status">
                             {accommodated ? (
-                              <span className="whitespace-nowrap rounded-md bg-teal/10 px-2 py-1 font-bold text-teal">
+                              <span className="schedule-status status-prayer">
                                 {session.before_prayer?"Before prayer":"After prayer"}
                               </span>
                             ) : (
@@ -2465,7 +2439,7 @@ function DroppableGroup({
   return (
     <div
       ref={setNodeRef}
-      className={`h-full rounded-2xl transition ${isOver ? "ring-4 ring-sky/40" : ""}`}
+      className={`result-group-drop ${isOver ? "is-over" : ""}`}
     >
       {children}
     </div>
@@ -2497,21 +2471,21 @@ function EditablePerson({
   return (
     <div
       ref={setRef}
-      className={`flex min-w-0 flex-1 gap-2 rounded-lg transition ${drop.isOver ? "bg-blue-100 ring-2 ring-sky" : ""}`}
+      className={`editable-person ${drop.isOver ? "is-over" : ""} ${drag.isDragging?"is-dragging":""}`}
       style={{
         transform: CSS.Translate.toString(drag.transform),
-        opacity: drag.isDragging ? 0.55 : 1,
+        opacity: 1,
         zIndex: drag.isDragging ? 50 : undefined,
       }}
     >
       {editable && (
         <button
-          className="h-fit cursor-grab touch-none rounded px-1 py-0.5 text-slate-400 hover:bg-slate-100 hover:text-sky active:cursor-grabbing"
+          className="result-drag-handle"
           aria-label={`Drag participant ${participantId}`}
           {...drag.listeners}
           {...drag.attributes}
         >
-          ⋮⋮
+          <GripVertical size={16} aria-hidden="true"/>
         </button>
       )}
       {children}
@@ -2523,12 +2497,16 @@ function EditableTableRow({
   groupId,
   index,
   editable,
+  gender,
+  selected = false,
   children,
 }: {
   participantId: string;
   groupId: string;
   index: number;
   editable: boolean;
+  gender?: unknown;
+  selected?: boolean;
   children: ReactNode;
 }) {
   const drag = useDraggable({
@@ -2546,111 +2524,31 @@ function EditableTableRow({
   return (
     <tr
       ref={setRef}
-      className={`even:bg-slate-50/70 hover:bg-blue-50/50 ${drop.isOver ? "bg-blue-100 ring-2 ring-inset ring-sky" : ""}`}
+      className={`result-person-row ${genderRowClass(gender)} ${drop.isOver ? "is-over" : ""} ${drag.isDragging?"is-dragging":""} ${selected?"is-selected":""}`}
+      data-recorded-gender={String(gender??"unknown")}
+      data-selected={selected||undefined}
       style={{
         transform: CSS.Translate.toString(drag.transform),
-        opacity: drag.isDragging ? 0.55 : 1,
+        opacity: 1,
       }}
     >
-      <td className="px-3 py-2 font-bold text-sky">
+      <td data-label="#" className="reflection-index-cell">
         <span className="inline-flex items-center gap-1">
           {index}
           {editable && (
             <button
-              className="cursor-grab touch-none rounded px-1 text-slate-400 hover:bg-white active:cursor-grabbing"
+              className="result-drag-handle"
               aria-label={`Drag participant ${participantId}`}
               {...drag.listeners}
               {...drag.attributes}
             >
-              ⋮⋮
+              <GripVertical size={15} aria-hidden="true"/>
             </button>
           )}
         </span>
       </td>
       {children}
     </tr>
-  );
-}
-function ReflectionSummary({
-  activity,
-  settings,
-}: {
-  activity: Allocation["activities"][number];
-  settings: Configuration["reflection_settings"];
-}) {
-  const sessions = activity.sessions ?? [],
-    selected = new Set(settings.selected_participant_ids),
-    accommodated = sessions.filter(
-      (s) => selected.has(s.participant_id) && s.before_prayer,
-    ).length,
-    matches = sessions.filter((s) => s.offering_match).length;
-  return (
-    <div className="card mt-5 grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
-      <SummaryStat label="Participants" value={sessions.length} />
-      <SummaryStat label="Accommodation requested" value={selected.size} />
-      <SummaryStat label="Before prayer" value={accommodated} />
-      <SummaryStat label="After prayer" value={sessions.filter(session=>selected.has(session.participant_id)&&!session.before_prayer).length}/>
-      <SummaryStat label="Completion time" value={[...sessions].sort((a,b)=>clockMinutes(b.end_time)-clockMinutes(a.end_time))[0]?.end_time??"—"}/>
-      <SummaryStat
-        label="Offering match"
-        value={`${sessions.length ? Math.round((matches / sessions.length) * 100) : 0}%`}
-      />
-      <SummaryStat
-        label="Faculty workloads"
-        value={activity.groups.map((g) => g.participant_ids.length).join(" / ")}
-      />
-    </div>
-  );
-}
-function SummaryStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
-  return (
-    <div>
-      <p className="text-xs font-bold uppercase text-slate-500">{label}</p>
-      <p className="mt-1 text-lg font-extrabold text-navy">{value}</p>
-    </div>
-  );
-}
-function ParticipantDetails({
-  person,
-  chemistryEnabled,
-}: {
-  person: Participant;
-  chemistryEnabled: boolean;
-}) {
-  const university =
-      String(person.attributes.University ?? "").trim() ||
-      "University not provided",
-    offering =
-      standardOffering(person.attributes["L3 Offering"]) ||
-      "Offering not provided",
-    primary = String(person.attributes["Primary Chemistry"] ?? "").trim(),
-    secondary = String(person.attributes["Secondary Chemistry"] ?? "").trim();
-  return (
-    <div className="mt-1 space-y-0.5 text-xs text-slate-500">
-      <p>University: {university}</p>
-      <p>Offering: {offering}</p>
-      {chemistryEnabled &&
-        (primary && secondary ? (
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-slate-700">
-              Primary: {primary}
-            </span>
-            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-slate-700">
-              Secondary: {secondary}
-            </span>
-          </div>
-        ) : (
-          <p className="font-semibold text-amber-700">
-            Business Chemistry information is incomplete
-          </p>
-        ))}
-    </div>
   );
 }
 function editLabel(

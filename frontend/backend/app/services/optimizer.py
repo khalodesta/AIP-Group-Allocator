@@ -1,6 +1,6 @@
 import math
 import random
-from collections import defaultdict
+from collections import Counter, defaultdict
 from itertools import combinations
 from typing import Dict, List, Optional
 from ortools.sat.python import cp_model
@@ -10,6 +10,27 @@ from app.services.normalization import (display_offering, normalize_gender, norm
     participant_university_category, validate_university_classifications)
 
 CORE_ACTIVITY_IDS = {"main", "quiz", "team", "sports"}
+REPEAT_ACTIVITY_IDS = {"main", "quiz", "team"}
+
+
+def _priority_weights(chemistry_upper: int, middle_upper: int, university_upper: int):
+    """One bounded integer objective, ordered balance > university > repeats/offering > Chemistry.
+
+    Upper bounds use actual group capacities/cohort counts, not the number of
+    Boolean indicators or arbitrarily large constants. Each tier outweighs the
+    complete possible cost of all tiers below it. Chemistry has base weight one.
+    """
+    middle = chemistry_upper + 1
+    lower = middle * middle_upper + chemistry_upper
+    university = lower + 1
+    balance = university * university_upper + lower + 1
+    return balance, university, middle
+
+
+def _deviation_upper(n: int, total: int, size: int) -> int:
+    """Largest possible |n*local_count - total*group_size| for this cohort."""
+    low, high = max(0, total-(n-size)), min(total, size)
+    return max(abs(n*low-total*size), abs(n*high-total*size))
 
 
 def _minutes(value: str, label: str) -> int:
@@ -40,21 +61,31 @@ def reflection_capacity(configuration: Configuration, faculty_count: int) -> tup
     return slots, slots * faculty_count
 
 
+def _prayer_selection(request: OptimizeRequest) -> set[str]:
+    """Gender determines control eligibility, never matching, timing cost or score."""
+    selected = set(request.configuration.reflection_settings.selected_participant_ids)
+    people = {person.id:person for person in request.participants}
+    if selected - set(people):
+        raise ValueError("One or more selected My Reflections participants no longer exist")
+    if any(normalize_gender(people[pid].attributes.get("Gender")) != "male" for pid in selected):
+        raise ValueError("Friday prayer accommodation can only be selected for participants whose recorded gender is Male")
+    return selected
+
+
 def _reflection_plan(request: OptimizeRequest, activity=None, ignore_final_end=False, earliest=False, solver_status=None):
     """Joint optional-interval model: assignment and actual time are both feasible.
 
     Faculty workloads differ by at most one. Offering and existing profile
-    preferences are soft; availability, duration, prayer breaks and final end
-    are hard constraints. University category and gender never enter this model.
+    preferences are soft; global timing, duration, selected-participant prayer
+    breaks and final end are hard constraints. Gender is used only to validate
+    eligibility for the administrator's explicit prayer selection.
     """
     settings = request.configuration.reflection_settings
     faculty = request.faculty_members
     people = request.participants
     if len(faculty) != 3: raise ValueError("Exactly three faculty members are required for My Reflections")
     reflection_capacity(request.configuration, len(faculty))
-    selected = set(settings.selected_participant_ids)
-    if selected - {p.id for p in people}:
-        raise ValueError("One or more selected My Reflections participants no longer exist")
+    selected = _prayer_selection(request)
     start = _minutes(settings.start_time, "My Reflections start time")
     prayer = _minutes(settings.prayer_deadline, "Friday prayer start time")
     resume = _minutes(settings.resume_time, "Post-prayer resume time")
@@ -78,25 +109,12 @@ def _reflection_plan(request: OptimizeRequest, activity=None, ignore_final_end=F
             if fixed is not None: model.Add(choice == int(fixed[person.id] == member.id))
             interval = model.NewOptionalIntervalVar(starts[i], duration, ends[i], choice, f"appointment_{i}_{f}")
             faculty_intervals[f].append(interval)
-            available_from = getattr(member, "available_from", None)
-            available_until = getattr(member, "available_until", None)
-            if available_from: model.Add(starts[i] >= _minutes(available_from, "Faculty availability start")).OnlyEnforceIf(choice)
-            if available_until: model.Add(ends[i] <= _minutes(available_until, "Faculty availability end")).OnlyEnforceIf(choice)
-            if person.id in selected or getattr(member, "prayer_unavailable", True):
-                before = model.NewBoolVar(f"prayer_before_{i}_{f}")
-                model.Add(ends[i] <= prayer).OnlyEnforceIf([choice, before])
-                model.Add(starts[i] >= resume).OnlyEnforceIf([choice, before.Not()])
         model.AddExactlyOne(choices[i, f] for f in range(3))
     low, extra = divmod(len(people), 3)
     for f, member in enumerate(faculty):
         workload = sum(choices[i, f] for i in range(len(people)))
         if fixed is None:
             model.Add(workload >= low); model.Add(workload <= low + bool(extra))
-        for index, unavailable in enumerate(getattr(member, "unavailable_intervals", [])):
-            left = _minutes(unavailable.start_time, "Faculty unavailable interval start")
-            right = _minutes(unavailable.end_time, "Faculty unavailable interval end")
-            if right <= left: raise ValueError("Faculty unavailable interval end must be after its start")
-            faculty_intervals[f].append(model.NewIntervalVar(left, right-left, right, f"unavailable_{f}_{index}"))
         model.AddNoOverlap(faculty_intervals[f])
         # Identical prayer status means appointment order is interchangeable.
         # Stable ordering removes interval symmetry without using gender.
@@ -182,7 +200,7 @@ def _planned_reflection(request: OptimizeRequest, activity=None):
             label = "Earliest feasible completion" if status.get("optimal") else "A feasible completion"
             raise ValueError(f"My Reflections cannot fit by {_clock(_minutes(settings.end_time, 'Final end time'))}. "
                 f"{label} is {_clock(finish)}; extend the final end time to {finish//60:02d}:{finish%60:02d} or later.")
-    raise ValueError("My Reflections cannot fit within the configured same-day faculty availability. Start earlier, extend faculty availability within this day, or adjust the appointment duration.")
+    raise ValueError("My Reflections cannot fit within the configured same-day scheduling period. Start earlier or adjust the appointment duration.")
 
 
 def schedule_reflection(activity: ActivityAllocation, request: OptimizeRequest) -> list[ReflectionSession]:
@@ -193,6 +211,8 @@ def schedule_reflection(activity: ActivityAllocation, request: OptimizeRequest) 
 def validate_reflection_sessions(activity: ActivityAllocation, request: OptimizeRequest) -> list[str]:
     """Validate saved/manual slots without changing any appointment or running CP-SAT."""
     errors = []; settings = request.configuration.reflection_settings
+    try: selected = _prayer_selection(request)
+    except ValueError as exc: return [str(exc)]
     if not settings.enabled and not activity.sessions: return []
     expected = {p.id for p in request.participants}
     ids = [session.participant_id for session in activity.sessions]
@@ -207,7 +227,7 @@ def validate_reflection_sessions(activity: ActivityAllocation, request: Optimize
         prayer = _minutes(settings.prayer_deadline, "Friday prayer start time")
         resume = _minutes(settings.resume_time, "Post-prayer resume time")
         final = _minutes(settings.end_time, "My Reflections final end time") if settings.end_time else 1439
-        selected = set(settings.selected_participant_ids)
+        selected = selected if settings.enabled else set()
         for session in activity.sessions:
             member = faculty.get(session.faculty_id)
             if not member or groups.get(session.participant_id) != session.faculty_id:
@@ -215,15 +235,8 @@ def validate_reflection_sessions(activity: ActivityAllocation, request: Optimize
             left, right = _session_minutes(session.start_time), _session_minutes(session.end_time)
             if right-left != settings.session_duration_minutes: errors.append("My Reflections appointment duration must match the configured duration")
             if settings.enabled and (left < start or right > final): errors.append("My Reflections appointment is outside the configured schedule")
-            if settings.enabled and (session.participant_id in selected or member.prayer_unavailable) and left < resume and right > prayer:
+            if settings.enabled and session.participant_id in selected and left < resume and right > prayer:
                 errors.append("My Reflections appointment crosses the protected Friday prayer break")
-            if member.available_from and left < _minutes(member.available_from, "Faculty availability start"):
-                errors.append("My Reflections appointment starts before faculty availability")
-            if member.available_until and right > _minutes(member.available_until, "Faculty availability end"):
-                errors.append("My Reflections appointment ends after faculty availability")
-            for interval in member.unavailable_intervals:
-                if left < _minutes(interval.end_time, "Faculty unavailable end") and right > _minutes(interval.start_time, "Faculty unavailable start"):
-                    errors.append("My Reflections appointment overlaps faculty unavailability")
             intervals[session.faculty_id].append((left, right))
         for slots in intervals.values():
             ordered = sorted(slots)
@@ -268,6 +281,7 @@ def optimize(request: OptimizeRequest) -> AllocationSnapshot:
         validate_university_classifications(people, request.configuration.custom_universities)
     prior_pairs = defaultdict(int)
     for alloc in fixed:
+        if alloc.activity_id not in REPEAT_ACTIVITY_IDS: continue
         for group in alloc.groups:
             for pair in combinations(sorted(group.participant_ids), 2): prior_pairs[pair] += 1
     model = cp_model.CpModel(); n = len(people); ids = [p.id for p in people]
@@ -284,11 +298,13 @@ def optimize(request: OptimizeRequest) -> AllocationSnapshot:
     university_cost = []
     university_category_cost = []
     profile_diversity_cost = []
+    chemistry_cost = []
     gender_cost = []
     repeat_cost = []
     for i, j in combinations(range(n), 2):
         pair = tuple(sorted((ids[i], ids[j]))); pair_vars = []
         for a_idx, activity in enumerate(to_solve):
+            if activity.id not in REPEAT_ACTIVITY_IDS: continue
             group_vars = []
             for g in range(len(sizes_by_activity[activity.id])):
                 z = model.NewBoolVar(f"z_{a_idx}_{i}_{j}_{g}")
@@ -300,7 +316,7 @@ def optimize(request: OptimizeRequest) -> AllocationSnapshot:
             model.Add(repeat >= sum(pair_vars) + prior_pairs[pair] - 1)
             repeat_cost.append(repeat)
 
-    # Priority 1: every same-university teammate pair has a cost. Unknown values
+    # Priority 2: every same-university teammate pair has a cost. Unknown values
     # are excluded rather than treated as a meaningful shared category.
     universities = [normalize_university(p.attributes.get("University"), request.configuration.custom_universities) or p.attributes.get("UniversityId") for p in people]
     for i, j in combinations(range(n), 2):
@@ -328,9 +344,10 @@ def optimize(request: OptimizeRequest) -> AllocationSnapshot:
                     z = model.NewBoolVar(f"profile_{attribute}_{a_idx}_{i}_{j}_{g}")
                     model.Add(z <= variables[a_idx, i, g]); model.Add(z <= variables[a_idx, j, g])
                     model.Add(z >= variables[a_idx, i, g] + variables[a_idx, j, g] - 1)
-                    profile_diversity_cost.extend([z] * weight)
+                    target_cost = profile_diversity_cost if attribute == "L3 Offering" else chemistry_cost
+                    target_cost.extend([z] * weight)
 
-    # Priority 2: minimize proportional gender deviation. Every recorded value
+    # Priority 1: minimize proportional gender deviation in every group. Recorded
     # (including respectful non-binary/other labels) is balanced independently.
     genders = [normalize_gender(p.attributes.get("Gender")) for p in people]
     categories = sorted({value for value in genders if value})
@@ -355,17 +372,26 @@ def optimize(request: OptimizeRequest) -> AllocationSnapshot:
                 model.AddAbsEquality(deviation, sum(variables[a_idx,i,g] for i in members)*n - len(members)*size)
                 university_category_cost.append(deviation)
 
-    # Safe data-dependent scaling gives lexicographic weighted behavior:
-    # one university-pair improvement outweighs every possible lower-priority
-    # change, and one gender-deviation point outweighs every repeat change.
-    repeat_upper = max(1, len(repeat_cost) * max(1, len(request.configuration.activities) - 1))
-    gender_upper = max(1, (len(gender_cost) + len(university_category_cost)) * n * n)
-    gender_weight = repeat_upper + 1
-    university_weight = gender_upper * gender_weight + repeat_upper + 1
+    # A small additional soft maximum discourages concentrating imbalance in one
+    # group. It adds one variable and no gender quotas or extra solver passes.
+    worst_gender = model.NewIntVar(0, n*n, "worst_group_gender_deviation")
+    if gender_cost: model.AddMaxEquality(worst_gender, gender_cost)
+    else: model.Add(worst_gender == 0)
+    pair_capacity = sum(size*(size-1)//2 for sizes in sizes_by_activity.values() for size in sizes)
+    encounters = [sum(size*(size-1)//2 for size in sizes_by_activity[a.id])
+                  for a in to_solve if a.id in REPEAT_ACTIVITY_IDS]
+    encounters.extend(sum(len(g.participant_ids)*(len(g.participant_ids)-1)//2 for g in a.groups)
+                      for a in fixed if a.activity_id in REPEAT_ACTIVITY_IDS)
+    repeat_upper = max(0, sum(encounters)-max(encounters, default=0)) if repeat_cost else 0
+    chemistry_upper = min(len(chemistry_cost), 4*pair_capacity)
+    middle_upper = repeat_upper + min(len(profile_diversity_cost), 3*pair_capacity)
+    balance_weight, university_weight, middle_weight = _priority_weights(
+        chemistry_upper, middle_upper, min(len(university_cost), pair_capacity))
     model.Minimize(
-        university_weight * (10 * sum(university_cost) + sum(profile_diversity_cost))
-        + gender_weight * (sum(gender_cost) + sum(university_category_cost))
-        + sum(repeat_cost)
+        balance_weight * (sum(gender_cost) + sum(university_category_cost) + worst_gender)
+        + university_weight * sum(university_cost)
+        + middle_weight * (sum(repeat_cost) + sum(profile_diversity_cost))
+        + sum(chemistry_cost)
     ); solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = request.configuration.time_limit_seconds
     solver.parameters.random_seed = request.configuration.seed; solver.parameters.num_search_workers = 1
@@ -374,6 +400,7 @@ def optimize(request: OptimizeRequest) -> AllocationSnapshot:
              cp_model.INFEASIBLE: "INFEASIBLE", cp_model.UNKNOWN: "UNKNOWN"}
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         if status == cp_model.INFEASIBLE: raise ValueError("Configuration is infeasible with current locks")
+        if status == cp_model.MODEL_INVALID: raise ValueError("Optimization model is invalid: " + model.Validate())
         return fallback(request, fixed)
     solved = []
     for a_idx, activity in enumerate(to_solve):
@@ -406,13 +433,15 @@ def _bus_allocation(request: OptimizeRequest, core: List[ActivityAllocation]):
     for i in range(n): model.AddExactlyOne(variables[i,t] for t in range(2))
     targets = [(n+1)//2, n//2]
     for t,target in enumerate(targets): model.Add(sum(variables[i,t] for i in range(n)) == target)
-    costs = []
-    attributes = [("UniversityId", 5), ("Gender", 4), ("L3 Offering", 3), ("University Category", 4)]
+    costs = defaultdict(list); upper = defaultdict(int)
+    attributes = [("UniversityId", 1), ("Gender", 1), ("L3 Offering", 3), ("University Category", 1)]
     if request.configuration.include_business_chemistry:
         attributes.extend((("Primary Chemistry", 3), ("Secondary Chemistry", 1)))
     for attribute,weight in attributes:
         if attribute == "University Category":
             values = [participant_university_category(p, request.configuration.custom_universities) for p in people]
+        elif attribute == "Gender":
+            values = [normalize_gender(p.attributes.get("Gender")) for p in people]
         else:
             values = [str((normalize_university(p.attributes.get("University"), request.configuration.custom_universities) or p.attributes.get("UniversityId") or "") if attribute == "UniversityId" else (p.attributes.get(attribute) or "")).casefold().strip() for p in people]
         for value in sorted({x for x in values if x}):
@@ -420,23 +449,19 @@ def _bus_allocation(request: OptimizeRequest, core: List[ActivityAllocation]):
             for t,target in enumerate(targets):
                 deviation = model.NewIntVar(0, n*n, f"bus_dev_{attribute}_{value}_{t}")
                 model.AddAbsEquality(deviation, sum(variables[i,t] for i in members)*n-len(members)*target)
-                costs.extend([deviation]*weight)
-    # Preserve teammate-exposure preference without overruling the existing
-    # university/profile/gender balance weights.
-    repeat_costs = []
-    pair_history = defaultdict(int)
-    for activity in core:
-        for group in activity.groups:
-            for pair in combinations(sorted(group.participant_ids), 2): pair_history[pair] += 1
-    for i,j in combinations(range(n), 2):
-        previous = pair_history[tuple(sorted((ids[i],ids[j])))]
-        if not previous: continue
-        for t in range(2):
-            together = model.NewBoolVar(f"bus_repeat_{i}_{j}_{t}")
-            model.Add(together <= variables[i,t]); model.Add(together <= variables[j,t])
-            model.Add(together >= variables[i,t]+variables[j,t]-1)
-            repeat_costs.extend([together]*previous)
-    model.Minimize((len(repeat_costs)+1)*sum(costs)+sum(repeat_costs))
+                tier = "chemistry" if attribute in {"Primary Chemistry", "Secondary Chemistry"} else attribute
+                costs[tier].extend([deviation]*weight)
+                upper[tier] += weight*_deviation_upper(n, len(members), target)
+    worst_gender = model.NewIntVar(0, n*n, "bus_worst_group_gender_deviation")
+    if costs["Gender"]: model.AddMaxEquality(worst_gender, costs["Gender"])
+    else: model.Add(worst_gender == 0)
+    balance_weight, university_weight, offering_weight = _priority_weights(
+        upper["chemistry"], upper["L3 Offering"], upper["UniversityId"])
+    # BUS balances new hires only. Repeat encounters belong exclusively to the
+    # original Main Groups / Quiz Night / Team Building joint objective.
+    model.Minimize(balance_weight*(sum(costs["Gender"])+sum(costs["University Category"])+worst_gender)
+                   + university_weight*sum(costs["UniversityId"])
+                   + offering_weight*sum(costs["L3 Offering"])+sum(costs["chemistry"]))
     solver = cp_model.CpSolver(); solver.parameters.max_time_in_seconds = 3
     solver.parameters.random_seed = request.configuration.seed; solver.parameters.num_search_workers = 1
     status = solver.Solve(model)
@@ -453,6 +478,7 @@ def _bus_allocation(request: OptimizeRequest, core: List[ActivityAllocation]):
 
 
 def _reflection_allocation(request: OptimizeRequest):
+    _prayer_selection(request)
     if request.configuration.reflection_settings.enabled:
         sessions = _planned_reflection(request)
         groups = [Group(id=f.id, name=f.name, participant_ids=[s.participant_id for s in sessions if s.faculty_id == f.id]) for f in request.faculty_members]
@@ -575,8 +601,45 @@ def _locked_members(activity, sizes, ids, locks):
     return members
 
 
+def _improve_fallback_balance(groups: List[Group], request: OptimizeRequest, locked: set):
+    """Bounded, deterministic local repair; this is not a CP-SAT optimum claim.
+
+    Exchanges only unlocked people, so capacities, uniqueness and mandatory locks
+    stay intact. Reuse the top-tier proportional balance/worst-group soft cost.
+    """
+    n = len(request.participants)
+    values = {p.id:(normalize_gender(p.attributes.get("Gender")),
+                   participant_university_category(p, request.configuration.custom_universities)) for p in request.participants}
+    totals = [Counter(value[dimension] for value in values.values()) for dimension in range(2)]
+    def balance_cost():
+        total_cost = worst_gender = 0
+        for group in groups:
+            for dimension in range(2):
+                local = Counter(values[pid][dimension] for pid in group.participant_ids)
+                deviations = [abs(local[value]*n-count*len(group.participant_ids))
+                              for value,count in totals[dimension].items() if value]
+                total_cost += sum(deviations)
+                if dimension == 0: worst_gender = max(worst_gender, max(deviations, default=0))
+        return total_cost + worst_gender
+    score = balance_cost()
+    for _ in range(n):
+        candidates = ((left,right,i,j) for left,right in combinations(range(len(groups)),2)
+                      for i,pid in enumerate(groups[left].participant_ids) if pid not in locked
+                      for j,other in enumerate(groups[right].participant_ids) if other not in locked)
+        for left,right,i,j in candidates:
+            a,b = groups[left].participant_ids,groups[right].participant_ids
+            a[i],b[j] = b[j],a[i]
+            improved = balance_cost()
+            if improved < score:
+                score = improved
+                break
+            a[i],b[j] = b[j],a[i]
+        else:
+            break
+
+
 def fallback(request: OptimizeRequest, fixed: Optional[List[ActivityAllocation]] = None) -> AllocationSnapshot:
-    """Seeded feasible grouping that preserves every hard assignment constraint."""
+    """Explicitly reported heuristic, preserving all hard assignment constraints."""
     rng = random.Random(request.configuration.seed); ids = [p.id for p in request.participants]
     if len(ids) != len(set(ids)): raise ValueError("Participant IDs must be unique")
     activities = list(fixed or []); existing = {a.activity_id for a in activities}
@@ -604,6 +667,9 @@ def fallback(request: OptimizeRequest, fixed: Optional[List[ActivityAllocation]]
         for g,size in enumerate(sizes):
             needed = size-len(members[g]); occupants = members[g]+remaining[offset:offset+needed]; offset += needed
             groups.append(Group(id=f"{activity.id}-{g}", name=f"Group {g+1}", participant_ids=occupants))
-        activities.append(ActivityAllocation(activity_id=activity.id, activity_name=activity.name, groups=groups, locked=activity.locked))
+        if activity.id in REPEAT_ACTIVITY_IDS:
+            _improve_fallback_balance(groups, request, locked)
+        activities.append(ActivityAllocation(activity_id=activity.id, activity_name=activity.name, groups=groups, locked=activity.locked,
+            warnings=["CP-SAT did not return a solution within its time limit. These are heuristic assignments, not an optimized result; review diversity or regenerate with a longer solver limit."]))
     activities.extend(_special_allocations(request, activities))
     return AllocationSnapshot(activities=activities, status="FEASIBLE_FALLBACK", seed=request.configuration.seed)

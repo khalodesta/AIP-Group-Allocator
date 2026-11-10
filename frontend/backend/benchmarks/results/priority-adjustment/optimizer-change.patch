@@ -1,0 +1,163 @@
+--- before/optimizer.py
++++ after/optimizer.py
+@@ -3 +3 @@
+-from collections import defaultdict
++from collections import Counter, defaultdict
+@@ -12,0 +13,21 @@
++REPEAT_ACTIVITY_IDS = {"main", "quiz", "team"}
++
++
++def _priority_weights(chemistry_upper: int, middle_upper: int, university_upper: int):
++    """One bounded integer objective, ordered balance > university > repeats/offering > Chemistry.
++
++    Upper bounds use actual group capacities/cohort counts, not the number of
++    Boolean indicators or arbitrarily large constants. Each tier outweighs the
++    complete possible cost of all tiers below it. Chemistry has base weight one.
++    """
++    middle = chemistry_upper + 1
++    lower = middle * middle_upper + chemistry_upper
++    university = lower + 1
++    balance = university * university_upper + lower + 1
++    return balance, university, middle
++
++
++def _deviation_upper(n: int, total: int, size: int) -> int:
++    """Largest possible |n*local_count - total*group_size| for this cohort."""
++    low, high = max(0, total-(n-size)), min(total, size)
++    return max(abs(n*low-total*size), abs(n*high-total*size))
+@@ -262,0 +284 @@
++        if alloc.activity_id not in REPEAT_ACTIVITY_IDS: continue
+@@ -278,0 +301 @@
++    chemistry_cost = []
+@@ -283,0 +307 @@
++            if activity.id not in REPEAT_ACTIVITY_IDS: continue
+@@ -295 +319 @@
+-    # Priority 1: every same-university teammate pair has a cost. Unknown values
++    # Priority 2: every same-university teammate pair has a cost. Unknown values
+@@ -323,3 +347,4 @@
+-                    profile_diversity_cost.extend([z] * weight)
+-
+-    # Priority 2: minimize proportional gender deviation. Every recorded value
++                    target_cost = profile_diversity_cost if attribute == "L3 Offering" else chemistry_cost
++                    target_cost.extend([z] * weight)
++
++    # Priority 1: minimize proportional gender deviation in every group. Recorded
+@@ -350,7 +375,15 @@
+-    # Safe data-dependent scaling gives lexicographic weighted behavior:
+-    # one university-pair improvement outweighs every possible lower-priority
+-    # change, and one gender-deviation point outweighs every repeat change.
+-    repeat_upper = max(1, len(repeat_cost) * max(1, len(request.configuration.activities) - 1))
+-    gender_upper = max(1, (len(gender_cost) + len(university_category_cost)) * n * n)
+-    gender_weight = repeat_upper + 1
+-    university_weight = gender_upper * gender_weight + repeat_upper + 1
++    # A small additional soft maximum discourages concentrating imbalance in one
++    # group. It adds one variable and no gender quotas or extra solver passes.
++    worst_gender = model.NewIntVar(0, n*n, "worst_group_gender_deviation")
++    if gender_cost: model.AddMaxEquality(worst_gender, gender_cost)
++    else: model.Add(worst_gender == 0)
++    pair_capacity = sum(size*(size-1)//2 for sizes in sizes_by_activity.values() for size in sizes)
++    encounters = [sum(size*(size-1)//2 for size in sizes_by_activity[a.id])
++                  for a in to_solve if a.id in REPEAT_ACTIVITY_IDS]
++    encounters.extend(sum(len(g.participant_ids)*(len(g.participant_ids)-1)//2 for g in a.groups)
++                      for a in fixed if a.activity_id in REPEAT_ACTIVITY_IDS)
++    repeat_upper = max(0, sum(encounters)-max(encounters, default=0)) if repeat_cost else 0
++    chemistry_upper = min(len(chemistry_cost), 4*pair_capacity)
++    middle_upper = repeat_upper + min(len(profile_diversity_cost), 3*pair_capacity)
++    balance_weight, university_weight, middle_weight = _priority_weights(
++        chemistry_upper, middle_upper, min(len(university_cost), pair_capacity))
+@@ -358,3 +391,4 @@
+-        university_weight * (10 * sum(university_cost) + sum(profile_diversity_cost))
+-        + gender_weight * (sum(gender_cost) + sum(university_category_cost))
+-        + sum(repeat_cost)
++        balance_weight * (sum(gender_cost) + sum(university_category_cost) + worst_gender)
++        + university_weight * sum(university_cost)
++        + middle_weight * (sum(repeat_cost) + sum(profile_diversity_cost))
++        + sum(chemistry_cost)
+@@ -368,0 +403 @@
++        if status == cp_model.MODEL_INVALID: raise ValueError("Optimization model is invalid: " + model.Validate())
+@@ -401,2 +436,2 @@
+-    costs = []
+-    attributes = [("UniversityId", 5), ("Gender", 4), ("L3 Offering", 3), ("University Category", 4)]
++    costs = defaultdict(list); upper = defaultdict(int)
++    attributes = [("UniversityId", 1), ("Gender", 1), ("L3 Offering", 3), ("University Category", 1)]
+@@ -407,0 +443,2 @@
++        elif attribute == "Gender":
++            values = [normalize_gender(p.attributes.get("Gender")) for p in people]
+@@ -415,17 +452,13 @@
+-                costs.extend([deviation]*weight)
+-    # Preserve teammate-exposure preference without overruling the existing
+-    # university/profile/gender balance weights.
+-    repeat_costs = []
+-    pair_history = defaultdict(int)
+-    for activity in core:
+-        for group in activity.groups:
+-            for pair in combinations(sorted(group.participant_ids), 2): pair_history[pair] += 1
+-    for i,j in combinations(range(n), 2):
+-        previous = pair_history[tuple(sorted((ids[i],ids[j])))]
+-        if not previous: continue
+-        for t in range(2):
+-            together = model.NewBoolVar(f"bus_repeat_{i}_{j}_{t}")
+-            model.Add(together <= variables[i,t]); model.Add(together <= variables[j,t])
+-            model.Add(together >= variables[i,t]+variables[j,t]-1)
+-            repeat_costs.extend([together]*previous)
+-    model.Minimize((len(repeat_costs)+1)*sum(costs)+sum(repeat_costs))
++                tier = "chemistry" if attribute in {"Primary Chemistry", "Secondary Chemistry"} else attribute
++                costs[tier].extend([deviation]*weight)
++                upper[tier] += weight*_deviation_upper(n, len(members), target)
++    worst_gender = model.NewIntVar(0, n*n, "bus_worst_group_gender_deviation")
++    if costs["Gender"]: model.AddMaxEquality(worst_gender, costs["Gender"])
++    else: model.Add(worst_gender == 0)
++    balance_weight, university_weight, offering_weight = _priority_weights(
++        upper["chemistry"], upper["L3 Offering"], upper["UniversityId"])
++    # BUS balances new hires only. Repeat encounters belong exclusively to the
++    # original Main Groups / Quiz Night / Team Building joint objective.
++    model.Minimize(balance_weight*(sum(costs["Gender"])+sum(costs["University Category"])+worst_gender)
++                   + university_weight*sum(costs["UniversityId"])
++                   + offering_weight*sum(costs["L3 Offering"])+sum(costs["chemistry"]))
+@@ -570,0 +604,37 @@
++def _improve_fallback_balance(groups: List[Group], request: OptimizeRequest, locked: set):
++    """Bounded, deterministic local repair; this is not a CP-SAT optimum claim.
++
++    Exchanges only unlocked people, so capacities, uniqueness and mandatory locks
++    stay intact. Reuse the top-tier proportional balance/worst-group soft cost.
++    """
++    n = len(request.participants)
++    values = {p.id:(normalize_gender(p.attributes.get("Gender")),
++                   participant_university_category(p, request.configuration.custom_universities)) for p in request.participants}
++    totals = [Counter(value[dimension] for value in values.values()) for dimension in range(2)]
++    def balance_cost():
++        total_cost = worst_gender = 0
++        for group in groups:
++            for dimension in range(2):
++                local = Counter(values[pid][dimension] for pid in group.participant_ids)
++                deviations = [abs(local[value]*n-count*len(group.participant_ids))
++                              for value,count in totals[dimension].items() if value]
++                total_cost += sum(deviations)
++                if dimension == 0: worst_gender = max(worst_gender, max(deviations, default=0))
++        return total_cost + worst_gender
++    score = balance_cost()
++    for _ in range(n):
++        candidates = ((left,right,i,j) for left,right in combinations(range(len(groups)),2)
++                      for i,pid in enumerate(groups[left].participant_ids) if pid not in locked
++                      for j,other in enumerate(groups[right].participant_ids) if other not in locked)
++        for left,right,i,j in candidates:
++            a,b = groups[left].participant_ids,groups[right].participant_ids
++            a[i],b[j] = b[j],a[i]
++            improved = balance_cost()
++            if improved < score:
++                score = improved
++                break
++            a[i],b[j] = b[j],a[i]
++        else:
++            break
++
++
+@@ -572 +642 @@
+-    """Seeded feasible grouping that preserves every hard assignment constraint."""
++    """Explicitly reported heuristic, preserving all hard assignment constraints."""
+@@ -600 +670,4 @@
+-        activities.append(ActivityAllocation(activity_id=activity.id, activity_name=activity.name, groups=groups, locked=activity.locked))
++        if activity.id in REPEAT_ACTIVITY_IDS:
++            _improve_fallback_balance(groups, request, locked)
++        activities.append(ActivityAllocation(activity_id=activity.id, activity_name=activity.name, groups=groups, locked=activity.locked,
++            warnings=["CP-SAT did not return a solution within its time limit. These are heuristic assignments, not an optimized result; review diversity or regenerate with a longer solver limit."]))

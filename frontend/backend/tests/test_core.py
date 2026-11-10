@@ -12,7 +12,7 @@ from app.services.normalization import display_gender, display_offering, normali
 from app.services.excel import blank_template, match_chemistry, parse_chemistry
 
 def people(n=30):
-    return [Participant(id=f"P{i}", name=f"Person {i}", attributes={"Gender":"Female" if i%2 else "Male", "University":f"University {i%8}", "University Category":"other"}) for i in range(n)]
+    return [Participant(id=f"P{i}", name=f"Person {i}", attributes={"Gender":"Female" if i%2 else "Male", "University":f"University {i%8}", "University Category":"public"}) for i in range(n)]
 
 def config(n=30):
     return Configuration(activities=[Activity(id="main",name="Main Groups",mode="max_size",value=6), Activity(id="sports",name="Sports Day",mode="max_size",value=5), Activity(id="quiz",name="Quiz Night",mode="group_count",value=5)], factors=[Factor(id="gender",name="Gender",source_column="Gender"), Factor(id="dept",name="Department",source_column="Department")], time_limit_seconds=4)
@@ -40,7 +40,8 @@ def test_scoring_counts_repeats():
     p=people(4); groups=[Group(id="g0",name="A",participant_ids=["P0","P1"]),Group(id="g1",name="B",participant_ids=["P2","P3"])]
     a=AllocationSnapshot(activities=[ActivityAllocation(activity_id=x,activity_name=x,groups=groups) for x in ["main","sports","quiz"]])
     c=Configuration(activities=[Activity(id=x,name=x,mode="group_count",value=2) for x in ["main","sports","quiz"]])
-    score=score_allocation(p,c,a); assert score["total_unique_pairs"]==2; assert score["repeat_pairing_penalty"]==4
+    # Repeats count Main / Quiz / Team only; legacy Sports is excluded.
+    score=score_allocation(p,c,a); assert score["total_unique_pairs"]==2; assert score["repeat_pairing_penalty"]==2
 
 def test_locked_main_is_preserved():
     p=people(20); c=config(); first=optimize(OptimizeRequest(participants=p,configuration=c))
@@ -73,7 +74,7 @@ def test_arabic_partial_identity_and_similar_universities_stay_distinct():
 
 def test_zero_university_duplicates_when_feasible_and_gender_balanced():
     p = [Participant(id=f"P{i}", name=f"Person {i}", attributes={
-        "Gender": "Female" if i % 2 else "Male", "University": f"University {i % 4}", "University Category":"other"
+        "Gender": "Female" if i % 2 else "Male", "University": f"University {i % 4}", "University Category":"public"
     }) for i in range(8)]
     c = Configuration(activities=[Activity(id="main", name="Main", mode="max_size", value=4)], time_limit_seconds=5)
     a = optimize(OptimizeRequest(participants=p, configuration=c))
@@ -84,7 +85,7 @@ def test_zero_university_duplicates_when_feasible_and_gender_balanced():
 
 def test_unavoidable_university_duplicates_are_counted_exactly():
     p = [Participant(id=f"P{i}", name=f"Person {i}", attributes={
-        "Gender": "Female" if i % 2 else "Male", "University": "Only University", "University Category":"other"
+        "Gender": "Female" if i % 2 else "Male", "University": "Only University", "University Category":"public"
     }) for i in range(6)]
     c = Configuration(activities=[Activity(id="main", name="Main", mode="group_count", value=2)], time_limit_seconds=5)
     a = optimize(OptimizeRequest(participants=p, configuration=c))
@@ -182,7 +183,7 @@ def test_business_chemistry_parsing_and_safe_matching():
 
 def test_week2_six_allocations_and_hotel_hard_constraints():
     cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male" if i<14 else "Female",
-        "University":f"University {i%8}", "University Category":"other","UniversityId":f"u{i%8}","L3 Offering":["Cyber","Customer","AI & Data"][i%3],
+        "University":f"University {i%8}", "University Category":"public","UniversityId":f"u{i%8}","L3 Offering":["Cyber","Customer","AI & Data"][i%3],
         "Primary Chemistry":["Pioneer","Driver","Guardian","Integrator"][i%4],
         "Secondary Chemistry":["Driver","Guardian","Integrator","Pioneer"][i%4]}) for i in range(27)]
     config=Configuration(activities=[Activity(id=x,name=x,mode="max_size",value=6) for x in ("main","quiz","team")],time_limit_seconds=3,include_business_chemistry=True)
@@ -232,7 +233,7 @@ def test_enabled_business_chemistry_requires_complete_profiles():
 
 def test_enhanced_reflection_schedules_selected_people_before_and_after_prayer():
     cohort=[Participant(id=f"P{i}",name=f"Person {i}",attributes={"Gender":"Male" if i<12 else "Female",
-        "University":f"University {i%6}", "University Category":"other","UniversityId":f"u{i%6}","L3 Offering":["Cyber","Customer","AI & Data"][i%3]}) for i in range(27)]
+        "University":f"University {i%6}", "University Category":"public","UniversityId":f"u{i%6}","L3 Offering":["Cyber","Customer","AI & Data"][i%3]}) for i in range(27)]
     selected=[f"P{i}" for i in range(9)]
     settings=ReflectionSettings(enabled=True,selected_participant_ids=selected,start_time="11:00",
         session_duration_minutes=20,prayer_deadline="12:00",resume_time="13:00")
@@ -250,7 +251,7 @@ def test_enhanced_reflection_schedules_selected_people_before_and_after_prayer()
         intervals=[(s.start_time,s.end_time) for s in reflection.sessions if s.faculty_id==faculty_id]
         assert len(intervals)==len(set(intervals))
 
-    continuation=config.model_copy(update={"reflection_settings":settings.model_copy(update={"selected_participant_ids":[f"P{i}" for i in range(27)]})})
+    continuation=config.model_copy(update={"reflection_settings":settings.model_copy(update={"selected_participant_ids":[f"P{i}" for i in range(12)]})})
     continued=optimize(request.model_copy(update={"configuration":continuation}))
     appointments=next(a for a in continued.activities if a.activity_id=="reflection").sessions
     assert len(appointments)==27 and any(not session.before_prayer for session in appointments)

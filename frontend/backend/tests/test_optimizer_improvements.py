@@ -3,7 +3,7 @@ from collections import Counter
 import pytest
 from app.models import (Activity, ActivityAllocation, AllocationSnapshot, Configuration,
     CustomUniversity, FacultyMember, Group, OptimizeRequest, Participant,
-    ReflectionSettings, SupportMember, TimeInterval)
+    ReflectionSettings, SupportMember)
 from app.services.optimizer import (_bus_allocation, _hotel_allocation, _reflection_allocation,
     _session_minutes, _special_allocations, optimize, validate_reflection_sessions)
 
@@ -85,7 +85,7 @@ def test_custom_aliases_share_exact_university_identity_despite_stale_ids():
     for index,name in enumerate(("Fictional College", "FC", "Cairo University", "German University in Cairo")):
         people[index].attributes.update({"University":name, "UniversityId":f"stale-{index}"})
     config = Configuration(activities=[Activity(id="main", name="Main Groups", mode="group_count", value=2)],
-        custom_universities=[CustomUniversity(id="fictional-college", name="Fictional College", aliases=["FC"], category="other")], time_limit_seconds=3)
+        custom_universities=[CustomUniversity(id="fictional-college", name="Fictional College", aliases=["FC"], category="private")], time_limit_seconds=3)
     allocation = optimize(OptimizeRequest(participants=people, configuration=config))
     group_for = {pid:g.id for g in allocation.activities[0].groups for pid in g.participant_ids}
     assert group_for["p0"] != group_for["p1"]
@@ -109,17 +109,51 @@ def prayer_settings(people, **changes):
         session_duration_minutes=20).model_copy(update=changes)
 
 
-def test_thirty_prayer_aware_people_continue_after_break_across_three_faculty():
-    people = cohort(30, ["Male" if i % 2 else "Female" for i in range(30)])
-    req = request(people, settings=prayer_settings(people))
+def test_thirty_people_ten_selected_males_others_continue_through_prayer_across_three_faculty():
+    people = cohort(30, ["Male"]*15+["Female"]*15)
+    selected = [p.id for p in people[:10]]
+    req = request(people, settings=prayer_settings(people, selected_participant_ids=selected))
     reflection = _reflection_allocation(req)
-    assert len(reflection.sessions) == 30
+    assert len(reflection.sessions) == len({s.participant_id for s in reflection.sessions}) == 30
     assert [len(group.participant_ids) for group in reflection.groups] == [10,10,10]
     assert validate_reflection_sessions(reflection, req) == []
-    assert sum(session.before_prayer for session in reflection.sessions) == 3
-    assert any(session.start_time == "1:00 PM" for session in reflection.sessions)
-    assert max(_session_minutes(session.end_time) for session in reflection.sessions) == 16*60
+    selected_sessions = [s for s in reflection.sessions if s.participant_id in selected]
+    assert sum(session.before_prayer for session in selected_sessions) == 3
+    assert any(_session_minutes(s.start_time) >= 13*60 for s in selected_sessions)
+    assert any(_session_minutes(s.start_time) < 13*60 and _session_minutes(s.end_time) > 11*60+40
+        for s in reflection.sessions if s.participant_id not in selected)
+    assert max(_session_minutes(session.end_time) for session in reflection.sessions) == 14*60+35
     assert all(s.offering_match for s in reflection.sessions)
+
+
+def forced_idle_request():
+    people = cohort(9)
+    selected = ["p0", "p3", "p6", "p1", "p4", "p2"]
+    for person in people:
+        if person.id not in selected: person.attributes["Gender"] = "Female"
+    return request(people, settings=prayer_settings(people, selected_participant_ids=selected))
+
+
+def test_intentional_different_faculty_idle_gaps_are_valid_and_actual_completion_includes_them():
+    req = forced_idle_request()
+    reflection = _reflection_allocation(req)
+    assert validate_reflection_sessions(reflection, req) == []
+    slots = {f.id:sorted((_session_minutes(s.start_time),_session_minutes(s.end_time))
+        for s in reflection.sessions if s.faculty_id == f.id) for f in req.faculty_members}
+    assert slots["f0"] == [(675,695), (780,800), (800,820)]
+    assert slots["f1"] == [(675,695), (695,715), (780,800)]
+    assert slots["f2"] == [(675,695), (695,715), (715,735)]
+    assert max(end for appointments in slots.values() for _,end in appointments) == 13*60+40
+    assert all(s.offering_match for s in reflection.sessions)
+    fixed = req.model_copy(update={"configuration":req.configuration.model_copy(update={
+        "reflection_settings":req.configuration.reflection_settings.model_copy(update={"end_time":"13:30"})})})
+    # A hard end may trade off soft offering preferences to fit valid slots.
+    shortened = _reflection_allocation(fixed)
+    assert max(_session_minutes(s.end_time) for s in shortened.sessions) <= 13*60+30
+    assert validate_reflection_sessions(shortened, fixed) == []
+    fixed.configuration.reflection_settings.end_time = "13:10"
+    with pytest.raises(ValueError, match="Earliest feasible completion is 1:20 PM; extend the final end time to 13:20"):
+        _reflection_allocation(fixed)
 
 
 def test_selected_prayer_aware_people_keep_priority_for_available_pre_break_slots():
@@ -142,25 +176,26 @@ def test_editable_prayer_resume_changes_actual_slots_and_fixed_end_reports_exten
         _reflection_allocation(fixed)
 
 
-def test_reflection_respects_faculty_availability_and_nonpraying_faculty_can_work_during_break():
+def test_all_faculty_are_globally_available_and_legacy_per_faculty_settings_have_no_effect():
     people = cohort(6)
-    settings = prayer_settings(people, selected_participant_ids=["p0"])
-    req = request(people, settings=settings)
-    req.faculty_members[0].prayer_unavailable = False
-    req.faculty_members[0].unavailable_intervals = [TimeInterval(start_time="11:15", end_time="11:35")]
-    req.faculty_members[1].available_from = "13:20"
-    reflection = _reflection_allocation(req)
-    assert validate_reflection_sessions(reflection, req) == []
-    assert all(_session_minutes(s.start_time) >= 13*60+20 for s in reflection.sessions if s.faculty_id == "f1")
+    req = request(people, settings=prayer_settings(people, selected_participant_ids=["p0"]))
+    first = _reflection_allocation(req)
+    legacy = req.model_copy(update={"faculty_members":[FacultyMember.model_validate({**f.model_dump(),
+        "prayer_unavailable":True, "available_from":"20:00", "available_until":"20:30",
+        "unavailable_intervals":[{"start_time":"11:00", "end_time":"19:00"}]}) for f in req.faculty_members]})
+    second = _reflection_allocation(legacy)
+    assert first == second
+    assert validate_reflection_sessions(second, legacy) == []
+    assert max(_session_minutes(s.end_time) for s in second.sessions) == 11*60+55
     assert any(_session_minutes(s.start_time) < 13*60 and _session_minutes(s.end_time) > 11*60+40
-        for s in reflection.sessions if s.faculty_id == "f0" and s.participant_id != "p0")
+        for s in second.sessions if s.participant_id != "p0")
 
 
 def test_reflection_assignment_and_times_are_independent_of_gender_and_category():
     people = cohort(6)
-    req = request(people, settings=prayer_settings(people))
+    req = request(people, settings=prayer_settings(people, selected_participant_ids=[]))
     first = _reflection_allocation(req)
-    other_people = [p.model_copy(update={"attributes":{**p.attributes, "Gender":"Female", "University Category":"international"}}) for p in people]
+    other_people = [p.model_copy(update={"attributes":{**p.attributes, "Gender":"Female", "University Category":"public"}}) for p in people]
     second = _reflection_allocation(req.model_copy(update={"participants":other_people}))
     assert first == second
 
@@ -264,9 +299,66 @@ def test_reflection_does_not_wrap_a_midnight_end_into_a_noon_appointment():
     people = cohort(3)
     settings = prayer_settings(people, start_time="23:40")
     req = request(people, settings=settings)
-    with pytest.raises(ValueError, match="same-day faculty availability. Start earlier"):
+    with pytest.raises(ValueError, match="same-day scheduling period. Start earlier"):
         _reflection_allocation(req)
     req.configuration.reflection_settings.start_time = "23:39"
     reflection = _reflection_allocation(req)
     assert all(session.start_time == "11:39 PM" and session.end_time == "11:59 PM" for session in reflection.sessions)
     assert validate_reflection_sessions(reflection, req) == []
+
+
+@pytest.mark.parametrize("selected,gender,message", [
+    (["p0"], "Female", "recorded gender is Male"),
+    (["p0"], "Unknown", "recorded gender is Male"),
+    (["deleted-participant"], "Male", "participants no longer exist"),
+])
+@pytest.mark.parametrize("enabled", [True, False])
+def test_stale_invalid_prayer_selections_are_rejected_without_inference(selected, gender, message, enabled):
+    people = cohort(6)
+    people[0].attributes["Gender"] = gender
+    req = request(people, settings=prayer_settings(people, enabled=enabled, selected_participant_ids=selected))
+    with pytest.raises(ValueError, match=message): _reflection_allocation(req)
+
+
+def test_saved_slots_detect_selection_becoming_ineligible_after_gender_correction():
+    people = cohort(6)
+    req = request(people, settings=prayer_settings(people, selected_participant_ids=["p0"]))
+    reflection = _reflection_allocation(req)
+    req.participants[0].attributes["Gender"] = "Female"
+    assert any("recorded gender is Male" in error for error in validate_reflection_sessions(reflection, req))
+
+
+def test_unselected_men_are_unrestricted_and_no_prayer_observance_is_inferred():
+    people = cohort(6)
+    req = request(people, settings=prayer_settings(people, selected_participant_ids=[]))
+    reflection = _reflection_allocation(req)
+    assert validate_reflection_sessions(reflection, req) == []
+    assert sum(not s.before_prayer for s in reflection.sessions) == 3
+    assert max(_session_minutes(s.end_time) for s in reflection.sessions) == 11*60+55
+
+
+def test_manual_reflection_swaps_preserve_protection_and_actual_slot_exchanges_without_warnings():
+    from fastapi.testclient import TestClient
+    from app.main import app
+    req = forced_idle_request()
+    reflection = _reflection_allocation(req)
+    payload = {"participants":[p.model_dump() for p in req.participants],
+        "faculty_members":[f.model_dump() for f in req.faculty_members],
+        "support_members":[s.model_dump() for s in req.support_members],
+        "configuration":req.configuration.model_dump(),
+        "allocation":AllocationSnapshot(activities=[reflection]).model_dump(), "activity_id":"reflection"}
+    client = TestClient(app)
+    invalid = client.post("/api/allocations/edit", json={**payload,
+        "participant_id":"p3", "target_group_id":"f1", "swap_with_id":"p7"})
+    assert invalid.status_code == 422
+    assert "protected Friday prayer break" in invalid.text
+    same = client.post("/api/allocations/edit", json={**payload,
+        "participant_id":"p0", "target_group_id":"f0", "swap_with_id":"p3"})
+    assert same.status_code == 200 and "requires_confirmation" not in same.json()
+    sessions = {s["participant_id"]:s for s in same.json()["allocation"]["activities"][0]["sessions"]}
+    assert sessions["p3"]["start_time"] == "11:15 AM" and sessions["p0"]["start_time"] == "1:00 PM"
+    cross = client.post("/api/allocations/edit", json={**payload,
+        "participant_id":"p0", "target_group_id":"f1", "swap_with_id":"p1"})
+    assert cross.status_code == 200 and "requires_confirmation" not in cross.json()
+    cross_sessions = {s["participant_id"]:s for s in cross.json()["allocation"]["activities"][0]["sessions"]}
+    assert cross_sessions["p0"]["faculty_id"] == "f1" and cross_sessions["p1"]["faculty_id"] == "f0"
