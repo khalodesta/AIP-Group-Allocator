@@ -1,130 +1,123 @@
-# AIP Smart Group Allocator
+# AIP Week 2 Allocator — Python 3.14 local app
 
-For the current local requirements, verification, Mac launch instructions, and
-browser review checklist, see [Local corrections review](docs/local-corrections-review.md).
-The earlier [Week 2 release report](docs/week2-seven-improvements.md) describes the
-previous Windows build.
+This branch, **`python314-local-app`**, contains the reviewed Python 3.14 app
+with the unified setup pages, Accessibility Flags and manual hotel-room creation.
+The original working version remains on `release/windows-original-packaging`.
 
-An explainable, local-first tool for creating permanent onboarding groups and temporary activity groups using university diversity, gender balance, and different teammate exposure.
+This is the complete source application. The backend is in
+**`frontend/backend`**, alongside the Next.js frontend. Python and Node.js are
+required; this branch does not include a bundled Windows executable.
 
-## What is included
+## Download on Windows
 
-- Next.js 15, React 19, TypeScript, Tailwind, Lucide and Recharts dashboard
-- Stateless FastAPI API with Pydantic validation
-- Google OR-Tools CP-SAT joint allocation across activities
-- A simple three-step journey: add participants, choose sizes, view results
-- Independent preferred maximum group size for each activity
-- Locked main-group preservation and validated participant swaps API
-- Exact collaboration scoring, normalized comparison metrics, scenario API
-- Safe, styled multi-sheet Excel export and blank workbook template
-- Deterministic backend tests for 20, 25, 27, 29, 30, and 40 people
+1. Open [the Python 3.14 branch](https://github.com/khalodesta/AIP-Group-Allocator/tree/python314-local-app).
+2. Select **Code → Download ZIP**, then **Extract All** in File Explorer.
+3. Open the extracted project root in VS Code. It contains `frontend`, `docs`,
+   `packaging`, `sample-data` and `COPILOT_RUN_WINDOWS.md`.
+4. Copy [the Copilot startup prompt](COPILOT_RUN_WINDOWS.md) into Copilot Agent
+   mode to configure and start this source version.
 
-## Architecture
+Do not use the older portable ZIP or its START.bat/start.ps1 launchers for this
+branch. Python 3.12 is not required.
 
-```mermaid
-flowchart LR
-  A[Next.js administrator UI] -->|validated JSON snapshots| B[FastAPI routes]
-  B --> C[Excel service]
-  B --> D[Configuration / Pydantic models]
-  B --> E[CP-SAT optimizer]
-  B --> F[Scoring and validation]
-  E --> G[Allocation snapshot]
-  G --> F
-  F --> A
-  C -->|in-memory xlsx| A
+## Windows setup by hand
+
+Use **standard 64-bit CPython 3.14** and Node.js **22.x or 24.x**. Local source
+tests used Python 3.14.10 and Node.js 24.15.0; the previous Windows frontend
+build used Node.js 22.14.0.
+
+Open a VS Code PowerShell terminal inside the extracted `frontend` folder:
+
+```powershell
+py -3.14 --version
+node --version
+npm.cmd --version
+py -3.14 -m venv .venv314
+.\.venv314\Scripts\python.exe -m pip install --upgrade pip
+.\.venv314\Scripts\python.exe -m pip install --require-hashes -r requirements-python314-windows.lock.txt
+npm.cmd ci
 ```
 
-The deployable application is contained in `frontend/`. Its MVC-style boundaries are:
+Start the backend there and leave the terminal open:
 
-- **View:** `frontend/app` and `frontend/components` (Next.js and React).
-- **Controller:** `frontend/backend/app/main.py` (FastAPI HTTP routes).
-- **Model/services:** `frontend/backend/app/models.py`, `frontend/backend/app/services`, and `frontend/backend/data`.
-- **Vercel entry point:** `frontend/api/index.py`, which exposes the FastAPI application alongside Next.js in one Vercel project.
-
-There is no database. Participant and allocation state remains in the browser, while each API request carries the complete snapshot required by the stateless backend.
-
-## Deploy the complete app to Vercel
-
-Create one Vercel project from this repository and set its **Root Directory** to `frontend`. Vercel builds the Next.js interface and the FastAPI entry point in `api/index.py` from that same folder. Production browser requests use same-origin `/api` routes, so `NEXT_PUBLIC_API_URL` is not required on Vercel.
-
-Vercel automatically detects the FastAPI `app` exported by `api/index.py`, while `.python-version` selects Python 3.12. For local development, run the Next.js and FastAPI development servers separately as described below; the frontend automatically uses `http://localhost:8000` in development unless `NEXT_PUBLIC_API_URL` overrides it.
-
-Participant data is sent explicitly with each operation and is not stored by the server. Configuration presets contain no participant records.
-
-## Run on macOS
-
-Requirements: Python 3.9+ and Node.js 20+.
-
-Terminal 1:
-
-```bash
-cd /Users/desta/Deloitte_AIP_Project
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r frontend/requirements.txt
-cd frontend/backend
-uvicorn app.main:app --reload --port 8000
+```powershell
+.\.venv314\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
 ```
 
-Terminal 2:
+In a **second** terminal, also inside `frontend`:
 
-```bash
-cd /Users/desta/Deloitte_AIP_Project/frontend
-npm install
-npm run dev
+```powershell
+$env:NEXT_PUBLIC_API_URL = "http://127.0.0.1:8000"
+$env:NEXT_TELEMETRY_DISABLED = "1"
+npm.cmd run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000). API documentation is at [http://localhost:8000/docs](http://localhost:8000/docs).
+Open **http://127.0.0.1:3000**. API documentation is at
+http://127.0.0.1:8000/docs. Keep both terminals open; Ctrl+C stops a server.
+Virtual-environment activation or execution-policy changes are unnecessary.
+Do not reuse an environment copied from a different computer.
 
-If the API runs elsewhere, create `frontend/.env.local` with `NEXT_PUBLIC_API_URL=http://host:port`.
+Use **requirements-python314-windows.lock.txt** on Windows. It pins dependencies
+with hashes and resolves to Python 3.14 Windows x64 wheels. The other freeze file,
+`requirements-python314.lock.txt`, records the macOS test environment.
 
-## Normal workflow
+## Included functionality
 
-Upload an `.xlsx` file containing `Name`, `Gender`, and `University`, or choose **Enter Manually** and create 1–60 participant rows. Gender is limited to Male or Female and common M/F variations normalize automatically. Review participants, choose maximum group sizes with the stepper buttons, generate directly from that page, review the three activity tabs, and download the shareable PDF. Duplicate names remain distinct through unique generated IDs. Missing values are never inferred.
+- Upload, Faculty & Support, and Group Sizes pages styled to match Results.
+- Public/Private university classification, normalized identities and aliases.
+- Main Groups, Quiz Night, Team Building, exactly two BUS Teams, My Reflections,
+  and Hotel Rooms, preserving support, faculty and prayer constraints.
+- Gender and university-category balance, exact-university diversity,
+  repeat/offering diversity and optional Primary/Secondary Business Chemistry.
+- Session-only Accessibility Flags, visible in all six administrative Results
+  views and excluded from APIs, optimization and exports.
+- Hotel edit mode: Add Room, drag/keyboard MOVE, SWAP, valid single rooms,
+  two-person capacity, Undo, Cancel, Save and hotel-only Reset to Generated.
+- Private hotel PDF and editable Excel from the same saved manifest. General
+  participant PDFs exclude hotel assignments.
 
-The blank template includes a Male/Female Excel dropdown for rows 2–201. Fictional data is retained only for automated development tests. Final results export as `AIP_Group_Allocations.pdf` with one page per activity and activity names, team names, and participant names only.
+The feature work preserved the optimizer source and weights. Python 3.14 uses
+OR-Tools 9.15.6755, pandas 2.3.3 and Pydantic 2.14.3. See the historical
+[compatibility comparison](PYTHON314-RESULTS.md) and
+[feature review](docs/python314-feature-review.md) for details.
 
-## How optimization works
+## Verification
 
-Every person is constrained to exactly one group in every optimized activity. Every group has its exact balanced target size. Locked activities are copied into the model's history and are never changed. For each participant pair and activity, a Boolean variable records whether the pair shares a group. The primary soft cost is:
+- 144 backend tests and 30 frontend tests passed locally on Python 3.14.
+- TypeScript, changed-source lint checks and production build passed.
+- Actual browser generation, imports, prayer-aware editing, accessibility,
+  manual rooms, saved exports and all six Results tabs passed.
+- Business Chemistry-enabled and disabled browser workflows passed.
+- 18 standardized unflagged Results screenshots matched the original frontend.
+- Downloaded PDF/Excel matched the fictional saved manifest: 22 occupied rooms,
+  37 unique occupants, no accessibility flags and no empty draft rooms.
 
-`sum(max(0, number_of_shared_activities(pair) - 1))`
+Native Windows execution of this Python 3.14 source version has not been tested
+here. The Copilot prompt performs a real 27-person optimization and validation
+on your Windows computer; health responses alone are insufficient.
 
-The weighted objective is lexicographic by construction: one fewer same-university pair outweighs every possible gender or teammate improvement; one gender-deviation improvement outweighs every possible repeat improvement. Unknown university and gender values are excluded rather than invented. For fixed group sizes, reducing repeat encounters increases aggregate distinct teammate exposure. The solver reports `OPTIMAL` only when CP-SAT proves it; otherwise it reports `FEASIBLE`. A seeded valid fallback is available if a time-limited run finds no CP-SAT incumbent.
+From `frontend/backend`, run backend tests with:
 
-The balance score shown in analytics is `1 - mean absolute category-proportion deviation`, calculated across groups and activities. Missing values are excluded. The normalized unique-pair rate divides distinct teammate pairs by total teammate encounters; raw pair counts should not be compared directly when group sizes differ.
-
-## Egyptian university directory
-
-`frontend/backend/data/university_directory.json` is the shared, versioned source for manual autocomplete, Excel normalization, scoring, and optimization. It currently contains 133 university-level institutions and branches across 10 categories. Higher institutes and training centers are deliberately excluded. Each entry records a stable ID, English name, verified Arabic name where available, aliases, category, official source URL, and verification date.
-
-The directory was reconciled on 2026-11-03 against the State Information Service updated accredited-institutions list and the Supreme Council of Universities category/branch pages. Official lists can differ temporarily in counts and English naming; entries that appear only on an SCU category page retain that page as their source. Regenerate the JSON after reviewing updates by editing and running `frontend/backend/data/generate_universities.py`.
-
-Recognized aliases resolve to a stable university ID. Unknown foreign or newly established universities remain distinct custom IDs and are never fuzzily merged. Arabic search normalizes letter variants only for matching; it does not change the displayed value of an unrecognized custom entry.
-
-## Checks
-
-```bash
-cd frontend/backend && ../../.venv/bin/pytest -q
-cd .. && npm run typecheck && npm run build
+```powershell
+..\.venv314\Scripts\python.exe -m pytest -q
 ```
 
-## API highlights
+From `frontend`, run frontend checks with:
 
-`/api/upload`, `/api/participants/validate`, `/api/optimize`, `/api/allocations/validate`, `/api/allocations/score`, `/api/allocations/swap`, `/api/export/pdf`, and `/api/sample-template`.
+```powershell
+npm.cmd run typecheck
+node --test tests/results-ui.test.cjs tests/proxy-timeout.test.cjs tests/manual-hotel-ui.test.cjs
+```
 
-## Privacy and deployment
+## Session state
 
-This prototype uses fictional records, adds no telemetry, sends nothing to AI services, and makes no employment decisions. Before using real employee data, obtain privacy, HR, information-security, legal, accessibility, hosting, retention, and role-based-access-control review. Add authentication, authorization, encrypted transport, audit trails, retention controls, secrets management, malware scanning, and an approved hosting boundary. Sensitive factors should be enabled only with explicit authorization.
+Participant data, allocations and accessibility selections remain in browser
+application state. A full reload clears that state. Export saved assignments
+before closing; flags intentionally remain absent from exports. University
+directory settings retain their existing storage behavior.
 
-## Known limitations
+The application has no sign-in system. Localhost is not an authentication
+boundary; the UI is for authorized administrators on their own computer.
 
-- Browser session state is intentionally not durable.
-- The UI exposes activity locking; the swap endpoint is implemented and validated, while a dedicated drag-and-drop swap dialog is not included.
-- University alias/reference imports and verified ownership/affiliation administration are not yet implemented.
-- The random-baseline and multi-run scenario APIs are architected but the current UI scorecard compares the active scenario only.
-- Ordered categorical and advanced numeric-diversity objectives require strategy-specific extensions.
-- CP-SAT is tuned for the recommended 20–60-person range; larger cohorts need performance benchmarking.
-
-These are deliberately documented rather than represented as completed functionality.
-# AIP-Group-Allocator
+This branch does not trigger the portable Windows packaging workflow. No
+Windows ZIP, PyInstaller build, deployment or release was requested.

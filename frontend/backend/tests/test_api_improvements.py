@@ -138,7 +138,7 @@ def test_hotel_valid_staff_swap_is_unique_and_does_not_regenerate_other_activiti
     assert validation.json()["valid"], validation.text
 
 
-def test_approved_manual_capacity_override_keeps_exact_summary_and_export(generated):
+def test_two_person_capacity_is_enforced_even_with_manual_policy_approval(generated):
     payload = copy.deepcopy(generated)
     payload["configuration"]["allow_accommodation_policy_overrides"] = True
     hotel = next(activity for activity in payload["allocation"]["activities"] if activity["activity_id"] == "hotel")
@@ -149,14 +149,8 @@ def test_approved_manual_capacity_override_keeps_exact_summary_and_export(genera
     response = TestClient(app).post("/api/allocations/edit", json={
         **payload, "activity_id": "hotel", "participant_id": rooms[0]["participant_ids"][0],
         "target_group_id": rooms[1]["id"], "allow_override": True})
-    assert response.status_code == 200, response.text
-    allocation = response.json()["allocation"]
-    summary = next(activity for activity in allocation["activities"] if activity["activity_id"] == "hotel")["room_summary"]
-    assert summary["other_shared_rooms"] == 1
-    assert sum(value for key, value in summary.items() if key != "total_rooms") == summary["total_rooms"]
-    private = TestClient(app).post("/api/export/hotel-pdf", json={**payload, "allocation": allocation})
-    assert private.status_code == 200
-    assert "Approved manual room arrangements" in pdf_text(private.content)
+    assert response.status_code == 422
+    assert "maximum capacity of two" in response.text
 
 
 def test_hotel_duplicates_missing_staff_and_empty_rooms_are_invalid(generated):

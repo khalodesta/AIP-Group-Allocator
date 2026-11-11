@@ -6,9 +6,9 @@ from fastapi.responses import StreamingResponse
 from app.models import AllocationEditRequest, AllocationRequest, OptimizeRequest, Participant, ScenarioCompareRequest, SwapRequest
 from app.services.excel import blank_template, export_week2_workbook, export_workbook, match_chemistry, parse_chemistry, parse_excel, parse_support_excel
 from app.services.pdf_export import export_pdf
-from app.services.optimizer import optimize, schedule_reflection
-from app.services.scoring import score_allocation, validate_allocation
-from app.services.normalization import display_gender, display_offering, display_university, normalize_university, university_directory, university_category
+from app.services.optimizer import optimize
+from app.services.scoring import score_allocation
+from app.services.normalization import display_gender, display_offering, display_university, normalize_university, university_directory
 
 app = FastAPI(title="AIP Smart Group Allocator API", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -80,7 +80,7 @@ def run_optimizer(request: OptimizeRequest):
         return {"allocation": result, "metrics": metrics}
     except ValueError as exc: raise HTTPException(422, str(exc))
 
-def structural_errors(request: AllocationRequest):
+def structural_errors(request: AllocationRequest, allow_empty_hotel_draft=False):
     """Validate identity/referential integrity without enforcing optimizer preferences."""
     people={p.id for p in request.participants}; support={p.id for p in request.support_members}
     faculty={p.id for p in request.faculty_members}
@@ -119,21 +119,24 @@ def structural_errors(request: AllocationRequest):
             if (support|faculty)-set(ids): errors.append("Hotel Rooms: every support and faculty member must have exactly one room assignment")
             singles=faculty|{m.id for m in request.support_members if m.category=="Support Lead"}
             for room in activity.groups:
-                if not room.participant_ids: errors.append(f"{room.name}: hotel rooms must contain at least one occupant")
+                if not room.participant_ids and not (allow_empty_hotel_draft and room.id.startswith("hotel-manual-")):
+                    errors.append(f"{room.name}: hotel rooms must contain at least one occupant")
+                if len(room.participant_ids)>2:
+                    errors.append(f"{room.name}: hotel rooms have a maximum capacity of two occupants")
                 occupants=set(room.participant_ids)
                 if len(occupants)>1 and occupants&singles: errors.append(f"{room.name}: faculty and Support Leads must each have single-occupancy rooms")
                 if len(occupants&support)>1: errors.append(f"{room.name}: Analyst Support can share only with one new hire")
                 if occupants&support and len(occupants)>1 and (len(occupants)!=2 or len(occupants&people)!=1):
                     errors.append(f"{room.name}: Analyst Support can share only with one new hire")
         cfg=config.get(activity.activity_id)
-        if cfg and cfg.mode=="group_count" and len(activity.groups)!=cfg.value:
+        if cfg and cfg.mode=="group_count" and activity.activity_id!="hotel" and len(activity.groups)!=cfg.value:
             errors.append(f"{activity.activity_name}: group count cannot be changed manually")
         if cfg and cfg.mode=="max_size" and activity.activity_id!="hotel" and any(len(group.participant_ids)>cfg.value for group in activity.groups):
             errors.append(f"{activity.activity_name}: destination is full; swap with a participant instead")
     return errors
 
 def manual_conflicts(request: AllocationRequest):
-    allocation=request.allocation; people={p.id:p for p in request.participants}; conflicts=[]
+    allocation=request.allocation; conflicts=[]
     genders={p.id:display_gender(p.attributes.get("Gender")) for p in request.participants}
     genders.update({member.id:member.gender for member in request.support_members})
     names={person.id:person.name for person in [*request.participants,*request.support_members,*request.faculty_members]}
@@ -141,15 +144,10 @@ def manual_conflicts(request: AllocationRequest):
     def add(rule,message,policy=False,overridable=True,participants=None):
         conflicts.append({"rule":rule,"message":message,"policy_sensitive":policy,"overridable":overridable,
                           "participant_ids":participants or []})
-    main=next((a for a in allocation.activities if a.activity_id=="main"),None)
     hotel=next((a for a in allocation.activities if a.activity_id=="hotel"),None)
-    main_group={pid:(group.id,group.name) for group in main.groups for pid in group.participant_ids} if main else {}
     if hotel and edited_activity in (None,"main","hotel"):
         for room in hotel.groups:
             occupants=room.participant_ids
-            if len(occupants)>2:
-                permitted=request.configuration.allow_accommodation_policy_overrides
-                add("hotel_capacity",f"{room.name} would exceed the approved capacity of two occupants. Accommodation-policy approval may be required.",True,permitted,occupants)
             if len(occupants)==2:
                 left,right=occupants
                 if left in genders and right in genders and (not genders[left] or genders[left]!=genders[right]):
@@ -264,19 +262,17 @@ def edit_allocation(request: AllocationEditRequest):
             session.offering_match=bool(participant_offering and participant_offering==faculty_offering)
 
     if request.activity_id=="hotel":
-        # Moving the last occupant removes a vacant room from the manifest.
-        target_activity.groups=[room for room in target_activity.groups if room.participant_ids]
+        # Extra empty rooms remain usable destinations in this edit draft.
+        # Final validation and exports still require occupied rooms only.
+        target_activity.groups=[room for room in target_activity.groups if room.participant_ids or room.id.startswith("hotel-manual-")]
         for room in target_activity.groups:
             room.name=room.name.replace(" — Single Occupancy", "") + (" — Single Occupancy" if len(room.participant_ids)==1 else "")
         from app.services.excel import hotel_room_summary
         target_activity.room_summary=hotel_room_summary(target_activity,request.participants,request.support_members,request.faculty_members)
         target_activity.warnings=[]
-        for room in target_activity.groups:
-            if len(room.participant_ids)==1 and room.participant_ids[0] in {p.id for p in request.participants}:
-                target_activity.warnings.append(f"{room.name}: single new-hire room. Review same-gender Analyst Support availability or keep this single room.")
 
     proposed=request.model_copy(update={"allocation":allocation})
-    errors=structural_errors(proposed)
+    errors=structural_errors(proposed,allow_empty_hotel_draft=True)
     if errors: raise HTTPException(422,errors)
     errors.extend(reflection_session_errors(target_activity,proposed) if request.activity_id=="reflection" else [])
     if errors: raise HTTPException(422,errors)

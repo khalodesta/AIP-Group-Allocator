@@ -55,7 +55,7 @@ def test_private_hotel_pdf_has_every_person_roles_and_exact_room_summary():
         assert text.count(person.name) == 1
     assert all(f"Room {i}" in text for i in range(1, 11))
     assert "Support Lead" in text and "Analyst Support" in text and "Faculty" in text
-    assert "Single new-hire rooms require accommodation review" in text
+    assert "Single new-hire rooms require accommodation review" not in text
     assert "Male" not in text and "Female" not in text and "Cairo University" not in text
 
 

@@ -27,7 +27,7 @@ async function post(route,body,binary=false){const response=await fetch(api+rout
   };
   const fixture=await post('/api/optimize',source);
   const workbook=await post('/api/export/editable',{...source,allocation:fixture.allocation},true);
-  const chemistryFile=spawnSync(path.resolve('../.venv/bin/python'),['-c',"import io,json,sys;from openpyxl import Workbook;rows=json.load(sys.stdin);w=Workbook();s=w.active;s.append(['Name','Primary','Secondary']);[s.append(row) for row in rows];b=io.BytesIO();w.save(b);sys.stdout.buffer.write(b.getvalue())"],{input:JSON.stringify(source.participants.map(p=>[p.name,p.attributes['Primary Chemistry'],p.attributes['Secondary Chemistry']])),maxBuffer:1024*1024});
+  const chemistryFile=spawnSync(process.env.AIP_PYTHON||path.resolve('../.venv/bin/python'),['-c',"import io,json,sys;from openpyxl import Workbook;rows=json.load(sys.stdin);w=Workbook();s=w.active;s.append(['Name','Primary','Secondary']);[s.append(row) for row in rows];b=io.BytesIO();w.save(b);sys.stdout.buffer.write(b.getvalue())"],{input:JSON.stringify(source.participants.map(p=>[p.name,p.attributes['Primary Chemistry'],p.attributes['Secondary Chemistry']])),maxBuffer:1024*1024});
   assert.equal(chemistryFile.status,0,chemistryFile.stderr.toString());
   const browser=await chromium.launch({channel:'chrome',headless:true});
   const context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});

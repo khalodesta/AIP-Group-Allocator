@@ -14,12 +14,12 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import {
   AlertCircle,
+  Accessibility,
   ArrowLeft,
   ArrowRight,
   Check,
   ChevronDown,
   Download,
-  FileSpreadsheet,
   Plus,
   RefreshCw,
   Sparkles,
@@ -37,7 +37,7 @@ import {
   Trophy,
   Undo2,
 } from "lucide-react";
-import { API, download, jsonApi } from "@/lib/api";
+import { download, jsonApi } from "@/lib/api";
 import type {
   Allocation,
   ChemistryRecord,
@@ -60,6 +60,8 @@ import {hotelRoomSummary} from "@/components/hotelSummary";
 import {eligiblePrayerParticipants,prunePrayerSelection} from "@/components/reflectionUi";
 import {ReflectionResultsSummary as ReflectionSummary} from "@/components/ReflectionResultsSummary";
 import {AllocationGroupCard,FacultyScheduleHeader,HotelResultsSummary,ParticipantRow,ResultSectionHeader} from "@/components/ResultsPresentation";
+import {AccessibilityFlagsDialog} from "@/components/AccessibilityFlagsDialog";
+import {addHotelRoom,isManualRoom,MANUAL_ROOM_PREFIX,nextRoomNumber,removeEmptyHotelRoom,resetHotelToGenerated,withoutEmptyHotelRooms} from "@/components/hotelEditing";
 const CUSTOM_DIRECTORY_KEY="aip-university-directory-v1";
 
 type Step = "data" | "team" | "sizes" | "results";
@@ -150,10 +152,13 @@ type PendingEdit = {
   swapWithId?: string;
   conflicts: EditConflict[];
 };
+type EditSnapshot={allocation:Allocation;overrides:ManualOverride[]};
 
 export default function Home() {
   const [step, setStep] = useState<Step>("data"),
     [participants, setParticipants] = useState<Participant[]>([]),
+    [accessibilityIds,setAccessibilityIds]=useState<string[]>([]),
+    [flagsOpen,setFlagsOpen]=useState(false),
     [chemistry, setChemistry] = useState<ChemistryRecord[]>([]),
     [review, setReview] = useState<ChemistryRecord[]>([]),
     [showManual, setShowManual] = useState(false),
@@ -166,7 +171,7 @@ export default function Home() {
     [config, setConfig] = useState(initialConfig),
     [allocation, setAllocation] = useState<Allocation | null>(null),
     [generated, setGenerated] = useState<Allocation | null>(null),
-    [metrics, setMetrics] = useState<Metrics | null>(null),
+    [, setMetrics] = useState<Metrics | null>(null),
     [tab, setTab] = useState("main"),
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
@@ -176,7 +181,9 @@ export default function Home() {
     [pendingUniversityReview,setPendingUniversityReview]=useState<PendingUniversity[]>([]),
     [editMode, setEditMode] = useState(false),
     [editDraft, setEditDraft] = useState<Allocation | null>(null),
-    [undoStack, setUndoStack] = useState<Allocation[]>([]),
+    [undoStack, setUndoStack] = useState<EditSnapshot[]>([]),
+    [editingBusy,setEditingBusy]=useState(false),
+    [moveRoom,setMoveRoom]=useState(""),
     [swapA, setSwapA] = useState(""),
     [swapB, setSwapB] = useState(""),
     [individualOpen, setIndividualOpen] = useState(false),
@@ -189,6 +196,8 @@ export default function Home() {
     chemInput = useRef<HTMLInputElement>(null),
     supportInput = useRef<HTMLInputElement>(null),
     directoryInput = useRef<HTMLInputElement>(null);
+  const lastRoomNumber=useRef(0);
+  const accessibilitySet=useMemo(()=>new Set(accessibilityIds),[accessibilityIds]);
   const customUniversities=config.custom_universities??[];
   const allUniversities=useMemo(()=>mergedUniversityDirectory(universities,customUniversities,pendingUniversityReview),[universities,customUniversities,pendingUniversityReview]);
   const normalizedParticipants=useMemo(()=>classifiedParticipants(participants,allUniversities,customUniversities),[participants,allUniversities,customUniversities]);
@@ -305,6 +314,8 @@ export default function Home() {
       )
         return;
       setParticipants(data.participants);
+      // An imported cohort replaces identity context, even if names coincide.
+      setAccessibilityIds([]);
       setChemistry([]);
       setReview([]);
       invalidate();
@@ -402,6 +413,8 @@ export default function Home() {
         ? [...list, ...Array.from({ length: count - list.length }, blankPerson)]
         : list.slice(0, count),
     );
+    const retainedIds=new Set(participants.slice(0,count).map(person=>person.id));
+    setAccessibilityIds(ids=>ids.filter(id=>retainedIds.has(id)));
     invalidate();
   }
   function createManualPeople() {
@@ -411,6 +424,7 @@ export default function Home() {
       return;
     }
     setParticipants(Array.from({ length: count }, blankPerson));
+    setAccessibilityIds([]);
     setShowManual(false);
     invalidate();
     setSuccess(
@@ -424,6 +438,7 @@ export default function Home() {
       )
     )
       return;
+    setAccessibilityIds([]);
     setParticipants((list) =>
       list.map((p) => ({
         ...p,
@@ -574,6 +589,7 @@ export default function Home() {
       });
       setAllocation(data.allocation);
       setGenerated(structuredClone(data.allocation));
+      lastRoomNumber.current=0;
       setMetrics(data.metrics);
       setTab("main");
       setScheduleExtension(null);
@@ -592,7 +608,8 @@ export default function Home() {
     swapWithId?: string,
     allowOverride = false,
   ) {
-    if (!editDraft) return;
+    if (!editDraft || editingBusy) return;
+    setEditingBusy(true);
     try {
       const before = structuredClone(editDraft);
       const data = await jsonApi("/api/allocations/edit", {
@@ -620,7 +637,7 @@ export default function Home() {
         });
         return;
       }
-      setUndoStack((stack) => [...stack, before]);
+      setUndoStack((stack) => [...stack, {allocation:before,overrides:structuredClone(draftOverrides)}]);
       setEditDraft(data.allocation);
       const affected = new Set([participantId, swapWithId].filter(Boolean));
       setDraftOverrides((items) => [
@@ -656,6 +673,8 @@ export default function Home() {
       );
     } catch (e) {
       setError(message(e));
+    } finally {
+      setEditingBusy(false);
     }
   }
   async function swap() {
@@ -666,14 +685,17 @@ export default function Home() {
     if (target) await applyDraftEdit(swapA, target.id, swapB);
   }
   async function saveDraft() {
-    if (!editDraft) return;
+    if (!editDraft || editingBusy) return;
+    setEditingBusy(true);
     try {
+      const savedDraft=withoutEmptyHotelRooms(editDraft);
+      const removedEmptyRooms=editDraft.activities.find(a=>a.activity_id==="hotel")?.groups.length!==savedDraft.activities.find(a=>a.activity_id==="hotel")?.groups.length;
       const payload = {
         participants: normalizedParticipants,
         faculty_members: faculty,
         support_members: support,
         configuration: config,
-        allocation: editDraft,
+        allocation: savedDraft,
       };
       const result = await jsonApi("/api/allocations/validate", {
         method: "POST",
@@ -689,15 +711,17 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      setAllocation(structuredClone(editDraft));
+      setAllocation(structuredClone(savedDraft));
       setOverrides(draftOverrides);
       setMetrics(updatedMetrics);
       setEditDraft(null);
       setUndoStack([]);
       setEditMode(false);
-      setSuccess("Changes saved. Exports now use the updated assignments.");
+      setSuccess(`Changes saved. Exports now use the updated assignments.${removedEmptyRooms?" Unused empty rooms were discarded.":""}`);
     } catch (e) {
       setError(message(e));
+    } finally {
+      setEditingBusy(false);
     }
   }
   function cancelDraft() {
@@ -711,9 +735,26 @@ export default function Home() {
   function undoDraft() {
     const previous = undoStack.at(-1);
     if (!previous) return;
-    setEditDraft(structuredClone(previous));
+    setEditDraft(structuredClone(previous.allocation));
+    setDraftOverrides(structuredClone(previous.overrides));
     setUndoStack((stack) => stack.slice(0, -1));
     setSuccess("Last draft change undone.");
+  }
+  function addRoom() {
+    if(!editDraft||editingBusy||tab!=="hotel")return;
+    const number=nextRoomNumber(editDraft,lastRoomNumber.current);
+    lastRoomNumber.current=number;
+    const next=addHotelRoom(editDraft,`${MANUAL_ROOM_PREFIX}${crypto.randomUUID()}`,number);
+    setUndoStack(stack=>[...stack,{allocation:structuredClone(editDraft),overrides:structuredClone(draftOverrides)}]);
+    setEditDraft(next);
+    setSuccess(`Room ${number} added to the draft. Move a participant into it before saving.`);
+  }
+  function removeRoom(id:string) {
+    if(!editDraft||editingBusy||tab!=="hotel")return;
+    const next=removeEmptyHotelRoom(editDraft,id);
+    setUndoStack(stack=>[...stack,{allocation:structuredClone(editDraft),overrides:structuredClone(draftOverrides)}]);
+    setEditDraft(next);
+    setSuccess("Empty room removed from the draft.");
   }
   function dragEnd(event: DragEndEvent) {
     const active = String(event.active.id),
@@ -734,7 +775,7 @@ export default function Home() {
     if (!source || !target || (source.id === target.id && !swapWithId)) return;
     if (
       !swapWithId &&
-      (tab==="hotel"?target.participant_ids.length>=2&&!config.allow_accommodation_policy_overrides:target.participant_ids.length>=source.participant_ids.length)
+      (tab==="hotel"?target.participant_ids.length>=2:target.participant_ids.length>=source.participant_ids.length)
     ) {
       setError(
         "That group is already at capacity. Drop onto a participant in the destination group to swap instead.",
@@ -765,7 +806,7 @@ export default function Home() {
     } else run();
   }
   return (
-    <div className={`min-h-screen bg-mist ${step==="results"?"results-workspace":""}`}>
+    <div className={`min-h-screen bg-mist ${step==="results"?"results-workspace":"setup-workspace"}`}>
       <Header count={participants.length} />
       <main className="mx-auto max-w-7xl px-5 py-8">
         <Progress step={step} go={go} />
@@ -879,8 +920,10 @@ export default function Home() {
                 }}
                 remove={(id) => {
                   setParticipants((x) => x.filter((p) => p.id !== id));
+                  setAccessibilityIds(ids=>ids.filter(value=>value!==id));
                   invalidate();
                 }}
+                accessibilityFlags={()=>setFlagsOpen(true)}
                 resize={resizePeople}
                 clear={clearPeople}
                 universities={allUniversities}
@@ -1055,6 +1098,7 @@ export default function Home() {
                           setTab(a.activity_id);
                           setSwapA("");
                           setSwapB("");
+                          setMoveRoom("");
                         }}
                       >
                         <Icon size={16} aria-hidden="true"/>
@@ -1155,6 +1199,7 @@ export default function Home() {
                           <button
                             className="btn btn-primary"
                             onClick={saveDraft}
+                            disabled={editingBusy}
                           >
                             <Check size={15} aria-hidden="true"/>
                             Save Changes
@@ -1162,12 +1207,13 @@ export default function Home() {
                           <button
                             className="btn btn-outline"
                             onClick={cancelDraft}
+                            disabled={editingBusy}
                           >
                             Cancel Changes
                           </button>
                           <button
                             className="btn btn-outline"
-                            disabled={!undoStack.length}
+                            disabled={!undoStack.length||editingBusy}
                             title={undoStack.length?"Undo the last draft edit":"Make a change to enable Undo"}
                             onClick={undoDraft}
                           >
@@ -1176,15 +1222,16 @@ export default function Home() {
                           </button>
                           <button
                             className="btn border border-red-200 bg-white text-red-700 hover:bg-red-50"
+                            disabled={editingBusy}
                             onClick={() => {
                               if (!generated) return;
                               setUndoStack((stack) =>
                                 editDraft
-                                  ? [...stack, structuredClone(editDraft)]
+                                  ? [...stack, {allocation:structuredClone(editDraft),overrides:structuredClone(draftOverrides)}]
                                   : stack,
                               );
-                              setEditDraft(structuredClone(generated));
-                              setDraftOverrides([]);
+                              setEditDraft(tab==="hotel"&&editDraft?resetHotelToGenerated(editDraft,generated):structuredClone(generated));
+                              setDraftOverrides(items=>tab==="hotel"?items.filter(item=>item.activity!=="hotel"):[]);
                             }}
                           >
                             <RotateCcw size={15} aria-hidden="true"/>
@@ -1213,13 +1260,12 @@ export default function Home() {
                     <span>
                       <b>Allow accommodation-policy override confirmations</b>
                       <span className="block text-amber-800">
-                        Leave off when mixed-gender rooms or over-capacity rooms
-                        are prohibited by policy.
+                        Leave off when mixed-gender rooms are prohibited by policy.
                       </span>
                     </span>
                   </label>
                 )}
-                {current&&<ResultSectionHeader title={current.activity_name} activityId={current.activity_id} groups={current.groups.length}/>}
+                {current&&<ResultSectionHeader title={current.activity_name} activityId={current.activity_id} groups={current.activity_id==="hotel"?current.groups.filter(room=>room.participant_ids.length>0).length:current.groups.length}/>}
                 {editMode ? (
                   <DndContext sensors={sensors} onDragEnd={dragEnd}>
                     {current && (
@@ -1235,6 +1281,11 @@ export default function Home() {
                           setA={setSwapA}
                           setB={setSwapB}
                           swap={swap}
+                          busy={editingBusy}
+                          addRoom={addRoom}
+                          moveRoom={moveRoom}
+                          setMoveRoom={setMoveRoom}
+                          move={()=>{if(swapA&&moveRoom)applyDraftEdit(swapA,moveRoom);}}
                         />
                         <AllocationCards
                           activity={current}
@@ -1244,6 +1295,9 @@ export default function Home() {
                           chemistryEnabled={chemistryEnabled}
                           reflectionSettings={reflectionSettings}
                           selectedIds={[swapA,swapB]}
+                          accessibilityIds={accessibilitySet}
+                          removeRoom={removeRoom}
+                          busy={editingBusy}
                           editable
                         />
                       </>
@@ -1257,6 +1311,7 @@ export default function Home() {
                     faculty={faculty}
                     chemistryEnabled={chemistryEnabled}
                     reflectionSettings={reflectionSettings}
+                    accessibilityIds={accessibilitySet}
                   />
                 )}
                 {!current&&<div className="results-empty"><Users size={28} aria-hidden="true"/><h2>No allocations to display</h2><p>Choose an activity to review its saved assignments.</p></div>}
@@ -1264,6 +1319,7 @@ export default function Home() {
             )}
           </section>
         )}
+        {flagsOpen&&<AccessibilityFlagsDialog people={participants} savedIds={accessibilityIds} cancel={()=>setFlagsOpen(false)} save={ids=>{setAccessibilityIds(ids);setFlagsOpen(false);toast.success("Accessibility flags saved.",{id:"accessibility-flags"});}}/>}
         {pendingEdit && (
           <ConfirmationDialog
             title={
@@ -1346,6 +1402,8 @@ function Progress({ step, go }: { step: Step; go: (s: Step) => void }) {
           <li className="flex flex-1 items-center" key={s.id}>
             <button
               className="flex items-center gap-2"
+              aria-current={i===active?"step":undefined}
+              data-step-state={i===active?"active":i<active?"complete":"upcoming"}
               onClick={() => i <= active && go(s.id)}
             >
               <span
@@ -1363,16 +1421,11 @@ function Progress({ step, go }: { step: Step; go: (s: Step) => void }) {
   );
 }
 function Title({ title, text }: { title: string; text: string }) {
-  const hidden =
-    text ===
-      "Upload the AIP Master workbook and optionally include Business Chemistry in allocation." ||
-    text ===
-      "Faculty participate only in My Reflections. Support members participate only in BUS Teams." ||
-    text === "All six allocations will be generated together.";
   return (
-    <div className="mb-7">
+    <div className="mb-7 setup-page-header">
+      <p className="setup-eyebrow">AIP onboarding · Week 2</p>
       <h1 className="text-4xl font-extrabold text-navy">{title}</h1>
-      {!hidden && <p className="mt-2 text-slate-500">{text}</p>}
+      <p className="mt-2 text-slate-500">{text}</p>
     </div>
   );
 }
@@ -1492,6 +1545,7 @@ function OverrideDialog({
 }
 function UploadCard({
   title,
+  text,
   ready,
   action,
   disabled = false,
@@ -1505,13 +1559,13 @@ function UploadCard({
   return (
     <button
       disabled={disabled}
-      className={`card flex items-center gap-4 p-6 text-left hover:border-sky disabled:cursor-not-allowed disabled:opacity-55 ${ready ? "border-teal ring-4 ring-emerald-50" : ""}`}
+      className={`card setup-upload-card flex items-center gap-4 p-6 text-left disabled:cursor-not-allowed disabled:opacity-55 ${ready ? "is-ready" : ""}`}
       onClick={action}
     >
       <div className="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-sky">
         {ready ? <Check /> : <UploadCloud />}
       </div>
-      <h2 className="font-extrabold">{title}</h2>
+      <div><h2 className="font-extrabold">{title}</h2><p>{text}</p>{ready&&<span className="upload-ready">Workbook loaded</span>}</div>
     </button>
   );
 }
@@ -1976,6 +2030,7 @@ function ParticipantTable({
   resize,
   clear,
   universities,
+  accessibilityFlags,
 }: {
   people: Participant[];
   edit: (id: string, f: string, v: string) => void;
@@ -1984,12 +2039,13 @@ function ParticipantTable({
   resize: (n: number) => void;
   clear: () => void;
   universities: University[];
+  accessibilityFlags:()=>void;
 }) {
   const [draft, setDraft] = useState(String(people.length));
   useEffect(() => setDraft(String(people.length)), [people.length]);
   return (
-    <div className="card mt-5 overflow-visible">
-      <div className="flex items-center justify-between border-b p-5">
+    <div className="card participant-preview mt-5 overflow-visible">
+      <div className="participant-table-header flex items-center justify-between border-b p-5">
         <div>
           <h2 className="font-extrabold">New hire preview</h2>
           <p className="text-sm text-slate-500">{people.length} records</p>
@@ -2015,6 +2071,7 @@ function ParticipantTable({
             <Plus size={16} />
             Add Participant
           </button>
+          <button className="btn btn-outline" onClick={accessibilityFlags}><Accessibility size={16} aria-hidden="true"/>Accessibility Flags</button>
           <button
             className="btn border border-red-200 bg-red-50 text-red-700"
             onClick={clear}
@@ -2050,6 +2107,7 @@ function ParticipantTable({
                 <td className="p-2">
                   <input
                     className="input"
+                    aria-label={`Name for participant ${i+1}`}
                     value={p.name}
                     onChange={(e) => edit(p.id, "name", e.target.value)}
                   />
@@ -2057,6 +2115,7 @@ function ParticipantTable({
                 <td className="p-2">
                   <select
                     className="input"
+                    aria-label={`Gender for participant ${i+1}`}
                     value={String(p.attributes.Gender || "")}
                     onChange={(e) => edit(p.id, "Gender", e.target.value)}
                   >
@@ -2077,6 +2136,7 @@ function ParticipantTable({
                 <td className="p-2">
                   <input
                     className="input"
+                    aria-label={`Offering for participant ${i+1}`}
                     value={String(p.attributes["L3 Offering"] || "")}
                     onChange={(e) => edit(p.id, "L3 Offering", e.target.value)}
                   />
@@ -2094,7 +2154,7 @@ function ParticipantTable({
                   />
                 </td>
                 <td className="p-3">
-                  <button className="text-red-600" onClick={() => remove(p.id)}>
+                  <button className="setup-delete text-red-600" aria-label={`Delete ${p.name||`participant ${i+1}`}`} onClick={() => remove(p.id)}>
                     <Trash2 size={17} />
                   </button>
                 </td>
@@ -2116,15 +2176,16 @@ function SizeCard({
   change: (v: number) => void;
 }) {
   return (
-    <article className="card p-6">
+    <article className="card setup-size-card p-6">
       <h2 className="text-xl font-extrabold">{activity.name}</h2>
       <p className="mt-1 text-sm text-slate-500">
         Preferred maximum group size
       </p>
-      <div className="mt-6 flex items-center justify-center gap-5">
+      <div className="setup-size-control mt-6 flex items-center justify-center gap-5">
         <button
           className="grid h-12 w-12 place-items-center rounded-xl border text-2xl disabled:opacity-30"
           disabled={activity.value <= 2}
+          aria-label={`Decrease ${activity.name} group size`}
           onClick={() => change(activity.value - 1)}
         >
           −
@@ -2133,12 +2194,13 @@ function SizeCard({
         <button
           className="grid h-12 w-12 place-items-center rounded-xl border text-2xl disabled:opacity-30"
           disabled={activity.value >= 12}
+          aria-label={`Increase ${activity.name} group size`}
           onClick={() => change(activity.value + 1)}
         >
           +
         </button>
       </div>
-      <div className="mt-5 rounded-xl bg-slate-50 p-4 text-sm">
+      <div className="setup-group-count mt-5 rounded-xl bg-slate-50 p-4 text-sm">
         <b>{count} balanced groups</b>
       </div>
     </article>
@@ -2155,6 +2217,11 @@ function EditPanel({
   setA,
   setB,
   swap,
+  busy,
+  addRoom,
+  moveRoom,
+  setMoveRoom,
+  move,
 }: {
   activity: NonNullable<Allocation>["activities"][number];
   people: Record<string, Participant>;
@@ -2166,6 +2233,11 @@ function EditPanel({
   setA: (x: string) => void;
   setB: (x: string) => void;
   swap: () => void;
+  busy:boolean;
+  addRoom:()=>void;
+  moveRoom:string;
+  setMoveRoom:(id:string)=>void;
+  move:()=>void;
 }) {
   const options = activity.groups.flatMap((g) =>
     g.participant_ids.map((id) => ({
@@ -2176,6 +2248,7 @@ function EditPanel({
   return (
     <div className="results-switch-panel">
       <h2 className="font-semibold">Edit {activity.activity_name}</h2>
+      {activity.activity_id==="hotel"&&<button className="btn btn-outline hotel-add-room" onClick={addRoom} disabled={busy||activity.locked}><Plus size={15} aria-hidden="true"/>Add Room</button>}
       <p className="text-sm text-slate-500">
         {activity.activity_id === "reflection"
           ? "Select any two participants to exchange their existing faculty and appointment slots."
@@ -2210,18 +2283,31 @@ function EditPanel({
         </select>
         <button
           className="btn btn-primary"
-          disabled={!a || !b || a === b}
+          disabled={!a || !b || a === b||busy}
           title={!a||!b?"Choose two participants to enable switching":a===b?"Choose two different participants":"Exchange these two assignments"}
           onClick={swap}
         >
           Switch Participants
         </button>
       </div>
+      {activity.activity_id==="hotel"&&<div className="hotel-move-controls">
+        <label htmlFor="hotel-move-room">Move the first selected person to a room</label>
+        <div><select id="hotel-move-room" className="input" value={moveRoom} onChange={event=>setMoveRoom(event.target.value)}>
+          <option value="">Choose a destination room…</option>
+          {activity.groups.filter(group=>{
+            if(group.participant_ids.length>=2||group.participant_ids.includes(a))return false;
+            if(!group.participant_ids.length)return true;
+            if(faculty.some(member=>member.id===a)||support[a]?.category==="Support Lead")return false;
+            return group.participant_ids.every(id=>!faculty.some(member=>member.id===id)&&support[id]?.category!=="Support Lead")&&!(support[a]&&group.participant_ids.some(id=>support[id]));
+          }).map(group=><option key={group.id} value={group.id}>{group.name} · {group.participant_ids.length}/2 occupants</option>)}
+        </select><button className="btn btn-outline" disabled={!a||!moveRoom||busy||!activity.groups.some(group=>group.id===moveRoom&&group.participant_ids.length<2&&!group.participant_ids.includes(a))} onClick={move}>Move Participant</button></div>
+        <p>Drop onto an empty room or its card to move. Drop onto a person to swap.</p>
+      </div>}
     </div>
   );
 }
 function AllocationCards({
-  activity,people,support,faculty,chemistryEnabled,reflectionSettings,editable=false,selectedIds=[],
+  activity,people,support,faculty,chemistryEnabled,reflectionSettings,editable=false,selectedIds=[],accessibilityIds=new Set<string>(),removeRoom,busy=false,
 }: {
   activity: Allocation["activities"][number] | undefined;
   people: Record<string,Participant>;
@@ -2231,6 +2317,9 @@ function AllocationCards({
   reflectionSettings:Configuration["reflection_settings"];
   editable?:boolean;
   selectedIds?:string[];
+  accessibilityIds?:ReadonlySet<string>;
+  removeRoom?:(id:string)=>void;
+  busy?:boolean;
 }) {
   if(!activity)return null;
   const sessions=activity.sessions??[];
@@ -2238,13 +2327,13 @@ function AllocationCards({
   if(activity.activity_id==="reflection"&&reflectionSettings.enabled&&sessions.length)
     return <>
       <ReflectionSummary activity={activity}/>
-      <ReflectionSchedule activity={activity} people={people} faculty={faculty} chemistryEnabled={chemistryEnabled} settings={reflectionSettings} editable={editable} selectedIds={selectedIds}/>
+      <ReflectionSchedule activity={activity} people={people} faculty={faculty} chemistryEnabled={chemistryEnabled} settings={reflectionSettings} editable={editable} selectedIds={selectedIds} accessibilityIds={accessibilityIds}/>
     </>;
   return <>
     {activity.activity_id==="reflection"&&<ReflectionSummary activity={activity}/>}
     {hotelSummary&&<>
       <HotelResultsSummary summary={hotelSummary}/>
-      {hotelSummary.new_hire_single>0&&<p className="results-notice" role="status"><AlertCircle size={17} aria-hidden="true"/><span>{hotelSummary.new_hire_single} new hire(s) require a single room. Review compatible same-gender Analyst Support availability or reserve these single rooms.</span></p>}
+      {hotelSummary.new_hire_single>0&&Boolean(activity.warnings?.length)&&<p className="results-notice" role="status"><AlertCircle size={17} aria-hidden="true"/><span>{hotelSummary.new_hire_single} new hire(s) require a single room. Review compatible same-gender Analyst Support availability or reserve these single rooms.</span></p>}
     </>}
     {activity.activity_id!=="hotel"&&activity.warnings?.map(warning=><p className="results-notice" role="status" key={warning}><AlertCircle size={17} aria-hidden="true"/>{warning}</p>)}
     <div className={`results-group-grid ${hotelSummary?"results-room-grid":""}`}>
@@ -2257,13 +2346,14 @@ function AllocationCards({
                 const person=people[id],helper=support[id],facultyMember=faculty.find(member=>member.id===id);
                 const gender=person?.attributes.Gender??helper?.gender;
                 const selected=editable&&selectedIds.includes(id);
-                return <li className={`result-person-row result-record ${room?"":genderRowClass(gender)} ${helper?"result-record-staff":""} ${selected?"is-selected":""}`} data-recorded-gender={String(gender??"unknown")} data-selected={selected||undefined} key={id}>
+                return <li className={`result-person-row result-record ${room?"":genderRowClass(gender)} ${helper?"result-record-staff":""} ${selected?"is-selected":""}`} data-participant-id={id} data-recorded-gender={String(gender??"unknown")} data-selected={selected||undefined} key={id}>
                   <EditablePerson participantId={id} groupId={group.id} editable={editable}>
-                    <ParticipantRow index={index+1} name={person?.name||helper?.name||facultyMember?.name||id} gender={gender} category={person?canonicalCategory(person.attributes["University Category"]):undefined} role={helper?.category??(facultyMember?"Faculty":hotelSummary?"New hire":undefined)} person={person} offering={person?standardOffering(person.attributes["L3 Offering"]):undefined} chemistryEnabled={chemistryEnabled} selected={selected}/>
+                    <ParticipantRow index={index+1} name={person?.name||helper?.name||facultyMember?.name||id} gender={gender} category={person?canonicalCategory(person.attributes["University Category"]):undefined} role={helper?.category??(facultyMember?"Faculty":hotelSummary?"New hire":undefined)} person={person} offering={person?standardOffering(person.attributes["L3 Offering"]):undefined} chemistryEnabled={chemistryEnabled} selected={selected} accessibilityFlag={Boolean(person&&accessibilityIds.has(id))}/>
                   </EditablePerson>
                 </li>;
               })}
             </ol>
+            {editable&&hotelSummary&&!group.participant_ids.length&&<div className="hotel-empty-room"><p>Drag a participant here</p>{isManualRoom(group.id)&&<button className="btn btn-outline" aria-label={`Remove ${group.name}`} disabled={busy} onClick={()=>removeRoom?.(group.id)}><Trash2 size={13} aria-hidden="true"/>Remove Room</button>}</div>}
           </AllocationGroupCard>
         </DroppableGroup>;
       })}
@@ -2278,6 +2368,7 @@ function ReflectionSchedule({
   settings,
   editable = false,
   selectedIds = [],
+  accessibilityIds=new Set<string>(),
 }: {
   activity: Allocation["activities"][number];
   people: Record<string, Participant>;
@@ -2286,6 +2377,7 @@ function ReflectionSchedule({
   settings: Configuration["reflection_settings"];
   editable?: boolean;
   selectedIds?: string[];
+  accessibilityIds?:ReadonlySet<string>;
 }) {
   const sessions = activity.sessions ?? [];
   return (
@@ -2361,7 +2453,7 @@ function ReflectionSchedule({
                             <span className="session-time">{session.start_time}<span className="session-time-divider">–</span>{session.end_time}</span>
                           </td>
                           <td data-label="Participant" className="reflection-name-cell">
-                            <ParticipantIdentity name={person?.name||session.participant_id} gender={person?.attributes.Gender} category={canonicalCategory(person?.attributes["University Category"])}/>
+                            <ParticipantIdentity name={person?.name||session.participant_id} gender={person?.attributes.Gender} category={canonicalCategory(person?.attributes["University Category"])} accessibilityFlag={Boolean(person&&accessibilityIds.has(person.id))}/>
                           </td>
                           <td data-label="University" className="reflection-university-cell">
                             <span title={university}>
@@ -2439,6 +2531,7 @@ function DroppableGroup({
   return (
     <div
       ref={setNodeRef}
+      data-group-id={groupId}
       className={`result-group-drop ${isOver ? "is-over" : ""}`}
     >
       {children}

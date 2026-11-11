@@ -1,4 +1,7 @@
 .venv/
+.venv314/
+frontend/.venv314/
+.ruff_cache/
 __pycache__/
 .pytest_cache/
 *.pyc

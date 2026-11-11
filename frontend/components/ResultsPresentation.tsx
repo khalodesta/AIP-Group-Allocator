@@ -3,9 +3,9 @@ import {BedDouble, CalendarClock, Check, ShieldCheck, Users} from "lucide-react"
 import type {Participant, UniversityCategory} from "../types";
 import {ParticipantIdentity} from "./ParticipantIdentity";
 
-export function ParticipantRow({index,name,gender,category,role,person,offering,chemistryEnabled,selected=false}:{
+export function ParticipantRow({index,name,gender,category,role,person,offering,chemistryEnabled,selected=false,accessibilityFlag=false}:{
   index:number;name:string;gender?:unknown;category?:UniversityCategory;role?:string;
-  person?:Participant;offering?:string;chemistryEnabled:boolean;selected?:boolean;
+  person?:Participant;offering?:string;chemistryEnabled:boolean;selected?:boolean;accessibilityFlag?:boolean;
 }) {
   const primary=String(person?.attributes["Primary Chemistry"]??"").trim();
   const secondary=String(person?.attributes["Secondary Chemistry"]??"").trim();
@@ -13,7 +13,7 @@ export function ParticipantRow({index,name,gender,category,role,person,offering,
     <span className="participant-number" aria-label={`Participant ${index}`}>{String(index).padStart(2,"0")}</span>
     <div className="participant-record-body">
       <div className="participant-primary-line">
-        <ParticipantIdentity name={name} gender={gender} category={category} role={role}/>
+        <ParticipantIdentity name={name} gender={gender} category={category} role={role} accessibilityFlag={Boolean(person&&accessibilityFlag)}/>
         {selected&&<span className="participant-selected-label" title="Selected for switching"><Check size={13} aria-hidden="true"/><span className="sr-only">Selected for switching</span></span>}
       </div>
       {person&&<>
@@ -39,7 +39,7 @@ export function AllocationGroupCard({title,count,index,activityId,room,children}
   return <article data-room-gender={room?.className.replace("hotel-room-","")} className={`allocation-group-card ${room?`hotel-room ${room.className}`:""}`}>
     <header className="allocation-card-header">
       <span className={`allocation-card-symbol ${room?"room-symbol":""}`} aria-hidden="true">{room?<BedDouble size={18}/>:String(index).padStart(2,"0")}</span>
-      <div className="allocation-card-heading"><h3>{roomTitle}</h3><p>{room?`${count===1?"Single occupancy":"Shared room"} · ${count} ${count===1?"occupant":"occupants"}`:`${count} ${activityId==="reflection"?"appointments":"participants"}`}</p>{room?.warning&&!mixedRoom&&<span className="room-neutral-caption" title={room.warning}>Gender not recorded</span>}</div>
+      <div className="allocation-card-heading"><h3>{roomTitle}</h3><p>{room?`${count===0?"Empty room":count===1?"Single occupancy":"Shared room"} · ${count} ${count===1?"occupant":"occupants"}`:`${count} ${activityId==="reflection"?"appointments":"participants"}`}</p>{room?.warning&&!mixedRoom&&<span className="room-neutral-caption" title={room.warning}>Gender not recorded</span>}</div>
     </header>
     {mixedRoom&&<p className="room-notice" role="note"><ShieldCheck size={14} aria-hidden="true"/>{room?.warning}</p>}
     {children}

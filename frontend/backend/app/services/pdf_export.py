@@ -126,7 +126,7 @@ def export_pdf(participants: list[Participant], allocation: AllocationSnapshot,
             manifest = Table(manifest_rows, colWidths=[22*mm, 76*mm, 58*mm, usable_width-156*mm], repeatRows=1)
             manifest.setStyle(manifest_style)
             story.append(manifest)
-            if summary["single_new_hire_rooms"]:
+            if summary["single_new_hire_rooms"] and activity.warnings:
                 story.extend([Spacer(1,3*mm), Paragraph(
                     "Single new-hire rooms require accommodation review. Add an available same-gender Analyst Support member or confirm the single-room booking.",
                     styles["BodyText"])])

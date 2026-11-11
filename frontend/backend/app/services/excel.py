@@ -160,7 +160,7 @@ def hotel_room_summary(activity, participants, support_members, faculty_members)
     supports = {person.id: person for person in support_members}
     faculty = {person.id for person in faculty_members}
     summary = {key: 0 for key in HOTEL_SUMMARY_LABELS if key != "other_shared_rooms"}
-    summary["total_rooms"] = len({group.id for group in activity.groups})
+    summary["total_rooms"] = len({group.id for group in activity.groups if group.participant_ids})
     for room in activity.groups:
         ids = room.participant_ids
         if len(ids) == 2 and all(pid in hires for pid in ids):
